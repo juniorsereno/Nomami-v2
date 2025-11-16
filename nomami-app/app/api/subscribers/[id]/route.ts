@@ -1,0 +1,33 @@
+import { NextResponse } from 'next/server';
+import sql from '@/lib/db';
+
+export async function PUT(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+    const body = await request.json();
+    const { name, email, phone, cpf, status } = body;
+
+    if (!name || !email || !phone || !cpf || !status) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    const result = await sql`
+      UPDATE subscribers
+      SET name = ${name}, email = ${email}, phone = ${phone}, cpf = ${cpf}, status = ${status}
+      WHERE id = ${id}
+      RETURNING *;
+    `;
+
+    if (result.length === 0) {
+      return NextResponse.json({ error: 'Subscriber not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(result[0]);
+  } catch (error) {
+    console.error('Error updating subscriber:', error);
+    return NextResponse.json({ error: 'Failed to update subscriber' }, { status: 500 });
+  }
+}
