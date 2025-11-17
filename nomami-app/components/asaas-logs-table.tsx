@@ -22,7 +22,7 @@ import { Badge } from "@/components/ui/badge"
 interface Log {
   id: number;
   received_at: string;
-  request_body: any;
+  request_body: Record<string, unknown>;
   error_message: string;
   status: string;
 }

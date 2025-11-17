@@ -1,12 +1,12 @@
-import { NextResponse } from 'next/server';
-import sql from '@/lib/db';
+import { NextRequest, NextResponse } from 'next/server';
+import sql from '@/lib/db-pool';
 
 export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const { name, email, phone, cpf, status } = body;
 
