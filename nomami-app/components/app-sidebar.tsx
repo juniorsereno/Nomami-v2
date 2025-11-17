@@ -102,26 +102,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <AddPartnerForm />
             </DialogContent>
           </Dialog>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button className="w-full justify-start">
-                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-black">
-                  <IconPlus className="size-4" />
-                </div>
-                <span className="ml-2 text-sm font-medium">Adicionar Tele Medicina</span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Adicionar Novo Serviço de Telemedicina</DialogTitle>
-                <DialogDescription>
-                  Preencha os campos abaixo para adicionar um novo serviço de
-                  telemedicina.
-                </DialogDescription>
-              </DialogHeader>
-              <AddTelemedicineForm />
-            </DialogContent>
-          </Dialog>
         </div>
         <NavMain items={data.navMain} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />

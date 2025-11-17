@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import sql from '@/lib/db';
+import sql from '@/lib/db-pool';
 
-async function logWebhook(requestBody: any, status: 'success' | 'failed', errorMessage?: string) {
+async function logWebhook(requestBody: Record<string, unknown>, status: 'success' | 'failed', errorMessage?: string) {
   try {
     await sql`
       INSERT INTO asaas_webhook_logs (request_body, status, error_message)
