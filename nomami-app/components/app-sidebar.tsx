@@ -11,7 +11,6 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { AddPartnerForm } from "@/components/add-partner-form"
-import { AddTelemedicineForm } from "@/components/add-telemedicine-form"
 import {
   Dialog,
   DialogContent,
