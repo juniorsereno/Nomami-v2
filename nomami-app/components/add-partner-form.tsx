@@ -45,7 +45,7 @@ export function AddPartnerForm() {
     },
   })
 
-  const handleCnpjChange = (e: React.ChangeEvent<HTMLInputElement>, field: any) => {
+  const handleCnpjChange = (e: React.ChangeEvent<HTMLInputElement>, field: { onChange: (value: string) => void }) => {
     let value = e.target.value.replace(/\D/g, '');
     if (value.length > 14) value = value.slice(0, 14);
 
