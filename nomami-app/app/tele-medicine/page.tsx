@@ -25,7 +25,7 @@ export default function TeleMedicinePage() {
       }
       const data = await response.json();
       setBatches(data);
-    } catch (error) {
+    } catch {
       setError('Failed to load batch data. Please try again later.');
     }
   }, []);

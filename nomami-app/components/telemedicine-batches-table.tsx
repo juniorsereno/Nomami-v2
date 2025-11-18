@@ -69,7 +69,7 @@ export function TelemedicineBatchesTable({ batches, error, refreshData }: Teleme
 
       toast.success('Lote inativado com sucesso!');
       refreshData(); // Atualiza os dados na página pai
-    } catch (error) {
+    } catch {
       toast.error('Erro ao inativar o lote.');
     } finally {
       setIsConfirmOpen(false);

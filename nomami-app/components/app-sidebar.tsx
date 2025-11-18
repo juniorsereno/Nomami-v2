@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import * as React from "react"
 import {
   IconDashboard,
@@ -72,9 +73,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader className="flex justify-center p-4">
         <a href="/dashboard">
-          <img
+          <Image
             src="https://nomami.com.br/assets/LOGO_1752579727506-Cc7LLzXJ.png"
             alt="NoMami Logo"
+            width={150}
+            height={40}
             className="h-10 w-auto"
           />
         </a>

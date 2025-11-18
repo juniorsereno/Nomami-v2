@@ -68,7 +68,7 @@ export function SubscribersTable({ initialSubscribers, initialTotal }: Subscribe
         const listData = await listResponse.json();
         setSubscribers(listData.data);
         setTotalSubscribers(listData.total);
-      } catch (error) {
+      } catch {
         setError('Failed to load subscriber data. Please try again later.');
       }
     };

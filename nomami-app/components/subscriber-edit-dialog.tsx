@@ -59,7 +59,7 @@ export function SubscriberEditDialog({ subscriber, children, onSubscriberUpdate 
       toast.success("Assinante atualizado com sucesso!");
       onSubscriberUpdate(); // Refresh the data on the parent page
       setIsOpen(false); // Close the dialog
-    } catch (error) {
+    } catch {
       toast.error("Erro ao atualizar assinante.");
     }
   };

@@ -62,7 +62,7 @@ export function AddPartnerForm() {
       toast.success("Parceiro adicionado com sucesso!");
       // Recarrega a página para mostrar o novo parceiro na lista.
       window.location.reload();
-    } catch (error) {
+    } catch {
       toast.error("Erro ao adicionar parceiro. Tente novamente.");
     }
   }
