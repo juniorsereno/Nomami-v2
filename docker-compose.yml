@@ -18,3 +18,21 @@ services:
       DATABASE_POOL_URL: ${DATABASE_POOL_URL}
       TELEMEDICINE_WEBHOOK_URL: ${TELEMEDICINE_WEBHOOK_URL}
     restart: unless-stopped
+    depends_on:
+      - db
+
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+      - ./db/init:/docker-entrypoint-initdb.d/
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

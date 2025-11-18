@@ -8,7 +8,7 @@ export async function GET() {
     `;
     const activePartners = result.count;
     return NextResponse.json({ activePartners });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch active partners' }, { status: 500 });
   }
 }
