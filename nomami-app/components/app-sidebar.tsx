@@ -69,6 +69,15 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [isPartnerDialogOpen, setIsPartnerDialogOpen] = React.useState(false);
+
+  const handlePartnerAdded = () => {
+    setIsPartnerDialogOpen(false);
+    // Idealmente, aqui você invalidaria o cache de parceiros para forçar um refresh na página de parceiros,
+    // mas por enquanto, o fechamento do modal é o principal.
+    // Se a página de parceiros usar SWR ou React Query, a revalidação seria automática ao focar a janela.
+  };
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader className="flex justify-center p-4">
@@ -85,7 +94,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <Separator />
       <SidebarContent>
         <div className="grid gap-2 px-4 mt-4">
-          <Dialog>
+          <Dialog open={isPartnerDialogOpen} onOpenChange={setIsPartnerDialogOpen}>
             <DialogTrigger asChild>
               <Button className="w-full justify-start">
                 <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-black">
@@ -101,7 +110,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   Preencha os campos abaixo para adicionar um novo parceiro.
                 </DialogDescription>
               </DialogHeader>
-              <AddPartnerForm />
+              <AddPartnerForm onPartnerAdded={handlePartnerAdded} />
             </DialogContent>
           </Dialog>
         </div>

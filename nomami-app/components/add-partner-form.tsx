@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -32,7 +33,11 @@ const formSchema = z.object({
   status: z.enum(['ativo', 'inativo']),
 })
 
-export function AddPartnerForm() {
+interface AddPartnerFormProps {
+  onPartnerAdded: () => void;
+}
+
+export function AddPartnerForm({ onPartnerAdded }: AddPartnerFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -77,8 +82,7 @@ export function AddPartnerForm() {
       }
 
       toast.success("Parceiro adicionado com sucesso!");
-      // Recarrega a página para mostrar o novo parceiro na lista.
-      window.location.reload();
+      onPartnerAdded(); // Chama a função de callback
     } catch {
       toast.error("Erro ao adicionar parceiro. Tente novamente.");
     }
@@ -174,6 +178,7 @@ export function AddPartnerForm() {
           )}
         />
         <Button type="submit" disabled={form.formState.isSubmitting}>
+          {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           {form.formState.isSubmitting ? "Adicionando..." : "Adicionar"}
         </Button>
       </form>
