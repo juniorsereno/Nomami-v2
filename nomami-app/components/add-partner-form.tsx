@@ -25,7 +25,7 @@ import {
 
 const formSchema = z.object({
   company_name: z.string().min(2, "O nome da empresa é obrigatório."),
-  cnpj: z.string().length(14, "O CNPJ deve ter exatamente 14 dígitos."),
+  cnpj: z.string().min(14, "O CNPJ deve ter no mínimo 14 dígitos.").max(18, "O CNPJ deve ter no máximo 18 caracteres."),
   phone: z.string().min(10, "O telefone é obrigatório."),
   address: z.string().min(5, "O endereço é obrigatório."),
   benefit_description: z.string().min(5, "A descrição do benefício é obrigatória."),
@@ -45,14 +45,31 @@ export function AddPartnerForm() {
     },
   })
 
+  const handleCnpjChange = (e: React.ChangeEvent<HTMLInputElement>, field: any) => {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 14) value = value.slice(0, 14);
+
+    value = value.replace(/^(\d{2})(\d)/, '$1.$2');
+    value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+    value = value.replace(/\.(\d{3})(\d)/, '.$1/$2');
+    value = value.replace(/(\d{4})(\d)/, '$1-$2');
+
+    field.onChange(value);
+  };
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+      const cleanedValues = {
+        ...values,
+        cnpj: values.cnpj.replace(/\D/g, ''),
+      };
+
       const response = await fetch('/api/partners', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify(cleanedValues),
       });
 
       if (!response.ok) {
@@ -90,7 +107,7 @@ export function AddPartnerForm() {
             <FormItem>
               <FormLabel>CNPJ</FormLabel>
               <FormControl>
-                <Input placeholder="Apenas números" {...field} />
+                <Input placeholder="00.000.000/0000-00" {...field} onChange={(e) => handleCnpjChange(e, field)} />
               </FormControl>
               <FormMessage />
             </FormItem>
