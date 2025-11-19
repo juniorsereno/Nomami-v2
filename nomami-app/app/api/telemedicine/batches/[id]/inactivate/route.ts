@@ -46,7 +46,12 @@ export async function POST(
       return NextResponse.json({ error: 'Credenciais da API de Telemedicina não configuradas.' }, { status: 500 });
     }
 
-    const response = await fetch('https://webh.criativamaisdigital.com.br/webhook/661ea9ca-69d4-4876-ae67-59b2f9b59f18', {
+    const webhookUrl = process.env.TELEMEDICINE_WEBHOOK_URL;
+    if (!webhookUrl) {
+      return NextResponse.json({ error: 'URL do webhook de Telemedicina não configurada.' }, { status: 500 });
+    }
+
+    const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

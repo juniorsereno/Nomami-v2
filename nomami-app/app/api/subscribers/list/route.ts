@@ -9,6 +9,8 @@ export async function GET(request: Request) {
     const dateRange = searchParams.get('dateRange');
     const page = parseInt(searchParams.get('page') ?? '1', 10);
     const pageSize = parseInt(searchParams.get('pageSize') ?? '20', 10);
+    const sort = searchParams.get('sort');
+    const order = searchParams.get('order') === 'desc' ? 'DESC' : 'ASC';
     const offset = (page - 1) * pageSize;
 
     const conditions = [];
@@ -45,11 +47,18 @@ export async function GET(request: Request) {
     `;
     const totalRecords = parseInt(countResult[0]?.count ?? '0', 10);
 
+    let orderByClause = sql`ORDER BY name ASC`;
+    if (sort === 'start_date') {
+      orderByClause = order === 'DESC' ? sql`ORDER BY start_date DESC` : sql`ORDER BY start_date ASC`;
+    } else if (sort === 'next_due_date') {
+      orderByClause = order === 'DESC' ? sql`ORDER BY next_due_date DESC` : sql`ORDER BY next_due_date ASC`;
+    }
+
     const subscribers = await sql`
       SELECT id, name, phone, email, cpf, plan_type, start_date, next_due_date, status, value
       FROM subscribers
       ${whereClause}
-      ORDER BY name ASC
+      ${orderByClause}
       LIMIT ${pageSize}
       OFFSET ${offset}
     `;

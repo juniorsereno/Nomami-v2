@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, useMemo } from "react"
-import { PaginationState } from "@tanstack/react-table"
+import { PaginationState, SortingState } from "@tanstack/react-table"
 import { DataTable } from "@/components/data-table"
 import { Input } from "@/components/ui/input"
 import {
@@ -26,6 +26,7 @@ export function SubscribersTable({ initialSubscribers, initialTotal }: Subscribe
     pageIndex: 0,
     pageSize: 20,
   });
+  const [sorting, setSorting] = useState<SortingState>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [plan, setPlan] = useState('all');
   const [dateRange, setDateRange] = useState('all');
@@ -47,7 +48,7 @@ export function SubscribersTable({ initialSubscribers, initialTotal }: Subscribe
   useEffect(() => {
     const fetchSubscribers = async () => {
       // Skip fetch if it's the initial render with initial data
-      if (pagination.pageIndex === 0 && !debouncedSearchTerm && plan === 'all' && dateRange === 'all') {
+      if (pagination.pageIndex === 0 && !debouncedSearchTerm && plan === 'all' && dateRange === 'all' && sorting.length === 0) {
         setSubscribers(initialSubscribers);
         setTotalSubscribers(initialTotal);
         return;
@@ -61,6 +62,11 @@ export function SubscribersTable({ initialSubscribers, initialTotal }: Subscribe
         params.append('page', (pagination.pageIndex + 1).toString());
         params.append('pageSize', pagination.pageSize.toString());
 
+        if (sorting.length > 0) {
+          params.append('sort', sorting[0].id);
+          params.append('order', sorting[0].desc ? 'desc' : 'asc');
+        }
+
         const listResponse = await fetch(`/api/subscribers/list?${params.toString()}`);
         if (!listResponse.ok) {
           throw new Error('Failed to fetch subscriber list');
@@ -68,13 +74,13 @@ export function SubscribersTable({ initialSubscribers, initialTotal }: Subscribe
         const listData = await listResponse.json();
         setSubscribers(listData.data);
         setTotalSubscribers(listData.total);
-      } catch (error) {
+      } catch {
         setError('Failed to load subscriber data. Please try again later.');
       }
     };
 
     fetchSubscribers();
-  }, [debouncedSearchTerm, plan, dateRange, pagination, initialSubscribers, initialTotal]);
+  }, [debouncedSearchTerm, plan, dateRange, pagination, sorting, initialSubscribers, initialTotal]);
 
   const pageCount = useMemo(() => {
     return Math.ceil(totalSubscribers / pagination.pageSize);
@@ -121,6 +127,8 @@ export function SubscribersTable({ initialSubscribers, initialTotal }: Subscribe
         pageCount={pageCount}
         pagination={pagination}
         setPagination={setPagination}
+        sorting={sorting}
+        setSorting={setSorting}
       />
     </div>
   )

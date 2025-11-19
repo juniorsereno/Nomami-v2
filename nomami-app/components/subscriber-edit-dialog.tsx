@@ -59,7 +59,7 @@ export function SubscriberEditDialog({ subscriber, children, onSubscriberUpdate 
       toast.success("Assinante atualizado com sucesso!");
       onSubscriberUpdate(); // Refresh the data on the parent page
       setIsOpen(false); // Close the dialog
-    } catch (error) {
+    } catch {
       toast.error("Erro ao atualizar assinante.");
     }
   };
@@ -79,25 +79,25 @@ export function SubscriberEditDialog({ subscriber, children, onSubscriberUpdate 
             <Label htmlFor="name" className="text-right">
               Nome
             </Label>
-            <Input id="name" value={formData.name} onChange={handleChange} className="col-span-3" />
+            <Input id="name" value={formData.name || ''} onChange={handleChange} className="col-span-3" />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="email" className="text-right">
               Email
             </Label>
-            <Input id="email" value={formData.email} onChange={handleChange} className="col-span-3" />
+            <Input id="email" value={formData.email || ''} onChange={handleChange} className="col-span-3" />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="phone" className="text-right">
               Telefone
             </Label>
-            <Input id="phone" value={formData.phone} onChange={handleChange} className="col-span-3" />
+            <Input id="phone" value={formData.phone || ''} onChange={handleChange} className="col-span-3" />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="cpf" className="text-right">
               CPF
             </Label>
-            <Input id="cpf" value={formData.cpf} onChange={handleChange} className="col-span-3" />
+            <Input id="cpf" value={formData.cpf || ''} onChange={handleChange} className="col-span-3" />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="status" className="text-right">

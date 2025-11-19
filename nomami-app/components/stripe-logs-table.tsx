@@ -27,14 +27,14 @@ interface Log {
   status: string;
 }
 
-export function AsaasLogsTable() {
+export function StripeLogsTable() {
   const [logs, setLogs] = useState<Log[]>([]);
   const [selectedLog, setSelectedLog] = useState<Log | null>(null);
 
   useEffect(() => {
     async function fetchLogs() {
       try {
-        const response = await fetch('/api/webhook/asaas/logs');
+        const response = await fetch('/api/webhook/stripe/logs');
         if (response.ok) {
           const data = await response.json();
           setLogs(data);
@@ -48,7 +48,7 @@ export function AsaasLogsTable() {
 
   return (
     <div className="mt-6">
-      <h2 className="text-xl font-semibold mb-4">Logs de Eventos do Webhook</h2>
+      <h2 className="text-xl font-semibold mb-4">Logs de Eventos do Webhook (Stripe)</h2>
       <div className="border rounded-lg">
         <Table>
           <TableHeader>

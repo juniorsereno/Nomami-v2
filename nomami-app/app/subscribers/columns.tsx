@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { MoreHorizontal, FileText, Pencil } from "lucide-react"
+import { MoreHorizontal, FileText, Pencil, ArrowUpDown } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -50,7 +50,17 @@ export const columns: ColumnDef<Subscriber>[] = [
   },
   {
     accessorKey: "start_date",
-    header: "Data de Início",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Data de Início
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    },
     cell: ({ row }) => {
       const date = new Date(row.getValue("start_date"))
       const formatted = date.toLocaleDateString("pt-BR")
@@ -59,7 +69,17 @@ export const columns: ColumnDef<Subscriber>[] = [
   },
   {
     accessorKey: "next_due_date",
-    header: "Próximo Vencimento",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Próximo Vencimento
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    },
     cell: ({ row }) => {
       const date = new Date(row.getValue("next_due_date"))
       const formatted = date.toLocaleDateString("pt-BR")

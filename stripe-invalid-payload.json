@@ -1,0 +1,9 @@
+{
+  "type": "invoice.payment_succeeded",
+  "data": {
+    "object": {
+      "customer": null,
+      "amount_paid": 2990
+    }
+  }
+}

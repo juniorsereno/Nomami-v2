@@ -23,8 +23,8 @@ export async function POST(request: Request) {
     const { company_name, cnpj, phone, address, benefit_description, status } = validation.data;
 
     const result = await sql`
-      INSERT INTO partners (company_name, cnpj, phone, address, benefit_description, status, entry_date)
-      VALUES (${company_name}, ${cnpj}, ${phone}, ${address}, ${benefit_description}, ${status}, CURRENT_DATE)
+      INSERT INTO parceiros (nome, cnpj, beneficio, ativo)
+      VALUES (${company_name}, ${cnpj}, ${benefit_description}, ${status === 'ativo'})
       RETURNING id;
     `;
 
