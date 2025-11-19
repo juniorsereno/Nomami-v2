@@ -3,7 +3,7 @@
 import { useUser } from "@stackframe/stack"
 import { toast } from "sonner"
 import { AppSidebar } from "@/components/app-sidebar"
-import { AsaasLogsTable } from "@/components/asaas-logs-table"
+import { StripeLogsTable } from "@/components/stripe-logs-table"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
 import {
@@ -39,21 +39,23 @@ function SettingsPage() {
           <div className="mt-4">
             <Card>
               <CardHeader>
-                <CardTitle>Integração com Gateway de Pagamento (Asaas)</CardTitle>
+                <CardTitle>Integração com Gateway de Pagamento (Stripe)</CardTitle>
                 <CardDescription>
-                  Configure o webhook abaixo no seu painel do Asaas para receber notificações de pagamento.
+                  Configure o webhook abaixo no seu painel do Stripe para receber notificações de pagamento.
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center space-x-2">
                   <Input
-                    value={`${window.location.origin}/api/webhook/asaas/1f7a8b3d-9b4c-4c8e-8e7f-6a5b4c3d2e1a`}
+                    value={typeof window !== 'undefined' ? `${window.location.origin}/api/webhook/stripe` : ''}
                     readOnly
                   />
                   <Button
                     onClick={() => {
-                      navigator.clipboard.writeText(`${window.location.origin}/api/webhook/asaas/1f7a8b3d-9b4c-4c8e-8e7f-6a5b4c3d2e1a`);
-                      toast.success("Link do webhook copiado para a área de transferência!");
+                      if (typeof window !== 'undefined') {
+                        navigator.clipboard.writeText(`${window.location.origin}/api/webhook/stripe`);
+                        toast.success("Link do webhook copiado para a área de transferência!");
+                      }
                     }}
                   >
                     Copiar
@@ -62,7 +64,7 @@ function SettingsPage() {
               </CardContent>
             </Card>
           </div>
-          <AsaasLogsTable />
+          <StripeLogsTable />
         </div>
       </SidebarInset>
     </SidebarProvider>
