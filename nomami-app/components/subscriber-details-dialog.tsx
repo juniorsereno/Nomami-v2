@@ -49,7 +49,7 @@ export function SubscriberDetailsDialog({ subscriber, children }: SubscriberDeta
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <span className="text-right font-bold">Valor:</span>
-            <span className="col-span-3">R$ {subscriber.value ? subscriber.value.toFixed(2) : 'N/A'}</span>
+            <span className="col-span-3">R$ {subscriber.value ? Number(subscriber.value).toFixed(2) : 'N/A'}</span>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <span className="text-right font-bold">Status:</span>

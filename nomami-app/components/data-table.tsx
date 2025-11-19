@@ -7,6 +7,7 @@ import {
   getCoreRowModel,
   useReactTable,
   PaginationState,
+  SortingState,
 } from "@tanstack/react-table"
 
 import { Button } from "@/components/ui/button"
@@ -35,6 +36,8 @@ interface DataTableProps<TData, TValue> {
   pageCount?: number
   pagination?: PaginationState
   setPagination?: React.Dispatch<React.SetStateAction<PaginationState>>
+  sorting?: SortingState
+  setSorting?: React.Dispatch<React.SetStateAction<SortingState>>
 }
 
 export function DataTable<TData, TValue>({
@@ -45,8 +48,11 @@ export function DataTable<TData, TValue>({
   pageCount = 0,
   pagination,
   setPagination,
+  sorting,
+  setSorting,
 }: DataTableProps<TData, TValue>) {
   const isPaginated = !!pagination && !!setPagination;
+  const isSorted = !!sorting && !!setSorting;
 
   const table = useReactTable({
     data,
@@ -54,9 +60,12 @@ export function DataTable<TData, TValue>({
     pageCount,
     state: {
       ...(isPaginated && { pagination }),
+      ...(isSorted && { sorting }),
     },
     onPaginationChange: setPagination,
+    onSortingChange: setSorting,
     manualPagination: isPaginated,
+    manualSorting: isSorted,
     getCoreRowModel: getCoreRowModel(),
   })
 
