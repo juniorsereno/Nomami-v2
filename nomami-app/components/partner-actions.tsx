@@ -83,6 +83,7 @@ export function PartnerActions({ partner }: PartnerActionsProps) {
                             benefit_description: partner.benefit_description,
                             status: mapStatus(partner.status),
                             category: mapCategory(partner.category),
+                            logo_url: partner.logo_url || undefined,
                         }}
                     />
                 </DialogContent>

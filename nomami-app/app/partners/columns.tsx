@@ -13,6 +13,7 @@ export interface Partner {
   benefit_description: string;
   address: string;
   category: string;
+  logo_url?: string | null;
 }
 
 export const columns: ColumnDef<Partner>[] = [

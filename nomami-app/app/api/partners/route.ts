@@ -10,6 +10,7 @@ const partnerSchema = z.object({
   category: z.string().min(1, "A categoria é obrigatória."),
   benefit_description: z.string().min(5, "A descrição do benefício é obrigatória."),
   status: z.enum(['ativo', 'inativo']),
+  logo_url: z.string().optional(),
 });
 
 export async function POST(request: Request) {
@@ -21,11 +22,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Dados inválidos', details: validation.error.flatten() }, { status: 400 });
     }
 
-    const { company_name, cnpj, phone, address, category, benefit_description, status } = validation.data;
+    const { company_name, cnpj, phone, address, category, benefit_description, status, logo_url } = validation.data;
 
     const result = await sql`
-      INSERT INTO parceiros (nome, cnpj, categoria, beneficio, ativo, updated_at, endereco, telefone)
-      VALUES (${company_name}, ${cnpj}, ${category}, ${benefit_description}, ${status === 'ativo'}, NOW(), ${address}, ${phone})
+      INSERT INTO parceiros (nome, cnpj, categoria, beneficio, ativo, updated_at, endereco, telefone, logo_url)
+      VALUES (${company_name}, ${cnpj}, ${category}, ${benefit_description}, ${status === 'ativo'}, NOW(), ${address}, ${phone}, ${logo_url || null})
       RETURNING id;
     `;
 
