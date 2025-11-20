@@ -49,9 +49,11 @@ export async function GET(request: Request) {
 
     let orderByClause = sql`ORDER BY name ASC`;
     if (sort === 'start_date') {
-      orderByClause = order === 'DESC' ? sql`ORDER BY start_date DESC` : sql`ORDER BY start_date ASC`;
+      orderByClause = order === 'DESC' ? sql`ORDER BY start_date DESC, created_at DESC` : sql`ORDER BY start_date ASC, created_at ASC`;
     } else if (sort === 'next_due_date') {
       orderByClause = order === 'DESC' ? sql`ORDER BY next_due_date DESC` : sql`ORDER BY next_due_date ASC`;
+    } else if (sort === 'created_at') {
+      orderByClause = order === 'DESC' ? sql`ORDER BY created_at DESC` : sql`ORDER BY created_at ASC`;
     }
 
     const subscribers = await sql`
