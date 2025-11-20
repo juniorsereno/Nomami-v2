@@ -19,19 +19,18 @@ export function DigitalCard({ subscriber }: DigitalCardProps) {
             {/* Page Background Image */}
             <div className="absolute inset-0 z-0">
                 <Image
-                    src="/imagem-fundo.png"
+                    src="/imagem-fundo-3.png"
                     alt="Background"
                     fill
-                    className="object-cover opacity-20"
-                    style={{ objectPosition: 'center 99%' }}
+                    className="object-cover opacity-50 object-[center_0%] md:object-[center_55%]"
                     priority
                 />
             </div>
 
-            <div className="relative z-10 w-full max-w-md perspective-1000">
-                <div className="relative w-full h-64 bg-gradient-to-br from-gray-900 via-slate-800 to-black rounded-xl shadow-2xl overflow-hidden transform transition-transform hover:scale-105 duration-300">
+            <div className="relative z-10 w-full max-w-sm perspective-1000">
+                <div className="relative w-full h-56 bg-gradient-to-br from-gray-900 via-slate-800 to-black rounded-xl shadow-2xl overflow-hidden transform transition-transform hover:scale-105 duration-300">
                     {/* Background Pattern */}
-                    <div className="absolute inset-0 opacity-20">
+                    <div className="absolute inset-0 opacity-35">
                         <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                         </svg>
                     </div>
@@ -86,8 +85,8 @@ export function DigitalCard({ subscriber }: DigitalCardProps) {
                     </CardContent>
                 </div>
 
-                <div className="mt-8 text-center text-gray-500 text-sm">
-                    <p>Apresente este cartão digital para obter seus benefícios.</p>
+                <div className="mt-5 text-center text-black-600">
+                    <p className="text-medium font-bold">Apresente este cartão digital para obter seus benefícios.</p>
                 </div>
             </div >
         </div >
