@@ -1,7 +1,5 @@
-"use client"
-
 import { ColumnDef } from "@tanstack/react-table"
-import { MoreHorizontal, FileText, Pencil, ArrowUpDown } from "lucide-react"
+import { MoreHorizontal, FileText, Pencil, ArrowUpDown, CreditCard } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -13,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { SubscriberDetailsDialog } from "@/components/subscriber-details-dialog"
 import { SubscriberEditDialog } from "@/components/subscriber-edit-dialog"
+import Link from "next/link"
 
 export interface Subscriber {
   id: string;
@@ -100,29 +99,43 @@ export const columns: ColumnDef<Subscriber>[] = [
       };
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Abrir menu</span>
-              <MoreHorizontal className="h-4 w-4" />
+        <div className="flex items-center gap-2">
+          <Link href={`/card/${subscriber.cpf}`} target="_blank">
+            <Button variant="ghost" size="icon" title="Ver Carteirinha">
+              <CreditCard className="h-4 w-4" />
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Ações</DropdownMenuLabel>
-            <SubscriberDetailsDialog subscriber={subscriber}>
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <FileText className="mr-2 h-4 w-4" />
-                Ver Detalhes
-              </DropdownMenuItem>
-            </SubscriberDetailsDialog>
-            <SubscriberEditDialog subscriber={subscriber} onSubscriberUpdate={handleUpdate}>
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <Pencil className="mr-2 h-4 w-4" />
-                Editar Assinante
-              </DropdownMenuItem>
-            </SubscriberEditDialog>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          </Link>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Abrir menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Ações</DropdownMenuLabel>
+              <SubscriberDetailsDialog subscriber={subscriber}>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  <FileText className="mr-2 h-4 w-4" />
+                  Ver Detalhes
+                </DropdownMenuItem>
+              </SubscriberDetailsDialog>
+              <SubscriberEditDialog subscriber={subscriber} onSubscriberUpdate={handleUpdate}>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Editar Assinante
+                </DropdownMenuItem>
+              </SubscriberEditDialog>
+              <Link href={`/card/${subscriber.cpf}`} target="_blank" className="w-full">
+                <DropdownMenuItem>
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  Ver Carteirinha
+                </DropdownMenuItem>
+              </Link>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       )
     },
   },

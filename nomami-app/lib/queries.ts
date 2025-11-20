@@ -175,3 +175,19 @@ export async function getPartners() {
     throw new Error('Failed to fetch partners.');
   }
 }
+
+export async function getSubscriberByCpf(cpf: string) {
+  try {
+    const subscribers = await sql`
+      SELECT id, name, cpf, next_due_date, status, plan_type
+      FROM subscribers
+      WHERE cpf = ${cpf}
+      LIMIT 1
+    `;
+
+    return subscribers[0];
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch subscriber by CPF.');
+  }
+}

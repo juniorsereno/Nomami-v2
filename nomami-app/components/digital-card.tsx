@@ -1,0 +1,95 @@
+import React from 'react';
+import { CardContent } from "@/components/ui/card";
+import Image from 'next/image';
+
+interface DigitalCardProps {
+    subscriber: {
+        name: string;
+        cpf: string;
+        next_due_date: string;
+        plan_type: string;
+    }
+}
+
+export function DigitalCard({ subscriber }: DigitalCardProps) {
+    const formattedDate = new Date(subscriber.next_due_date).toLocaleDateString('pt-BR');
+
+    return (
+        <div className="relative flex items-center justify-center min-h-screen bg-gray-100 p-4 overflow-hidden">
+            {/* Page Background Image */}
+            <div className="absolute inset-0 z-0">
+                <Image
+                    src="/imagem-fundo.png"
+                    alt="Background"
+                    fill
+                    className="object-cover opacity-20"
+                    style={{ objectPosition: 'center 99%' }}
+                    priority
+                />
+            </div>
+
+            <div className="relative z-10 w-full max-w-md perspective-1000">
+                <div className="relative w-full h-64 bg-gradient-to-br from-gray-900 via-slate-800 to-black rounded-xl shadow-2xl overflow-hidden transform transition-transform hover:scale-105 duration-300">
+                    {/* Background Pattern */}
+                    <div className="absolute inset-0 opacity-20">
+                        <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        </svg>
+                    </div>
+
+                    <CardContent className="relative z-10 flex flex-col h-full p-6 text-white">
+                        {/* Header with Logo */}
+                        <div className="flex justify-between items-start">
+                            <div className="relative w-32 h-12">
+                                <Image
+                                    src="/logo.webp"
+                                    alt="Nomami Logo"
+                                    fill
+                                    className="object-contain object-left"
+                                    priority
+                                />
+                            </div>
+                        </div>
+
+                        {/* Chip Icon - Centered vertically relative to card, right aligned */}
+                        <div className="absolute top-1/2 -translate-y-1/2 right-6">
+                            <div className="w-12 h-10 bg-yellow-400 rounded-md opacity-80 flex items-center justify-center overflow-hidden shadow-sm">
+                                <div className="w-full h-[1px] bg-black opacity-20 mb-1"></div>
+                                <div className="w-full h-[1px] bg-black opacity-20 mt-1"></div>
+                                <div className="h-full w-[1px] bg-black opacity-20 ml-1"></div>
+                                <div className="h-full w-[1px] bg-black opacity-20 mr-1"></div>
+                            </div>
+                        </div>
+
+                        {/* Subscriber Info - Pushed down */}
+                        <div className="mt-auto mb-8 ml-0">
+                            <p className="text-xs opacity-75 uppercase mb-1">Nome do Titular</p>
+                            <h2 className="text-xl font-medium tracking-wide truncate">{subscriber.name}</h2>
+                        </div>
+
+                        {/* Footer Info */}
+                        <div className="flex justify-between items-end mt-2">
+                            <div>
+                                <p className="text-[10px] opacity-75 uppercase">CPF</p>
+                                <p className="font-mono text-sm tracking-wider">{subscriber.cpf}</p>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-[10px] opacity-75 uppercase">Válido Até</p>
+                                <p className="font-mono text-sm font-bold">{formattedDate}</p>
+                            </div>
+                        </div>
+                        {/* Plan Type Badge */}
+                        <div className="absolute top-9 right-6">
+                            <span className="bg-white/20 backdrop-blur-sm px-2 py-1 rounded text-xs font-bold uppercase border border-white/30">
+                                Membro
+                            </span>
+                        </div>
+                    </CardContent>
+                </div>
+
+                <div className="mt-8 text-center text-gray-500 text-sm">
+                    <p>Apresente este cartão digital para obter seus benefícios.</p>
+                </div>
+            </div >
+        </div >
+    );
+}
