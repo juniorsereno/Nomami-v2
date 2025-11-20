@@ -8,6 +8,7 @@ import {
   IconSettings,
   IconStethoscope,
   IconUsers,
+  IconMessageCircle,
 } from "@tabler/icons-react"
 
 import { Button } from "@/components/ui/button"
@@ -57,6 +58,11 @@ const data = {
       title: "Tele Medicina",
       url: "/tele-medicine",
       icon: IconStethoscope,
+    },
+    {
+      title: "Whatsapp",
+      url: "/whatsapp",
+      icon: IconMessageCircle,
     },
   ],
   navSecondary: [
