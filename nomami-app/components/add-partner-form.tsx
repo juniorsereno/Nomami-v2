@@ -24,23 +24,30 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+const categories = ["Saúde", "Lazer", "Alimentação", "Transporte", "Vestuário", "Serviços"] as const;
+
 const formSchema = z.object({
   company_name: z.string().min(2, "O nome da empresa é obrigatório."),
   cnpj: z.string().min(14, "O CNPJ deve ter no mínimo 14 dígitos.").max(18, "O CNPJ deve ter no máximo 18 caracteres."),
   phone: z.string().min(10, "O telefone é obrigatório."),
   address: z.string().min(5, "O endereço é obrigatório."),
+  category: z.enum(categories as unknown as [string, ...string[]], {
+    message: "A categoria é obrigatória.",
+  }),
   benefit_description: z.string().min(5, "A descrição do benefício é obrigatória."),
   status: z.enum(['ativo', 'inativo']),
 })
 
 interface AddPartnerFormProps {
   onPartnerAdded: () => void;
+  initialData?: z.infer<typeof formSchema>;
+  partnerId?: string;
 }
 
-export function AddPartnerForm({ onPartnerAdded }: AddPartnerFormProps) {
+export function AddPartnerForm({ onPartnerAdded, initialData, partnerId }: AddPartnerFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
+    defaultValues: initialData || {
       company_name: "",
       cnpj: "",
       phone: "",
@@ -69,8 +76,11 @@ export function AddPartnerForm({ onPartnerAdded }: AddPartnerFormProps) {
         cnpj: values.cnpj.replace(/\D/g, ''),
       };
 
-      const response = await fetch('/api/partners', {
-        method: 'POST',
+      const url = partnerId ? `/api/partners/${partnerId}` : '/api/partners';
+      const method = partnerId ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method: method,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -78,13 +88,13 @@ export function AddPartnerForm({ onPartnerAdded }: AddPartnerFormProps) {
       });
 
       if (!response.ok) {
-        throw new Error('Falha ao adicionar parceiro.');
+        throw new Error(partnerId ? 'Falha ao atualizar parceiro.' : 'Falha ao adicionar parceiro.');
       }
 
-      toast.success("Parceiro adicionado com sucesso!");
+      toast.success(partnerId ? "Parceiro atualizado com sucesso!" : "Parceiro adicionado com sucesso!");
       onPartnerAdded(); // Chama a função de callback
     } catch {
-      toast.error("Erro ao adicionar parceiro. Tente novamente.");
+      toast.error(partnerId ? "Erro ao atualizar parceiro. Tente novamente." : "Erro ao adicionar parceiro. Tente novamente.");
     }
   }
 
@@ -145,6 +155,30 @@ export function AddPartnerForm({ onPartnerAdded }: AddPartnerFormProps) {
         />
         <FormField
           control={form.control}
+          name="category"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Categoria</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a categoria" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
           name="benefit_description"
           render={({ field }) => (
             <FormItem>
@@ -179,7 +213,7 @@ export function AddPartnerForm({ onPartnerAdded }: AddPartnerFormProps) {
         />
         <Button type="submit" disabled={form.formState.isSubmitting}>
           {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {form.formState.isSubmitting ? "Adicionando..." : "Adicionar"}
+          {form.formState.isSubmitting ? (partnerId ? "Atualizando..." : "Adicionando...") : (partnerId ? "Atualizar" : "Adicionar")}
         </Button>
       </form>
     </Form>

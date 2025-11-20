@@ -1,8 +1,10 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
+import { PartnerActions } from "@/components/partner-actions"
 
 export interface Partner {
+  id: string;
   company_name: string;
   cnpj: string;
   phone: string;
@@ -10,6 +12,7 @@ export interface Partner {
   entry_date: string;
   benefit_description: string;
   address: string;
+  category: string;
 }
 
 export const columns: ColumnDef<Partner>[] = [
@@ -45,5 +48,9 @@ export const columns: ColumnDef<Partner>[] = [
       const formatted = date.toLocaleDateString("pt-BR")
       return <div className="text-left font-medium">{formatted}</div>
     },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => <PartnerActions partner={row.original} />,
   },
 ]
