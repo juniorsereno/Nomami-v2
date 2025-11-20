@@ -155,19 +155,17 @@ export async function getPartners() {
   try {
     const partners = await sql`
       SELECT
+        p.id,
         p.nome as company_name,
         p.cnpj,
-        pc.valor as phone,
-        p.ativo,
-        p.created_at,
+        p.telefone as phone,
+        CASE WHEN p.ativo THEN 'Ativo' ELSE 'Inativo' END as status,
+        p.created_at as entry_date,
         p.beneficio as benefit_description,
-        CONCAT(pe.rua, ', ', pe.numero, ' - ', pe.bairro, ', ', pe.cidade, ' - ', pe.estado) as address
+        p.endereco as address,
+        p.categoria as category
       FROM
         parceiros p
-      LEFT JOIN
-        parceiro_contatos pc ON p.id = pc.parceiro_id AND pc.tipo = 'telefone' AND pc.is_principal = true
-      LEFT JOIN
-        parceiro_enderecos pe ON p.id = pe.parceiro_id AND pe.is_principal = true
       ORDER BY
         p.nome ASC
     `;
