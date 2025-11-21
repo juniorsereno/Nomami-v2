@@ -17,15 +17,6 @@ export function DigitalCard({ subscriber }: DigitalCardProps) {
     return (
         <div className="relative flex items-center justify-center min-h-screen bg-gray-100 p-4 overflow-hidden">
             {/* Page Background Image */}
-            <div className="absolute inset-0 z-0">
-                <Image
-                    src="/imagem-fundo-3.png"
-                    alt="Background"
-                    fill
-                    className="object-cover opacity-50 object-[center_0%] md:object-[center_55%]"
-                    priority
-                />
-            </div>
 
             <div className="relative z-10 w-full max-w-sm perspective-1000">
                 <div className="relative w-full h-56 bg-gradient-to-br from-gray-900 via-slate-800 to-black rounded-xl shadow-2xl overflow-hidden transform transition-transform hover:scale-105 duration-300">
@@ -87,6 +78,16 @@ export function DigitalCard({ subscriber }: DigitalCardProps) {
 
                 <div className="mt-5 text-center text-black-600">
                     <p className="text-medium font-bold">Apresente este cartão digital para obter seus benefícios.</p>
+                </div>
+
+                <div className="mt-6 text-center">
+                    <a
+                        href="/parceiros"
+                        className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-[#602986] rounded-full shadow-lg hover:bg-[#4b206a] transition-colors duration-200 gap-2"
+                    >
+                        <span>Ver Lista de Parceiros</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-right"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
+                    </a>
                 </div>
             </div >
         </div >
