@@ -38,6 +38,7 @@ const formSchema = z.object({
   benefit_description: z.string().min(5, "A descrição do benefício é obrigatória."),
   status: z.enum(['ativo', 'inativo']),
   logo_url: z.string().optional(),
+  site_url: z.string().optional(),
 })
 
 interface AddPartnerFormProps {
@@ -57,6 +58,7 @@ export function AddPartnerForm({ onPartnerAdded, initialData, partnerId }: AddPa
       benefit_description: "",
       status: "ativo",
       logo_url: "",
+      site_url: "",
     },
   })
 
@@ -197,6 +199,19 @@ export function AddPartnerForm({ onPartnerAdded, initialData, partnerId }: AddPa
               <FormLabel>Telefone</FormLabel>
               <FormControl>
                 <Input placeholder="(XX) XXXXX-XXXX" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="site_url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Site (Opcional)</FormLabel>
+              <FormControl>
+                <Input placeholder="https://www.exemplo.com.br" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

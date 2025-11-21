@@ -14,6 +14,7 @@ export interface Partner {
   address: string;
   category: string;
   logo_url?: string | null;
+  site_url?: string | null;
 }
 
 export const columns: ColumnDef<Partner>[] = [

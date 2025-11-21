@@ -164,7 +164,8 @@ export async function getPartners() {
         p.beneficio as benefit_description,
         p.endereco as address,
         p.categoria as category,
-        p.logo_url
+        p.logo_url,
+        p.site_url
       FROM
         parceiros p
       ORDER BY
