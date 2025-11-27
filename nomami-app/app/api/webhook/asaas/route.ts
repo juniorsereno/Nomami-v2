@@ -29,7 +29,50 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'ID do cliente não encontrado.' }, { status: 400 });
     }
 
-    // 2. Extração de Dados e chamada à API Asaas
+    // 2. Verificação de Renovação (Regra dos 7 dias)
+    const paymentDateCreated = new Date(payment.dateCreated);
+    const eventDateCreated = new Date(event.dateCreated);
+    
+    // Diferença em milissegundos
+    const diffTime = Math.abs(eventDateCreated.getTime() - paymentDateCreated.getTime());
+    // Diferença em dias
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    const isRenewal = diffDays > 7;
+
+    if (isRenewal) {
+        // Lógica de Renovação
+        const customerId = payment.customer;
+        
+        // Buscar assinante pelo asaas_customer_id
+        const existingSubscriber = await sql`
+            SELECT id FROM subscribers
+            WHERE asaas_customer_id = ${customerId}
+            LIMIT 1
+        `;
+
+        if (existingSubscriber.length > 0) {
+            const nextDueDate = new Date(event.dateCreated);
+            nextDueDate.setDate(nextDueDate.getDate() + 30);
+
+            await sql`
+                UPDATE subscribers SET
+                    next_due_date = ${nextDueDate.toISOString()},
+                    status = 'active',
+                    value = ${payment.value}
+                WHERE id = ${existingSubscriber[0].id}
+            `;
+            
+            await logAsaasWebhook(body, 'success', `Renovação processada. Diferença de dias: ${diffDays}.`);
+            return NextResponse.json({ message: 'Renovação processada com sucesso.' }, { status: 200 });
+        } else {
+            // Se não encontrar pelo ID do Asaas, tenta o fluxo normal para garantir
+            // Mas loga um aviso
+            console.warn(`Renovação detectada mas assinante não encontrado pelo asaas_customer_id: ${customerId}. Tentando fluxo normal.`);
+        }
+    }
+
+    // 3. Fluxo Normal (Novo Pagamento ou Renovação não detectada pelo ID)
     const customerId = payment.customer;
     const asaasApiToken = process.env.ASAAS_API_KEY;
 
@@ -55,7 +98,7 @@ export async function POST(request: Request) {
 
     const customerData = await customerResponse.json();
 
-    // 3. Extração dos dados do cliente
+    // 4. Extração dos dados do cliente
     const { name, email, cpfCnpj, phone } = customerData;
 
     if (!name || !email || !cpfCnpj) {
@@ -72,9 +115,9 @@ export async function POST(request: Request) {
     const nextDueDate = new Date();
     nextDueDate.setDate(nextDueDate.getDate() + 30);
 
-    // 4. Cadastro ou Atualização do Assinante
+    // 5. Cadastro ou Atualização do Assinante
     const existingSubscriber = await sql`
-        SELECT id FROM subscribers 
+        SELECT id FROM subscribers
         WHERE cpf = ${cpfCnpj} OR email = ${email}
         LIMIT 1
     `;
@@ -88,14 +131,15 @@ export async function POST(request: Request) {
                 phone = ${phone || null},
                 next_due_date = ${nextDueDate.toISOString()},
                 status = 'active',
-                value = ${payment.value}
+                value = ${payment.value},
+                asaas_customer_id = ${customerId}
             WHERE id = ${existingSubscriber[0].id}
         `;
     } else {
         // Inserir
         await sql`
-            INSERT INTO subscribers (name, email, cpf, phone, plan_type, start_date, next_due_date, status, value, created_at)
-            VALUES (${name}, ${email}, ${cpfCnpj}, ${phone || null}, 'mensal', NOW(), ${nextDueDate.toISOString()}, 'active', ${payment.value}, NOW())
+            INSERT INTO subscribers (name, email, cpf, phone, plan_type, start_date, next_due_date, status, value, asaas_customer_id, created_at)
+            VALUES (${name}, ${email}, ${cpfCnpj}, ${phone || null}, 'mensal', NOW(), ${nextDueDate.toISOString()}, 'active', ${payment.value}, ${customerId}, NOW())
         `;
     }
 
