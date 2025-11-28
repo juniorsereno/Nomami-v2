@@ -1,8 +1,8 @@
-# Specification Quality Checklist: Integração de Pagamento com Asaas
+# Specification Quality Checklist: Public Partners Page & Logo Upload
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
-**Created**: 2025-10-23
-**Feature**: [spec.md](../spec.md)
+**Created**: 2025-11-20
+**Feature**: [Link to spec.md](../spec.md)
 
 ## Content Quality
 
@@ -31,4 +31,5 @@
 
 ## Notes
 
-- A especificação foi atualizada para incluir um sistema de logs para erros de webhook, conforme definido com o usuário. Todos os pontos de `NEEDS CLARIFICATION` foram resolvidos.
+- Spec updated to include Edge Cases and Assumptions.
+- Refined FR-002 to be less implementation-specific regarding file paths.

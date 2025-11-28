@@ -42,7 +42,8 @@ export function PartnerActions({ partner }: PartnerActionsProps) {
     // In a real app, you might want better validation here
     const mapCategory = (category: string) => {
         const validCategories = ["Saúde", "Lazer", "Alimentação", "Transporte", "Vestuário", "Serviços"] as const;
-        return validCategories.includes(category as any) ? category as any : "Serviços";
+        type Category = typeof validCategories[number];
+        return validCategories.includes(category as Category) ? category as Category : "Serviços";
     }
 
     return (
@@ -82,6 +83,8 @@ export function PartnerActions({ partner }: PartnerActionsProps) {
                             benefit_description: partner.benefit_description,
                             status: mapStatus(partner.status),
                             category: mapCategory(partner.category),
+                            logo_url: partner.logo_url || undefined,
+                            site_url: partner.site_url || undefined,
                         }}
                     />
                 </DialogContent>

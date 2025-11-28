@@ -4,6 +4,7 @@ import { useUser } from "@stackframe/stack"
 import { toast } from "sonner"
 import { AppSidebar } from "@/components/app-sidebar"
 import { StripeLogsTable } from "@/components/stripe-logs-table"
+import { AsaasLogsTable } from "@/components/asaas-logs-table"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
 import {
@@ -65,6 +66,36 @@ function SettingsPage() {
             </Card>
           </div>
           <StripeLogsTable />
+
+          <div className="mt-8">
+            <Card>
+              <CardHeader>
+                <CardTitle>Integração com Gateway de Pagamento (Asaas)</CardTitle>
+                <CardDescription>
+                  Configure o webhook abaixo no seu painel do Asaas para receber notificações de pagamento.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center space-x-2">
+                  <Input
+                    value={typeof window !== 'undefined' ? `${window.location.origin}/api/webhook/asaas` : ''}
+                    readOnly
+                  />
+                  <Button
+                    onClick={() => {
+                      if (typeof window !== 'undefined') {
+                        navigator.clipboard.writeText(`${window.location.origin}/api/webhook/asaas`);
+                        toast.success("Link do webhook Asaas copiado para a área de transferência!");
+                      }
+                    }}
+                  >
+                    Copiar
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          <AsaasLogsTable />
         </div>
       </SidebarInset>
     </SidebarProvider>

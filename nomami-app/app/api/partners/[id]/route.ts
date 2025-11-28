@@ -10,6 +10,8 @@ const partnerSchema = z.object({
     category: z.string().min(1, "A categoria é obrigatória."),
     benefit_description: z.string().min(5, "A descrição do benefício é obrigatória."),
     status: z.enum(['ativo', 'inativo']),
+    logo_url: z.string().optional(),
+    site_url: z.string().optional(),
 });
 
 export async function PUT(
@@ -24,7 +26,7 @@ export async function PUT(
             return NextResponse.json({ error: 'Dados inválidos', details: validation.error.flatten() }, { status: 400 });
         }
 
-        const { company_name, cnpj, phone, address, category, benefit_description, status } = validation.data;
+        const { company_name, cnpj, phone, address, category, benefit_description, status, logo_url, site_url } = validation.data;
         const { id } = await params;
 
         const result = await sql`
@@ -37,7 +39,9 @@ export async function PUT(
         ativo = ${status === 'ativo'},
         updated_at = NOW(),
         endereco = ${address},
-        telefone = ${phone}
+        telefone = ${phone},
+        logo_url = ${logo_url || null},
+        site_url = ${site_url || null}
       WHERE id = ${id}
       RETURNING id;
     `;

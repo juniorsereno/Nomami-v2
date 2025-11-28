@@ -4,7 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { toast } from "sonner"
-import { Loader2 } from "lucide-react"
+import * as React from "react"
+import { Loader2, Upload } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -36,6 +37,8 @@ const formSchema = z.object({
   }),
   benefit_description: z.string().min(5, "A descrição do benefício é obrigatória."),
   status: z.enum(['ativo', 'inativo']),
+  logo_url: z.string().optional(),
+  site_url: z.string().optional(),
 })
 
 interface AddPartnerFormProps {
@@ -54,8 +57,42 @@ export function AddPartnerForm({ onPartnerAdded, initialData, partnerId }: AddPa
       address: "",
       benefit_description: "",
       status: "ativo",
+      logo_url: "",
+      site_url: "",
     },
   })
+
+  const [isUploading, setIsUploading] = React.useState(false);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Erro no upload');
+      }
+
+      const data = await response.json();
+      form.setValue('logo_url', data.url);
+      toast.success('Logo enviada com sucesso!');
+    } catch (error) {
+      console.error(error);
+      toast.error('Erro ao enviar logo.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const handleCnpjChange = (e: React.ChangeEvent<HTMLInputElement>, field: { onChange: (value: string) => void }) => {
     let value = e.target.value.replace(/\D/g, '');
@@ -103,6 +140,33 @@ export function AddPartnerForm({ onPartnerAdded, initialData, partnerId }: AddPa
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
+          name="logo_url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Logo da Empresa</FormLabel>
+              <FormControl>
+                <div className="flex items-center gap-4">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    disabled={isUploading}
+                  />
+                  {isUploading && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {field.value && (
+                    <div className="text-sm text-green-600 flex items-center gap-1">
+                      <Upload className="h-4 w-4" />
+                      Logo carregada
+                    </div>
+                  )}
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
           name="company_name"
           render={({ field }) => (
             <FormItem>
@@ -135,6 +199,19 @@ export function AddPartnerForm({ onPartnerAdded, initialData, partnerId }: AddPa
               <FormLabel>Telefone</FormLabel>
               <FormControl>
                 <Input placeholder="(XX) XXXXX-XXXX" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="site_url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Site (Opcional)</FormLabel>
+              <FormControl>
+                <Input placeholder="https://www.exemplo.com.br" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

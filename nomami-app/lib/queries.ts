@@ -163,7 +163,9 @@ export async function getPartners() {
         p.created_at as entry_date,
         p.beneficio as benefit_description,
         p.endereco as address,
-        p.categoria as category
+        p.categoria as category,
+        p.logo_url,
+        p.site_url
       FROM
         parceiros p
       ORDER BY
@@ -173,5 +175,21 @@ export async function getPartners() {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch partners.');
+  }
+}
+
+export async function getSubscriberByCpf(cpf: string) {
+  try {
+    const subscribers = await sql`
+      SELECT id, name, cpf, next_due_date, status, plan_type
+      FROM subscribers
+      WHERE cpf = ${cpf}
+      LIMIT 1
+    `;
+
+    return subscribers[0];
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch subscriber by CPF.');
   }
 }
