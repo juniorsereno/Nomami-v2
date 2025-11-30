@@ -82,6 +82,8 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Erro interno de configuração do servidor.' }, { status: 500 });
     }
 
+    console.log('DEBUG: Usando a chave de API Asaas:', asaasApiToken);
+ 
     const customerResponse = await fetch(`https://api.asaas.com/v3/customers/${customerId}`, {
         headers: {
             'accept': 'application/json',
