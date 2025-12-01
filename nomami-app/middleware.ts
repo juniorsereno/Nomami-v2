@@ -20,7 +20,7 @@ export function middleware(request: NextRequest) {
         method,
         url,
         pathname: nextUrl.pathname,
-        ip: request.ip || request.headers.get('x-forwarded-for'),
+        ip: (request as unknown as { ip?: string }).ip || request.headers.get('x-forwarded-for'),
         userAgent: request.headers.get('user-agent'),
       },
     },

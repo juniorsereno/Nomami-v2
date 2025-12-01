@@ -1,7 +1,5 @@
 import pino from 'pino';
 
-const isDevelopment = process.env.NODE_ENV === 'development';
-
 export const logger = pino({
   level: process.env.LOG_LEVEL || 'info',
   // transport: isDevelopment
@@ -40,7 +38,7 @@ export const logger = pino({
  * Helper para logar payloads de webhook com segurança.
  * Garante que o payload seja tratado como um objeto para redação correta.
  */
-export function logWebhookPayload(source: string, payload: any) {
+export function logWebhookPayload(source: string, payload: unknown) {
   logger.info(
     {
       webhookSource: source,
@@ -53,7 +51,7 @@ export function logWebhookPayload(source: string, payload: any) {
 /**
  * Helper para logar erros com contexto.
  */
-export function logError(error: unknown, message: string, context?: Record<string, any>) {
+export function logError(error: unknown, message: string, context?: Record<string, unknown>) {
   if (error instanceof Error) {
     logger.error(
       {
