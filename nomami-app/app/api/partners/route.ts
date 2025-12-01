@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import sql from '@/lib/db-pool';
 import { z } from 'zod';
-import { logger, logError } from '@/lib/logger';
 
 const partnerSchema = z.object({
   company_name: z.string().min(2, "O nome da empresa é obrigatório."),
@@ -21,13 +20,10 @@ export async function POST(request: Request) {
     const validation = partnerSchema.safeParse(body);
 
     if (!validation.success) {
-      logger.warn({ errors: validation.error.flatten() }, 'Tentativa de criação de parceiro com dados inválidos');
       return NextResponse.json({ error: 'Dados inválidos', details: validation.error.flatten() }, { status: 400 });
     }
 
     const { company_name, cnpj, phone, address, category, benefit_description, status, logo_url, site_url } = validation.data;
-
-    logger.info({ company_name, cnpj }, 'Criando novo parceiro');
 
     const result = await sql`
       INSERT INTO parceiros (nome, cnpj, categoria, beneficio, ativo, updated_at, endereco, telefone, logo_url, site_url)
@@ -35,11 +31,9 @@ export async function POST(request: Request) {
       RETURNING id;
     `;
 
-    logger.info({ partnerId: result[0].id }, 'Parceiro criado com sucesso');
-
     return NextResponse.json({ message: 'Parceiro adicionado com sucesso!', partner: result[0] }, { status: 201 });
   } catch (error) {
-    logError(error, 'Erro ao criar parceiro');
+    console.error('Erro ao criar parceiro:', error);
     return NextResponse.json({ error: 'Erro ao criar parceiro.' }, { status: 500 });
   }
 }
