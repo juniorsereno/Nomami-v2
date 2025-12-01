@@ -1,19 +1,30 @@
 import { NextResponse } from 'next/server';
 import sql from '@/lib/db-pool';
+import { logger, logWebhookPayload, logError } from '@/lib/logger';
 
 async function logWebhook(requestBody: Record<string, unknown>, status: 'success' | 'failed', errorMessage?: string) {
+  // Log no console via Pino
+  if (status === 'failed') {
+    logger.error({ errorMessage, requestBody }, 'Stripe Webhook Failed');
+  } else {
+    logger.info({ status }, 'Stripe Webhook Processed');
+  }
+
   try {
     await sql`
       INSERT INTO stripe_webhook_logs (request_body, status, error_message)
       VALUES (${JSON.stringify(requestBody)}, ${status}, ${errorMessage || null})
     `;
   } catch (dbError) {
-    console.error('Falha ao registrar o log do webhook no banco de dados:', dbError);
+    logger.error({ err: dbError }, 'Falha ao registrar o log do webhook no banco de dados');
   }
 }
 
 export async function POST(request: Request) {
   const body = await request.json();
+  
+  // Log do payload recebido (T010)
+  logWebhookPayload('stripe', body);
 
   try {
     // O payload do Stripe pode vir como um evento direto ou dentro de uma lista (embora webhooks geralmente sejam eventos únicos).
@@ -129,7 +140,7 @@ export async function POST(request: Request) {
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
-    console.error('Erro ao processar webhook do Stripe:', error);
+    logError(error, 'Erro ao processar webhook do Stripe');
     await logWebhook(body, 'failed', errorMessage);
     return NextResponse.json({ error: 'Erro interno do servidor.' }, { status: 500 });
   }

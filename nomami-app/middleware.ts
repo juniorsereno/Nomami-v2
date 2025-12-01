@@ -1,0 +1,44 @@
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { logger } from './lib/logger';
+
+export function middleware(request: NextRequest) {
+  const { method, url, nextUrl } = request;
+  
+  // Ignorar arquivos estáticos e internos do Next.js para não poluir logs
+  if (
+    nextUrl.pathname.startsWith('/_next') ||
+    nextUrl.pathname.startsWith('/favicon.ico') ||
+    nextUrl.pathname.match(/\.(png|jpg|jpeg|gif|svg|webp)$/)
+  ) {
+    return NextResponse.next();
+  }
+
+  logger.info(
+    {
+      req: {
+        method,
+        url,
+        pathname: nextUrl.pathname,
+        ip: request.ip || request.headers.get('x-forwarded-for'),
+        userAgent: request.headers.get('user-agent'),
+      },
+    },
+    `Incoming Request: ${method} ${nextUrl.pathname}`
+  );
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    '/((?!_next/static|_next/image|favicon.ico).*)',
+  ],
+};

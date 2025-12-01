@@ -1,6 +1,10 @@
 import pino from 'pino';
 
+<<<<<<< HEAD
 // const isDevelopment = process.env.NODE_ENV === 'development';
+=======
+const isDevelopment = process.env.NODE_ENV === 'development';
+>>>>>>> fe187ae2b4cbdb6ccf5d7d3f77cf948e85752b9a
 
 export const logger = pino({
   level: process.env.LOG_LEVEL || 'info',
@@ -40,7 +44,11 @@ export const logger = pino({
  * Helper para logar payloads de webhook com segurança.
  * Garante que o payload seja tratado como um objeto para redação correta.
  */
+<<<<<<< HEAD
 export function logWebhookPayload(source: string, payload: unknown) {
+=======
+export function logWebhookPayload(source: string, payload: any) {
+>>>>>>> fe187ae2b4cbdb6ccf5d7d3f77cf948e85752b9a
   logger.info(
     {
       webhookSource: source,
@@ -53,7 +61,11 @@ export function logWebhookPayload(source: string, payload: unknown) {
 /**
  * Helper para logar erros com contexto.
  */
+<<<<<<< HEAD
 export function logError(error: unknown, message: string, context?: Record<string, unknown>) {
+=======
+export function logError(error: unknown, message: string, context?: Record<string, any>) {
+>>>>>>> fe187ae2b4cbdb6ccf5d7d3f77cf948e85752b9a
   if (error instanceof Error) {
     logger.error(
       {
