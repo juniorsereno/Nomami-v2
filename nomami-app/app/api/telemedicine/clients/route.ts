@@ -1,12 +1,9 @@
 import { NextResponse } from 'next/server';
 import sql from '@/lib/db-pool';
 import { getTelemedicineCredentials } from '../credentials/route';
-import { logger, logError } from '@/lib/logger';
 
 export async function POST(request: Request) {
   const externalApiBody = await request.json();
-
-  logger.info({ clientCount: Array.isArray(externalApiBody) ? externalApiBody.length : 0 }, 'Processing Telemedicine Batch');
 
   // 1. Validação do Corpo da Requisição
   if (!Array.isArray(externalApiBody) || externalApiBody.length === 0) {
@@ -69,7 +66,7 @@ export async function POST(request: Request) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      logger.error({ errorText, status: response.status }, 'Erro da API externa de Telemedicina');
+      console.error('Erro da API externa:', errorText);
       // O lote foi salvo, mas a sincronização falhou. Poderíamos atualizar o status do lote aqui.
       return NextResponse.json({
         message: 'Lote salvo no banco de dados, mas falhou ao enviar para a API externa.',
@@ -84,7 +81,7 @@ export async function POST(request: Request) {
     });
 
   } catch (error) {
-    logError(error, 'Erro ao processar o lote de telemedicina');
+    console.error('Erro ao processar o lote de telemedicina:', error);
     const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
     return NextResponse.json({ error: 'Erro interno do servidor.', details: errorMessage }, { status: 500 });
   }
