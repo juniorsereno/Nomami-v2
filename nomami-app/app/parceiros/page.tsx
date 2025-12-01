@@ -1,6 +1,5 @@
 import { getPartners } from "@/lib/queries";
 import { PartnerCard } from "@/components/partner-card";
-import { SiteHeader } from "@/components/site-header";
 import Image from "next/image";
 
 export const dynamic = 'force-dynamic';
