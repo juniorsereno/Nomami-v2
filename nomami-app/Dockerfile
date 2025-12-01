@@ -13,6 +13,14 @@ RUN npm install
 # Copia o restante do código da aplicação
 COPY . .
 
+# Define argumentos de build para variáveis de ambiente públicas
+ARG NEXT_PUBLIC_STACK_PROJECT_ID
+ARG NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY
+
+# Define variáveis de ambiente durante o build
+ENV NEXT_PUBLIC_STACK_PROJECT_ID=$NEXT_PUBLIC_STACK_PROJECT_ID
+ENV NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY=$NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY
+
 # Executa o build de produção
 RUN npm run build
 
