@@ -1,19 +1,30 @@
 import { NextResponse } from 'next/server';
 import sql from '@/lib/db-pool';
+import { logger, logWebhookPayload, logError } from '@/lib/logger';
 
 async function logAsaasWebhook(requestBody: Record<string, unknown>, status: 'success' | 'failed', errorMessage?: string) {
+  // Log no console via Pino
+  if (status === 'failed') {
+    logger.error({ errorMessage, requestBody }, 'Asaas Webhook Failed');
+  } else {
+    logger.info({ status }, 'Asaas Webhook Processed');
+  }
+
   try {
     await sql`
       INSERT INTO asaas_webhook_logs (request_body, status, error_message)
       VALUES (${JSON.stringify(requestBody)}, ${status}, ${errorMessage || null})
     `;
   } catch (dbError) {
-    console.error('Falha ao registrar o log do webhook Asaas no banco de dados:', dbError);
+    logger.error({ err: dbError }, 'Falha ao registrar o log do webhook Asaas no banco de dados');
   }
 }
 
 export async function POST(request: Request) {
   const body = await request.json();
+  
+  // Log do payload recebido (T009)
+  logWebhookPayload('asaas', body);
 
   try {
     const event = body;
@@ -82,12 +93,17 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Erro interno de configuração do servidor.' }, { status: 500 });
     }
 
+    // Instrumentação da chamada ao Asaas (T006)
+    logger.info({ customerId, url: `https://api.asaas.com/v3/customers/${customerId}` }, 'Fetching Asaas Customer');
+    
     const customerResponse = await fetch(`https://api.asaas.com/v3/customers/${customerId}`, {
         headers: {
             'accept': 'application/json',
             'access_token': asaasApiToken
         }
     });
+
+    logger.info({ status: customerResponse.status, customerId }, 'Asaas Customer Fetch Response');
 
     if (!customerResponse.ok) {
         const errorBody = await customerResponse.text();
@@ -148,7 +164,7 @@ export async function POST(request: Request) {
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
-    console.error('Erro ao processar webhook do Asaas:', error);
+    logError(error, 'Erro ao processar webhook do Asaas');
     await logAsaasWebhook(body, 'failed', errorMessage);
     return NextResponse.json({ error: 'Erro interno do servidor.' }, { status: 500 });
   }
