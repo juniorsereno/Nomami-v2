@@ -18,8 +18,6 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { toast } from "sonner"
-import { Loader2 } from "lucide-react"
 
 interface Log {
   id: number;
@@ -33,7 +31,6 @@ export function AsaasLogsTable() {
   const [logs, setLogs] = useState<Log[]>([]);
   const [selectedLog, setSelectedLog] = useState<Log | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isReprocessing, setIsReprocessing] = useState(false);
   const itemsPerPage = 5;
 
   useEffect(() => {
@@ -55,33 +52,6 @@ export function AsaasLogsTable() {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentLogs = logs.slice(startIndex, endIndex);
-
-  const handleReprocess = async (log: Log) => {
-    setIsReprocessing(true);
-    try {
-      const response = await fetch('/api/webhook/asaas/reprocess', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ payload: log.request_body }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Falha ao reprocessar');
-      }
-
-      toast.success("Webhook reprocessado com sucesso! Verifique os novos logs.");
-      // Opcional: Recarregar logs
-      // fetchLogs();
-    } catch (error) {
-      console.error("Erro ao reprocessar:", error);
-      toast.error(error instanceof Error ? error.message : "Erro ao reprocessar webhook");
-    } finally {
-      setIsReprocessing(false);
-    }
-  };
 
   return (
     <div className="mt-6">
@@ -133,15 +103,6 @@ export function AsaasLogsTable() {
                               <pre className="mt-2 p-4 bg-muted rounded-lg text-sm max-h-64 overflow-y-auto whitespace-pre-wrap break-all">
                                 {JSON.stringify(selectedLog.request_body, null, 2)}
                               </pre>
-                            </div>
-                            <div className="flex justify-end pt-4">
-                              <Button
-                                onClick={() => selectedLog && handleReprocess(selectedLog)}
-                                disabled={isReprocessing}
-                              >
-                                {isReprocessing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Tentar Novamente (Reprocessar)
-                              </Button>
                             </div>
                           </div>
                         )}
