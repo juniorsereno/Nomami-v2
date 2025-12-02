@@ -8,21 +8,23 @@ const ASAAS_API_BASE_URL = 'https://api.asaas.com/v3';
 export async function fetchAsaas(endpoint: string, options: RequestInit = {}) {
   const url = `${ASAAS_API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
   const method = options.method || 'GET';
+  const apiKey = process.env.ASAAS_API_KEY;
+  const maskedKey = apiKey ? `${apiKey.substring(0, 8)}...${apiKey.substring(apiKey.length - 4)}` : 'UNDEFINED';
 
   // Log da requisição
   logger.info({
     service: 'asaas',
     url,
     method,
+    apiKeyPrefix: apiKey ? apiKey.substring(0, 8) : null
   }, `
 ╭──────────────────────────────────────────────────
 │ 🚀 ASAAS API REQUEST
 │
 │ 📡 Method: ${method}
 │ 🔗 URL:    ${url}
+│ 🔑 API Key: ${maskedKey}
 ╰──────────────────────────────────────────────────`);
-
-  const apiKey = process.env.ASAAS_API_KEY;
   if (!apiKey) {
     const errorMsg = 'ASAAS_API_KEY não está configurada nas variáveis de ambiente.';
     logger.error({ service: 'asaas' }, errorMsg);
