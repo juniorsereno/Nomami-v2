@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import sql from '@/lib/db-pool';
 import { logger, logWebhookPayload, logError } from '@/lib/logger';
+import { fetchAsaas } from '@/lib/asaas';
 
 async function logAsaasWebhook(requestBody: Record<string, unknown>, status: 'success' | 'failed', errorMessage?: string) {
   // Log no console via Pino
@@ -85,25 +86,19 @@ export async function POST(request: Request) {
 
     // 3. Fluxo Normal (Novo Pagamento ou Renovação não detectada pelo ID)
     const customerId = payment.customer;
-    const asaasApiToken = process.env.ASAAS_API_KEY;
-
-    if (!asaasApiToken) {
-        console.error('ASAAS_API_KEY não está configurada nas variáveis de ambiente.');
-        await logAsaasWebhook(body, 'failed', 'ASAAS_API_KEY não configurada.');
+    // Instrumentação da chamada ao Asaas (T006)
+    // logger.info({ customerId, url: `https://api.asaas.com/v3/customers/${customerId}` }, 'Fetching Asaas Customer');
+    
+    let customerResponse;
+    try {
+        customerResponse = await fetchAsaas(`/customers/${customerId}`);
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Erro ao buscar cliente no Asaas';
+        await logAsaasWebhook(body, 'failed', errorMessage);
         return NextResponse.json({ error: 'Erro interno de configuração do servidor.' }, { status: 500 });
     }
 
-    // Instrumentação da chamada ao Asaas (T006)
-    logger.info({ customerId, url: `https://api.asaas.com/v3/customers/${customerId}` }, 'Fetching Asaas Customer');
-    
-    const customerResponse = await fetch(`https://api.asaas.com/v3/customers/${customerId}`, {
-        headers: {
-            'accept': 'application/json',
-            'access_token': asaasApiToken
-        }
-    });
-
-    logger.info({ status: customerResponse.status, customerId }, 'Asaas Customer Fetch Response');
+    // logger.info({ status: customerResponse.status, customerId }, 'Asaas Customer Fetch Response');
 
     if (!customerResponse.ok) {
         const errorBody = await customerResponse.text();
