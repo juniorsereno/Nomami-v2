@@ -1,5 +1,5 @@
 # Estágio 1: Builder - Compila a aplicação
-FROM node:24-alpine AS builde
+FROM node:20-alpine AS build_stage
 
 # Define o diretório de trabalho
 WORKDIR /app
@@ -30,13 +30,13 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 
 # Copia as dependências de produção do estágio de build
-COPY --from=builder /app/package.json /app/package-lock.json ./
+COPY --from=build_stage /app/package.json /app/package-lock.json ./
 RUN npm install --production && npm install typescript --no-save
 
 # Copia os artefatos de build do estágio anterior
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/next.config.ts ./
+COPY --from=build_stage /app/public ./public
+COPY --from=build_stage /app/.next ./.next
+COPY --from=build_stage /app/next.config.ts ./
 
 # Expõe a porta em que a aplicação Next.js roda
 EXPOSE 3000
