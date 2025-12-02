@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
+import https from 'https';
 
 export async function POST(request: Request) {
   try {
@@ -16,6 +17,11 @@ export async function POST(request: Request) {
     // Usamos a URL completa do próprio servidor para garantir que o fluxo seja idêntico
     const webhookUrl = new URL('/api/webhook/asaas', request.url);
     
+    // Workaround para Next.js/Node fetch com self-signed certs em desenvolvimento:
+    if (process.env.NODE_ENV === 'development') {
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+    }
+
     const response = await fetch(webhookUrl.toString(), {
       method: 'POST',
       headers: {
@@ -23,6 +29,11 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify(payload),
     });
+
+    // Restaurar a segurança após a chamada (opcional, mas boa prática se o processo for persistente)
+    if (process.env.NODE_ENV === 'development') {
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1';
+    }
 
     if (!response.ok) {
       const errorText = await response.text();
