@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { toast } from "sonner"
 
 interface Log {
   id: number;
@@ -31,22 +32,49 @@ export function AsaasLogsTable() {
   const [logs, setLogs] = useState<Log[]>([]);
   const [selectedLog, setSelectedLog] = useState<Log | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isReprocessing, setIsReprocessing] = useState<number | null>(null);
   const itemsPerPage = 5;
 
-  useEffect(() => {
-    async function fetchLogs() {
-      try {
-        const response = await fetch('/api/webhook/asaas/logs');
-        if (response.ok) {
-          const data = await response.json();
-          setLogs(data);
-        }
-      } catch (error) {
-        console.error("Falha ao buscar logs:", error);
+  async function fetchLogs() {
+    try {
+      const response = await fetch('/api/webhook/asaas/logs');
+      if (response.ok) {
+        const data = await response.json();
+        setLogs(data);
       }
+    } catch (error) {
+      console.error("Falha ao buscar logs:", error);
+      toast.error("Falha ao carregar os logs do Asaas.");
     }
+  }
+
+  useEffect(() => {
     fetchLogs();
   }, []);
+
+  const handleReprocess = async (logId: number) => {
+    setIsReprocessing(logId);
+    try {
+      const response = await fetch('/api/webhook/asaas/reprocess', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ logId }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success(result.message || "Log reprocessado com sucesso!");
+        fetchLogs(); // Re-fetch logs to show the new status
+      } else {
+        toast.error(result.error || "Falha ao reprocessar o log.");
+      }
+    } catch (error) {
+      toast.error("Ocorreu um erro de rede ao tentar reprocessar.");
+    } finally {
+      setIsReprocessing(null);
+    }
+  };
 
   const totalPages = Math.ceil(logs.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -105,6 +133,15 @@ export function AsaasLogsTable() {
                               </pre>
                             </div>
                           </div>
+                        )}
+                         {selectedLog?.status === 'failed' && (
+                          <Button
+                            className="mt-4"
+                            onClick={() => handleReprocess(selectedLog.id)}
+                            disabled={isReprocessing === selectedLog.id}
+                          >
+                            {isReprocessing === selectedLog.id ? 'Reprocessando...' : 'Reprocessar'}
+                          </Button>
                         )}
                       </DialogContent>
                     </Dialog>
