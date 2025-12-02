@@ -69,7 +69,7 @@ export function AsaasLogsTable() {
       } else {
         toast.error(result.error || "Falha ao reprocessar o log.");
       }
-    } catch (error) {
+    } catch {
       toast.error("Ocorreu um erro de rede ao tentar reprocessar.");
     } finally {
       setIsReprocessing(null);

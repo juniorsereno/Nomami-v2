@@ -9,7 +9,21 @@ export interface WebhookResult {
   status: number;
 }
 
-async function logAsaasWebhook(requestBody: Record<string, unknown>, status: 'success' | 'failed', errorMessage?: string) {
+export interface AsaasPayment {
+  customer: string;
+  dateCreated: string;
+  value: number;
+  [key: string]: unknown;
+}
+
+export interface AsaasWebhookEvent {
+  event: string;
+  dateCreated: string;
+  payment: AsaasPayment;
+  [key: string]: unknown;
+}
+
+async function logAsaasWebhook(requestBody: Record<string, unknown> | AsaasWebhookEvent, status: 'success' | 'failed', errorMessage?: string) {
   // Log no console via Pino
   if (status === 'failed') {
     logger.error({ errorMessage, requestBody }, 'Asaas Webhook Failed');
@@ -27,7 +41,7 @@ async function logAsaasWebhook(requestBody: Record<string, unknown>, status: 'su
   }
 }
 
-export async function processAsaasWebhook(body: any): Promise<WebhookResult> {
+export async function processAsaasWebhook(body: AsaasWebhookEvent): Promise<WebhookResult> {
   // Log do payload recebido (T009)
   logWebhookPayload('asaas', body);
 

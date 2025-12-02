@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import sql from '@/lib/db-pool';
-import { processAsaasWebhook } from '@/lib/asaas/webhook-handler';
+import { processAsaasWebhook, AsaasWebhookEvent } from '@/lib/asaas/webhook-handler';
 import { logger } from '@/lib/logger';
 
 export async function POST(request: Request) {
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     }
 
     const log = logResult[0];
-    const requestBody = log.request_body as any; // O corpo já é um objeto JSON
+    const requestBody = log.request_body as AsaasWebhookEvent; // O corpo já é um objeto JSON
 
     logger.info({ logId, requestBody }, `Iniciando reprocessamento do log Asaas ID: ${logId}`);
 
