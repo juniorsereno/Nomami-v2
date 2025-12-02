@@ -1,5 +1,5 @@
 # Estágio 1: Builder - Compila a aplicação
-FROM node:18-alpine AS builder
+FROM node:24-alpine AS builde
 
 # Define o diretório de trabalho
 WORKDIR /app
@@ -25,13 +25,13 @@ ENV NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY=$NEXT_PUBLIC_STACK_PUBLISHABLE_CLIE
 RUN npm run build
 
 # Estágio 2: Runner - Executa a aplicação
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 
 WORKDIR /app
 
 # Copia as dependências de produção do estágio de build
 COPY --from=builder /app/package.json /app/package-lock.json ./
-RUN npm install --production
+RUN npm install --production && npm install typescript --no-save
 
 # Copia os artefatos de build do estágio anterior
 COPY --from=builder /app/public ./public
