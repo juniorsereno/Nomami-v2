@@ -96,9 +96,48 @@ export async function processAsaasWebhook(body: AsaasWebhookEvent): Promise<Webh
             await logAsaasWebhook(body, 'success', `Renovação processada. Diferença de dias: ${diffDays}.`);
             return { success: true, message: 'Renovação processada com sucesso.', status: 200 };
         } else {
-            // Se não encontrar pelo ID do Asaas, tenta o fluxo normal para garantir
-            // Mas loga um aviso
-            console.warn(`Renovação detectada mas assinante não encontrado pelo asaas_customer_id: ${customerId}. Tentando fluxo normal.`);
+            // Se não encontrar pelo ID do Asaas, busca os dados do cliente na API
+            // para criar um novo registro mantendo a data de criação original (histórico)
+            console.warn(`Renovação detectada mas assinante não encontrado pelo asaas_customer_id: ${customerId}. Criando novo registro com histórico.`);
+
+            let customerResponse;
+            try {
+                customerResponse = await fetchAsaas(`/customers/${customerId}`);
+            } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : 'Erro ao buscar cliente no Asaas (Renovação Órfã)';
+                await logAsaasWebhook(body, 'failed', errorMessage);
+                return { success: false, error: 'Erro interno ao buscar cliente.', status: 500 };
+            }
+
+            if (!customerResponse.ok) {
+                const errorBody = await customerResponse.text();
+                const errorMessage = `Falha ao buscar cliente na API Asaas (Renovação Órfã). Status: ${customerResponse.status}. Resposta: ${errorBody}`;
+                await logAsaasWebhook(body, 'failed', errorMessage);
+                return { success: false, error: 'Falha ao comunicar com o provedor de pagamento.', status: customerResponse.status };
+            }
+
+            const customerData = await customerResponse.json();
+            const { name, email, cpfCnpj, phone, dateCreated: customerDateCreated } = customerData;
+
+            if (!name || !email || !cpfCnpj) {
+                const errorMessage = `Dados do cliente incompletos na API Asaas (Renovação Órfã).`;
+                await logAsaasWebhook(body, 'failed', errorMessage);
+                return { success: false, error: errorMessage, status: 400 };
+            }
+
+            const nextDueDate = new Date(event.dateCreated);
+            nextDueDate.setDate(nextDueDate.getDate() + 30);
+
+            // Usa a data de criação do cliente no Asaas como start_date para manter histórico
+            const startDate = customerDateCreated ? new Date(customerDateCreated) : new Date();
+
+            await sql`
+                INSERT INTO subscribers (name, email, cpf, phone, plan_type, start_date, next_due_date, status, value, asaas_customer_id, created_at)
+                VALUES (${name}, ${email}, ${cpfCnpj}, ${phone || null}, 'mensal', ${startDate.toISOString()}, ${nextDueDate.toISOString()}, 'active', ${payment.value}, ${customerId}, NOW())
+            `;
+
+            await logAsaasWebhook(body, 'success', `Renovação processada para novo assinante local (recuperado do Asaas). Data Início: ${startDate.toISOString()}.`);
+            return { success: true, message: 'Renovação processada e assinante recriado com sucesso.', status: 200 };
         }
     }
 
