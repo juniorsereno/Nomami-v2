@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     // 1. Cria o lote
     const batch = await sql`
       INSERT INTO telemedicine_batches (batch_identifier, status)
-      VALUES (${batchIdentifier}, 'active')
+      VALUES (${batchIdentifier}, 'ativo')
       RETURNING id;
     `;
     const batchId = batch[0].id;

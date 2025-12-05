@@ -109,7 +109,7 @@ export function SubscriberEditDialog({ subscriber, children, onSubscriberUpdate 
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ativo">Ativo</SelectItem>
-                <SelectItem value="inativo">Inativo</SelectItem>
+                <SelectItem value="vencido">Vencido</SelectItem>
               </SelectContent>
             </Select>
           </div>

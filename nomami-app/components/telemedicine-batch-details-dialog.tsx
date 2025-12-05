@@ -45,8 +45,8 @@ export function TelemedicineBatchDetailsDialog({ batch, children }: BatchDetails
           <DialogTitle>Detalhes do Lote: {batch.batch_identifier}</DialogTitle>
           <DialogDescription>
             Visualizando {batch.client_count} cliente(s) incluído(s) neste lote.
-            <Badge variant={batch.status === 'active' ? 'default' : 'destructive'} className="ml-2">
-              {batch.status === 'active' ? 'Ativo' : 'Inativo'}
+            <Badge variant={batch.status === 'ativo' ? 'default' : 'destructive'} className="ml-2">
+              {batch.status === 'ativo' ? 'Ativo' : 'Inativo'}
             </Badge>
           </DialogDescription>
         </DialogHeader>

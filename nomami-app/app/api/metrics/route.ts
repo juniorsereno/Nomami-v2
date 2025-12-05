@@ -4,7 +4,7 @@ import sql from '@/lib/db-pool';
 export async function GET() {
   try {
     const activeSubscribersResult = await sql`SELECT COUNT(*) FROM subscribers WHERE status = 'ativo'`;
-    const inactiveSubscribersResult = await sql`SELECT COUNT(*) FROM subscribers WHERE status = 'inativo'`;
+    const inactiveSubscribersResult = await sql`SELECT COUNT(*) FROM subscribers WHERE status = 'vencido'`;
     const mrrResult = await sql`
       SELECT
         SUM(value) as total_mrr

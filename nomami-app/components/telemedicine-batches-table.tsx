@@ -98,8 +98,8 @@ export function TelemedicineBatchesTable({ batches, error, refreshData }: Teleme
       cell: ({ row }) => {
         const status = row.getValue('status') as string;
         return (
-          <Badge variant={status === 'active' ? 'default' : 'destructive'}>
-            {status === 'active' ? 'Ativo' : 'Inativo'}
+          <Badge variant={status === 'ativo' ? 'default' : 'destructive'}>
+            {status === 'ativo' ? 'Ativo' : 'Inativo'}
           </Badge>
         );
       },
@@ -123,7 +123,7 @@ export function TelemedicineBatchesTable({ batches, error, refreshData }: Teleme
                 <Eye className="h-4 w-4" />
               </Button>
             </TelemedicineBatchDetailsDialog>
-            {batch.status === 'active' && (
+            {batch.status === 'ativo' && (
               <Button variant="ghost" size="icon" onClick={() => handleInactivateClick(batch)}>
                 <Trash2 className="h-4 w-4 text-red-500" />
               </Button>
