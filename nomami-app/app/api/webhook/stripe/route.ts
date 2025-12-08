@@ -122,7 +122,7 @@ export async function POST(request: Request) {
                 email = ${customerEmail},
                 phone = ${customerPhone},
                 next_due_date = ${nextDueDate.toISOString()},
-                status = 'active',
+                status = 'ativo',
                 stripe_customer_id = ${customerId},
                 value = ${value}
             WHERE id = ${existingSubscriber[0].id}
@@ -131,7 +131,7 @@ export async function POST(request: Request) {
         // Inserir
         await sql`
             INSERT INTO subscribers (name, email, cpf, phone, plan_type, start_date, next_due_date, status, stripe_customer_id, value, created_at)
-            VALUES (${customerName}, ${customerEmail}, ${cpf}, ${customerPhone}, 'mensal', NOW(), ${nextDueDate.toISOString()}, 'active', ${customerId}, ${value}, NOW())
+            VALUES (${customerName}, ${customerEmail}, ${cpf}, ${customerPhone}, 'mensal', NOW(), ${nextDueDate.toISOString()}, 'ativo', ${customerId}, ${value}, NOW())
         `;
     }
 

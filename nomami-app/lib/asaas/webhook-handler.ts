@@ -114,7 +114,7 @@ export async function processAsaasWebhook(body: AsaasWebhookEvent): Promise<Webh
                 email = ${email},
                 phone = ${phone || null},
                 next_due_date = ${nextDueDate.toISOString()},
-                status = 'active',
+                status = 'ativo',
                 value = ${payment.value},
                 asaas_customer_id = ${customerId},
                 asaas_subscription_id = ${payment.subscription || null}
@@ -129,7 +129,7 @@ export async function processAsaasWebhook(body: AsaasWebhookEvent): Promise<Webh
         // 5b. Criação (Novo Assinante)
         await sql`
             INSERT INTO subscribers (name, email, cpf, phone, plan_type, start_date, next_due_date, status, value, asaas_customer_id, asaas_subscription_id, created_at)
-            VALUES (${name}, ${email}, ${cpfCnpj}, ${phone || null}, 'mensal', NOW(), ${nextDueDate.toISOString()}, 'active', ${payment.value}, ${customerId}, ${payment.subscription || null}, NOW())
+            VALUES (${name}, ${email}, ${cpfCnpj}, ${phone || null}, 'mensal', NOW(), ${nextDueDate.toISOString()}, 'ativo', ${payment.value}, ${customerId}, ${payment.subscription || null}, NOW())
         `;
         
         const successMsg = `Novo assinante criado: ${name} (CPF: ${cpfCnpj})`;
