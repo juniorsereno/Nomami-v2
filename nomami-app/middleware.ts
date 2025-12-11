@@ -33,16 +33,26 @@ export async function middleware(request: NextRequest) {
   const isPublicRoute = publicRoutes.some(route => nextUrl.pathname.startsWith(route));
 
   if (isPublicRoute) {
+    logger.info(`Public route accessed: ${nextUrl.pathname}`);
     return NextResponse.next();
   }
 
   // Verificar autenticação para rotas protegidas
   const session = await auth();
   
-  if (!session && !nextUrl.pathname.startsWith('/api')) {
-    return NextResponse.redirect(new URL('/login', request.url));
+  logger.info({
+    pathname: nextUrl.pathname,
+    hasSession: !!session,
+    hasUser: !!session?.user,
+  }, 'Session check');
+  
+  if (!session || !session.user) {
+    logger.info('No valid session found, redirecting to login');
+    const response = NextResponse.redirect(new URL('/login', request.url));
+    return response;
   }
 
+  logger.info(`Authenticated access to: ${nextUrl.pathname}`);
   return NextResponse.next();
 }
 
