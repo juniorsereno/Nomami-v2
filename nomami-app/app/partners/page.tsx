@@ -7,11 +7,13 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar"
 import { getPartnerStats, getPartners } from "@/lib/queries"
-import { stackServerApp } from "@/stack/server"
+import { auth } from "@/lib/auth"
+import { redirect } from "next/navigation"
 import { columns, Partner } from "./columns"
 
 async function PartnersPage() {
-  await stackServerApp.getUser({ or: "redirect" });
+  const session = await auth();
+  if (!session) redirect("/login");
 
   const stats = await getPartnerStats();
   const partners = (await getPartners()) as Partner[];

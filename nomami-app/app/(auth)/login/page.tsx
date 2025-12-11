@@ -1,17 +1,44 @@
-import { LoginForm } from "@/components/login-form";
-import { stackServerApp } from "@/stack/server";
-import { redirect } from "next/navigation";
+import Image from "next/image"
+import { LoginForm } from "@/components/login-form"
+import { auth } from "@/lib/auth"
+import { redirect } from "next/navigation"
 
 export default async function LoginPage() {
-  const user = await stackServerApp.getUser();
+  const session = await auth()
 
-  if (user) {
-    redirect("/dashboard");
+  if (session) {
+    redirect("/dashboard")
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <LoginForm />
+    <div className="grid min-h-svh lg:grid-cols-2">
+      <div className="flex flex-col gap-4 p-6 md:p-10">
+        <div className="flex justify-center md:justify-start">
+          <a href="/dashboard">
+            <Image
+              src="https://nomami.com.br/assets/LOGO_1752579727506-Cc7LLzXJ.png"
+              alt="NoMami Logo"
+              width={150}
+              height={40}
+              priority
+            />
+          </a>
+        </div>
+        <div className="flex flex-1 items-center justify-center">
+          <div className="w-full max-w-xs">
+            <LoginForm />
+          </div>
+        </div>
+      </div>
+      <div className="bg-muted relative hidden lg:block">
+        <Image
+          src="/uploads/image_1752590464563.png"
+          alt="Nomami Background"
+          fill
+          className="object-cover"
+          priority
+        />
+      </div>
     </div>
-  );
+  )
 }

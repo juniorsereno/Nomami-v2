@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { logger } from './lib/logger';
+import { auth } from './lib/auth';
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { method, url, nextUrl } = request;
   
   // Ignorar arquivos estáticos e internos do Next.js para não poluir logs
@@ -26,6 +27,21 @@ export function middleware(request: NextRequest) {
     },
     `Incoming Request: ${method} ${nextUrl.pathname}`
   );
+
+  // Rotas públicas que não precisam de autenticação
+  const publicRoutes = ['/login', '/first-access', '/api/auth', '/parceiros', '/card'];
+  const isPublicRoute = publicRoutes.some(route => nextUrl.pathname.startsWith(route));
+
+  if (isPublicRoute) {
+    return NextResponse.next();
+  }
+
+  // Verificar autenticação para rotas protegidas
+  const session = await auth();
+  
+  if (!session && !nextUrl.pathname.startsWith('/api')) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
 
   return NextResponse.next();
 }

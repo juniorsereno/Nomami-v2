@@ -6,12 +6,14 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar"
 import { getSubscriberStats, getSubscribers } from "@/lib/queries"
-import { stackServerApp } from "@/stack/server"
+import { auth } from "@/lib/auth"
+import { redirect } from "next/navigation"
 import { SubscribersTable } from "@/components/subscribers-table"
 import { Subscriber } from "./columns"
 
 async function SubscribersPage() {
-  await stackServerApp.getUser({ or: "redirect" });
+  const session = await auth();
+  if (!session) redirect("/login");
 
   const stats = await getSubscriberStats();
   const initialSubscribersData = await getSubscribers({});

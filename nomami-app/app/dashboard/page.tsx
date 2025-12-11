@@ -8,11 +8,13 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar"
 import { getDashboardMetrics, getLatestSubscribers } from "@/lib/queries"
-import { stackServerApp } from "@/stack/server"
+import { auth } from "@/lib/auth"
+import { redirect } from "next/navigation"
 import { columns, Subscriber } from "./columns"
 
 async function DashboardPage() {
-  await stackServerApp.getUser({ or: "redirect" });
+  const session = await auth();
+  if (!session) redirect("/login");
 
   const metrics = await getDashboardMetrics();
   const latestSubscribers = (await getLatestSubscribers()) as Subscriber[];

@@ -1,0 +1,90 @@
+openapi: 3.0.0
+info:
+  title: Admin User Management API
+  version: 1.0.0
+paths:
+  /api/admin/users:
+    get:
+      summary: List users
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of users
+    post:
+      summary: Create user
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, cpf]
+              properties:
+                name: { type: string }
+                email: { type: string, format: email }
+                cpf: { type: string }
+                role: { type: string, enum: [USER, ADMIN] }
+      responses:
+        '201':
+          description: User created
+  
+  /api/admin/users/{id}:
+    patch:
+      summary: Update user details or set password blindly
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                email: { type: string }
+                password: { type: string, description: "If provided, updates user password" }
+                role: { type: string }
+      responses:
+        '200':
+          description: User updated
+
+  /api/auth/first-access/validate:
+    post:
+      summary: Validate user for first access
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, cpf]
+              properties:
+                email: { type: string }
+                cpf: { type: string }
+      responses:
+        '200':
+          description: Valid, can proceed to set password
+        '400':
+          description: Invalid credentials or already registered
+
+  /api/auth/first-access/complete:
+    post:
+      summary: Set password for first access
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, cpf, password]
+              properties:
+                email: { type: string }
+                cpf: { type: string }
+                password: { type: string }
+      responses:
+        '200':
+          description: Password set, user activated

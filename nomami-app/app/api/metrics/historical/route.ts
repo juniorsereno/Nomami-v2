@@ -19,14 +19,19 @@ export async function GET() {
            FROM subscribers s
            WHERE s.start_date <= d.day
              AND s.status = 'ativo'
-          ) AS active_subscribers
+          ) AS active_subscribers,
+        (SELECT COUNT(*)
+           FROM subscribers s
+           WHERE s.start_date::date = d.day
+          ) AS new_subscribers
         FROM date_series d
         ORDER BY d.day ASC;
     `;
 
     const formattedData = historicalData.map(item => ({
       date: item.date,
-      active_subscribers: parseInt(item.active_subscribers, 10)
+      active_subscribers: parseInt(item.active_subscribers, 10),
+      new_subscribers: parseInt(item.new_subscribers, 10)
     }));
 
     return NextResponse.json(formattedData);

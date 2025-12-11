@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
+import { Area, Bar, CartesianGrid, ComposedChart, XAxis, YAxis } from "recharts"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import {
@@ -37,11 +37,16 @@ const chartConfig = {
     label: "Clientes Ativos",
     color: "var(--primary)",
   },
+  newSubscribers: {
+    label: "Novos Assinantes",
+    color: "#613EC2",
+  },
 } satisfies ChartConfig
 
 interface HistoricalData {
   date: string;
   active_subscribers: number;
+  new_subscribers: number;
 }
 
 export function ChartAreaInteractive() {
@@ -83,6 +88,8 @@ export function ChartAreaInteractive() {
     startDate.setDate(startDate.getDate() - daysToSubtract)
     return date >= startDate
   })
+
+  const maxNewSubscribers = Math.max(...filteredData.map((d) => d.new_subscribers), 0)
 
   return (
     <Card className="@container/card">
@@ -129,13 +136,13 @@ export function ChartAreaInteractive() {
           config={chartConfig}
           className="aspect-auto h-[250px] w-full"
         >
-          <AreaChart data={filteredData}>
+          <ComposedChart data={filteredData}>
             <defs>
               <linearGradient id="fillActiveSubscribers" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
                   stopColor="var(--color-activeSubscribers)"
-                  stopOpacity={1.0}
+                  stopOpacity={0.8}
                 />
                 <stop
                   offset="95%"
@@ -159,6 +166,13 @@ export function ChartAreaInteractive() {
                 })
               }}
             />
+            <YAxis yAxisId="left" hide />
+            <YAxis
+              yAxisId="right"
+              orientation="right"
+              hide
+              domain={[0, maxNewSubscribers + 3]}
+            />
             <ChartTooltip
               cursor={false}
               content={
@@ -174,13 +188,21 @@ export function ChartAreaInteractive() {
               }
             />
             <Area
+              yAxisId="left"
               dataKey="active_subscribers"
               type="natural"
               fill="url(#fillActiveSubscribers)"
               stroke="var(--color-activeSubscribers)"
               stackId="a"
             />
-          </AreaChart>
+            <Bar
+              yAxisId="right"
+              dataKey="new_subscribers"
+              fill="var(--color-newSubscribers)"
+              radius={[4, 4, 0, 0]}
+              barSize={20}
+            />
+          </ComposedChart>
         </ChartContainer>
       </CardContent>
     </Card>
