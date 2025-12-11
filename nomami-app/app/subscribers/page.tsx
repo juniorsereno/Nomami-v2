@@ -11,9 +11,12 @@ import { redirect } from "next/navigation"
 import { SubscribersTable } from "@/components/subscribers-table"
 import { Subscriber } from "./columns"
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function SubscribersPage() {
   const session = await auth();
-  if (!session) redirect("/login");
+  if (!session || !session.user) redirect("/login");
 
   const stats = await getSubscriberStats();
   const initialSubscribersData = await getSubscribers({});

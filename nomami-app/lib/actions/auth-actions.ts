@@ -16,11 +16,15 @@ export async function signIn(prevState: { error: string } | null, formData: Form
   }
 
   try {
-    await nextAuthSignIn("credentials", {
+    const result = await nextAuthSignIn("credentials", {
       email,
       password,
       redirect: false,
     })
+
+    if (!result || result.error) {
+      return { error: "Email ou senha inválidos" }
+    }
     
     redirect("/dashboard")
   } catch (error) {

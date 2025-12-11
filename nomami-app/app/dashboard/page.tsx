@@ -12,9 +12,14 @@ import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { columns, Subscriber } from "./columns"
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function DashboardPage() {
   const session = await auth();
-  if (!session) redirect("/login");
+  if (!session || !session.user) {
+    redirect("/login");
+  }
 
   const metrics = await getDashboardMetrics();
   const latestSubscribers = (await getLatestSubscribers()) as Subscriber[];

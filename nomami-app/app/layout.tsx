@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Nunito } from "next/font/google";
-import { SessionProvider } from "next-auth/react";
+import { SessionProvider } from "@/components/auth/session-provider";
 import "./globals.css";
 
 const nunito = Nunito({

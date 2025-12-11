@@ -5,6 +5,7 @@ import { comparePassword } from "./auth/password"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: process.env.AUTH_SECRET,
+  trustHost: true,
   providers: [
     Credentials({
       credentials: {
@@ -76,6 +77,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id
         token.role = user.role
+        token.iat = Math.floor(Date.now() / 1000)
       }
       return token
     },
@@ -89,5 +91,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   session: {
     strategy: "jwt",
+    maxAge: 2 * 60 * 60, // 2 horas de sessão
   },
 })
