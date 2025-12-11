@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import sql from '@/lib/db-pool';
-import { getTelemedicineCredentials } from '../credentials/route';
+import { getTelemedicineCredentials } from '@/lib/telemedicine-config';
 import { logger, logError } from '@/lib/logger';
 
 export async function POST(request: Request) {
