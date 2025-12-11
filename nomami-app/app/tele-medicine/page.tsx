@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { useUser } from '@stackframe/stack';
+import { useSession } from '@/hooks/use-session';
 import { AppSidebar } from '@/components/app-sidebar';
 import { SiteHeader } from '@/components/site-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { TelemedicineBatchesTable, TelemedicineBatch } from '@/components/telemedicine-batches-table';
 
 export default function TeleMedicinePage() {
-  const user = useUser({ or: 'redirect' });
+  useSession({ or: 'redirect' });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [batches, setBatches] = useState<TelemedicineBatch[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -33,10 +33,6 @@ export default function TeleMedicinePage() {
   useEffect(() => {
     fetchBatches();
   }, [fetchBatches]);
-
-  if (!user) {
-    return null;
-  }
 
   const handleBatchAdded = () => {
     fetchBatches();
