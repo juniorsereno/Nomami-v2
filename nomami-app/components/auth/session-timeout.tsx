@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { signOut } from "next-auth/react"
 
@@ -8,9 +8,9 @@ const INACTIVITY_TIMEOUT = 30 * 60 * 1000 // 30 minutos em milissegundos
 
 export function SessionTimeout() {
   const router = useRouter()
-  const timeoutRef = useRef<NodeJS.Timeout>()
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  const resetTimeout = () => {
+  const resetTimeout = useCallback(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
     }
@@ -19,7 +19,7 @@ export function SessionTimeout() {
       await signOut({ redirect: false })
       router.push("/login")
     }, INACTIVITY_TIMEOUT)
-  }
+  }, [router])
 
   useEffect(() => {
     // Eventos que resetam o timeout
@@ -46,7 +46,7 @@ export function SessionTimeout() {
         document.removeEventListener(event, handleActivity)
       })
     }
-  }, [])
+  }, [resetTimeout])
 
   return null
 }
