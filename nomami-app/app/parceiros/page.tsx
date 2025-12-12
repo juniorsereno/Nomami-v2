@@ -1,6 +1,6 @@
 import { getPartners } from "@/lib/queries";
 import { PartnerCard } from "@/components/partner-card";
-import Image from "next/image";
+import { NomamiLogo } from "@/components/nomami-logo";
 
 export const dynamic = 'force-dynamic';
 
@@ -22,15 +22,7 @@ export default async function PublicPartnersPage() {
     <div className="min-h-screen bg-[#602986] flex flex-col">
       <header className="border-b border-white/10">
         <div className="container mx-auto px-4 py-4 flex items-center justify-center">
-           <div className="relative h-12 w-40">
-             <Image
-               src="/logo.webp"
-               alt="Nomami Logo"
-               fill
-               className="object-contain"
-               priority
-             />
-           </div>
+           <NomamiLogo width={160} height={48} priority />
         </div>
       </header>
       

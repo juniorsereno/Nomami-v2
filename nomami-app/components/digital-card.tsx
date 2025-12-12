@@ -1,6 +1,6 @@
 import React from 'react';
 import { CardContent } from "@/components/ui/card";
-import Image from 'next/image';
+import { NomamiLogo } from "@/components/nomami-logo";
 
 interface DigitalCardProps {
     subscriber: {
@@ -30,13 +30,7 @@ export function DigitalCard({ subscriber }: DigitalCardProps) {
                         {/* Header with Logo */}
                         <div className="flex justify-between items-start">
                             <div className="relative w-32 h-12">
-                                <Image
-                                    src="/logo.webp"
-                                    alt="Nomami Logo"
-                                    fill
-                                    className="object-contain object-left"
-                                    priority
-                                />
+                                <NomamiLogo width={128} height={48} priority />
                             </div>
                         </div>
 
