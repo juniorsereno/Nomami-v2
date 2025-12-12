@@ -24,7 +24,12 @@ export interface AsaasWebhookEvent {
   [key: string]: unknown;
 }
 
-async function logAsaasWebhook(requestBody: Record<string, unknown> | AsaasWebhookEvent, status: 'success' | 'failed', errorMessage?: string) {
+async function logAsaasWebhook(
+  requestBody: Record<string, unknown> | AsaasWebhookEvent, 
+  status: 'success' | 'failed', 
+  errorMessage?: string,
+  asaasApiResponse?: Record<string, unknown>
+) {
   // Log no console via Pino
   if (status === 'failed') {
     logger.error({ errorMessage, requestBody }, 'Asaas Webhook Failed');
@@ -34,8 +39,13 @@ async function logAsaasWebhook(requestBody: Record<string, unknown> | AsaasWebho
 
   try {
     await sql`
-      INSERT INTO asaas_webhook_logs (request_body, status, error_message)
-      VALUES (${JSON.stringify(requestBody)}, ${status}, ${errorMessage || null})
+      INSERT INTO asaas_webhook_logs (request_body, status, error_message, asaas_api_response)
+      VALUES (
+        ${JSON.stringify(requestBody)}, 
+        ${status}, 
+        ${errorMessage || null},
+        ${asaasApiResponse ? JSON.stringify(asaasApiResponse) : null}
+      )
     `;
   } catch (dbError) {
     logger.error({ err: dbError }, 'Falha ao registrar o log do webhook Asaas no banco de dados');
@@ -80,6 +90,9 @@ export async function processAsaasWebhook(body: AsaasWebhookEvent): Promise<Webh
     }
 
     const customerData = await customerResponse.json();
+    
+    // Armazena a resposta da API para logging
+    const asaasApiResponse = customerData;
 
     // 3. Extração e Validação dos dados do cliente
     const { name, email, cpfCnpj, phone } = customerData;
@@ -91,7 +104,7 @@ export async function processAsaasWebhook(body: AsaasWebhookEvent): Promise<Webh
         if (!cpfCnpj) missingFields.push('cpfCnpj');
         
         const errorMessage = `Dados do cliente incompletos retornados pela API Asaas. Faltando: ${missingFields.join(', ')}.`;
-        await logAsaasWebhook(body, 'failed', errorMessage);
+        await logAsaasWebhook(body, 'failed', errorMessage, asaasApiResponse);
         return { success: false, error: errorMessage, status: 400 };
     }
 
@@ -123,7 +136,7 @@ export async function processAsaasWebhook(body: AsaasWebhookEvent): Promise<Webh
         
         const successMsg = `Assinante atualizado/renovado: ${name} (CPF: ${cpfCnpj})`;
         console.log(`[ASAAS WEBHOOK] ${successMsg}`);
-        await logAsaasWebhook(body, 'success', successMsg);
+        await logAsaasWebhook(body, 'success', successMsg, asaasApiResponse);
         return { success: true, message: 'Assinante atualizado com sucesso.', status: 200 };
     } else {
         // 5b. Criação (Novo Assinante)
@@ -134,7 +147,7 @@ export async function processAsaasWebhook(body: AsaasWebhookEvent): Promise<Webh
         
         const successMsg = `Novo assinante criado: ${name} (CPF: ${cpfCnpj})`;
         console.log(`[ASAAS WEBHOOK] ${successMsg}`);
-        await logAsaasWebhook(body, 'success', successMsg);
+        await logAsaasWebhook(body, 'success', successMsg, asaasApiResponse);
         return { success: true, message: 'Novo assinante criado com sucesso.', status: 200 };
     }
 
