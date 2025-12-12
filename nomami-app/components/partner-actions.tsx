@@ -65,7 +65,7 @@ export function PartnerActions({ partner }: PartnerActionsProps) {
             </DropdownMenu>
 
             <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-                <DialogContent className="sm:max-w-[425px]">
+                <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>Editar Parceiro</DialogTitle>
                         <DialogDescription>
@@ -78,13 +78,14 @@ export function PartnerActions({ partner }: PartnerActionsProps) {
                         initialData={{
                             company_name: partner.company_name,
                             cnpj: partner.cnpj,
-                            phone: partner.phone,
+                            phone: partner.phone || undefined,
                             address: partner.address,
                             benefit_description: partner.benefit_description,
                             status: mapStatus(partner.status),
                             category: mapCategory(partner.category),
                             logo_url: partner.logo_url || undefined,
                             site_url: partner.site_url || undefined,
+                            instagram_url: partner.instagram_url || undefined,
                         }}
                     />
                 </DialogContent>

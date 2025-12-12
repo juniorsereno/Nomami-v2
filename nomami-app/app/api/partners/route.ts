@@ -6,13 +6,14 @@ import { logger, logError } from '@/lib/logger';
 const partnerSchema = z.object({
   company_name: z.string().min(2, "O nome da empresa é obrigatório."),
   cnpj: z.string().min(14, "O CNPJ deve ter 14 caracteres.").max(14, "O CNPJ deve ter 14 caracteres."),
-  phone: z.string().min(10, "O telefone é obrigatório."),
+  phone: z.string().optional(),
   address: z.string().min(5, "O endereço é obrigatório."),
   category: z.string().min(1, "A categoria é obrigatória."),
   benefit_description: z.string().min(5, "A descrição do benefício é obrigatória."),
   status: z.enum(['ativo', 'inativo']),
   logo_url: z.string().optional(),
   site_url: z.string().optional(),
+  instagram_url: z.string().optional(),
 });
 
 export async function POST(request: Request) {
@@ -25,13 +26,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Dados inválidos', details: validation.error.flatten() }, { status: 400 });
     }
 
-    const { company_name, cnpj, phone, address, category, benefit_description, status, logo_url, site_url } = validation.data;
+    const { company_name, cnpj, phone, address, category, benefit_description, status, logo_url, site_url, instagram_url } = validation.data;
 
     logger.info({ company_name, cnpj }, 'Criando novo parceiro');
 
     const result = await sql`
-      INSERT INTO parceiros (nome, cnpj, categoria, beneficio, ativo, updated_at, endereco, telefone, logo_url, site_url)
-      VALUES (${company_name}, ${cnpj}, ${category}, ${benefit_description}, ${status === 'ativo'}, NOW(), ${address}, ${phone}, ${logo_url || null}, ${site_url || null})
+      INSERT INTO parceiros (nome, cnpj, categoria, beneficio, ativo, updated_at, endereco, telefone, logo_url, site_url, instagram_url)
+      VALUES (${company_name}, ${cnpj}, ${category}, ${benefit_description}, ${status === 'ativo'}, NOW(), ${address}, ${phone || null}, ${logo_url || null}, ${site_url || null}, ${instagram_url || null})
       RETURNING id;
     `;
 

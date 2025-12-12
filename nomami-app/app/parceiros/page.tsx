@@ -16,6 +16,7 @@ export default async function PublicPartnersPage() {
     phone: p.phone,
     logo_url: p.logo_url,
     site_url: p.site_url,
+    instagram_url: p.instagram_url,
   }));
 
   return (
@@ -44,7 +45,7 @@ export default async function PublicPartnersPage() {
             Nenhum parceiro encontrado no momento.
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-fr">
             {activePartners.map((partner) => (
               <PartnerCard key={partner.id} partner={partner} />
             ))}

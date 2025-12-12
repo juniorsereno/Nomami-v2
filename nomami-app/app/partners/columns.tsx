@@ -7,7 +7,7 @@ export interface Partner {
   id: string;
   company_name: string;
   cnpj: string;
-  phone: string;
+  phone?: string | null;
   status: string;
   entry_date: string;
   benefit_description: string;
@@ -15,6 +15,7 @@ export interface Partner {
   category: string;
   logo_url?: string | null;
   site_url?: string | null;
+  instagram_url?: string | null;
 }
 
 export const columns: ColumnDef<Partner>[] = [

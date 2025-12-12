@@ -30,7 +30,7 @@ const categories = ["Saúde", "Lazer", "Alimentação", "Transporte", "Vestuári
 const formSchema = z.object({
   company_name: z.string().min(2, "O nome da empresa é obrigatório."),
   cnpj: z.string().min(14, "O CNPJ deve ter no mínimo 14 dígitos.").max(18, "O CNPJ deve ter no máximo 18 caracteres."),
-  phone: z.string().min(10, "O telefone é obrigatório."),
+  phone: z.string().optional(),
   address: z.string().min(5, "O endereço é obrigatório."),
   category: z.enum(categories as unknown as [string, ...string[]], {
     message: "A categoria é obrigatória.",
@@ -39,6 +39,7 @@ const formSchema = z.object({
   status: z.enum(['ativo', 'inativo']),
   logo_url: z.string().optional(),
   site_url: z.string().optional(),
+  instagram_url: z.string().optional(),
 })
 
 interface AddPartnerFormProps {
@@ -59,6 +60,7 @@ export function AddPartnerForm({ onPartnerAdded, initialData, partnerId }: AddPa
       status: "ativo",
       logo_url: "",
       site_url: "",
+      instagram_url: "",
     },
   })
 
@@ -137,7 +139,7 @@ export function AddPartnerForm({ onPartnerAdded, initialData, partnerId }: AddPa
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
         <FormField
           control={form.control}
           name="logo_url"
@@ -209,9 +211,22 @@ export function AddPartnerForm({ onPartnerAdded, initialData, partnerId }: AddPa
           name="site_url"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Site (Opcional)</FormLabel>
+              <FormLabel>Site</FormLabel>
               <FormControl>
                 <Input placeholder="https://www.exemplo.com.br" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="instagram_url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Instagram</FormLabel>
+              <FormControl>
+                <Input placeholder="@usuario" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

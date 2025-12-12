@@ -165,7 +165,8 @@ export async function getPartners() {
         p.endereco as address,
         p.categoria as category,
         p.logo_url,
-        p.site_url
+        p.site_url,
+        p.instagram_url
       FROM
         parceiros p
       ORDER BY
