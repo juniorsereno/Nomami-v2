@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { type Icon } from "@tabler/icons-react"
+import { SmoothLink } from "@/components/smooth-link"
 
 import {
   SidebarGroup,
@@ -28,10 +29,10 @@ export function NavSecondary({
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild>
-                <a href={item.url}>
+                <SmoothLink href={item.url}>
                   <item.icon />
                   <span className="text-base font-medium">{item.title}</span>
-                </a>
+                </SmoothLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}

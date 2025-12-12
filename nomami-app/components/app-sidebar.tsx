@@ -24,6 +24,7 @@ import {
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
+import { SmoothLink } from "@/components/smooth-link"
 import { Separator } from "@/components/ui/separator"
 import {
   Sidebar,
@@ -87,7 +88,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader className="flex justify-center p-4">
-        <a href="/dashboard">
+        <SmoothLink href="/dashboard">
           <Image
             src="https://nomami.com.br/assets/LOGO_1752579727506-Cc7LLzXJ.png"
             alt="NoMami Logo"
@@ -95,7 +96,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             height={40}
             className="h-10 w-auto"
           />
-        </a>
+        </SmoothLink>
       </SidebarHeader>
       <Separator />
       <SidebarContent>
