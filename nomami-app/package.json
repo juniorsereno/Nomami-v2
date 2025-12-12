@@ -7,7 +7,7 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "clean": "node scripts/clear-cache.js",
+    "clean": "node scripts/clear-cache.mjs",
     "rebuild": "npm run clean && npm run build"
   },
   "dependencies": {
