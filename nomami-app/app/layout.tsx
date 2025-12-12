@@ -35,11 +35,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${nunito.variable} antialiased`}
       >
-        <SessionProvider>
-          <PageTransitionProvider>
+        <PageTransitionProvider>
+          <SessionProvider>
             {children}
-          </PageTransitionProvider>
-        </SessionProvider>
+          </SessionProvider>
+        </PageTransitionProvider>
       </body>
     </html>
   );
