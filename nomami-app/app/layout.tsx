@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Nunito } from "next/font/google";
 import { SessionProvider } from "@/components/auth/session-provider";
+import { PageTransitionProvider } from "@/components/page-transition-provider";
 import "./globals.css";
 
 const nunito = Nunito({
@@ -34,9 +35,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${nunito.variable} antialiased`}
       >
-        <SessionProvider>
-          {children}
-        </SessionProvider>
+        <PageTransitionProvider>
+          <SessionProvider>
+            {children}
+          </SessionProvider>
+        </PageTransitionProvider>
       </body>
     </html>
   );

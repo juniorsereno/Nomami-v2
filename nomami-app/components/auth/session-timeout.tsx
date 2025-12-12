@@ -1,13 +1,13 @@
 "use client"
 
 import { useEffect, useRef, useCallback } from "react"
-import { useRouter } from "next/navigation"
 import { signOut } from "next-auth/react"
+import { useSmoothNavigation } from "@/hooks/use-smooth-navigation"
 
 const INACTIVITY_TIMEOUT = 30 * 60 * 1000 // 30 minutos em milissegundos
 
 export function SessionTimeout() {
-  const router = useRouter()
+  const { navigate } = useSmoothNavigation()
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const resetTimeout = useCallback(() => {
@@ -17,9 +17,9 @@ export function SessionTimeout() {
 
     timeoutRef.current = setTimeout(async () => {
       await signOut({ redirect: false })
-      router.push("/login")
+      navigate("/login")
     }, INACTIVITY_TIMEOUT)
-  }, [router])
+  }, [navigate])
 
   useEffect(() => {
     // Eventos que resetam o timeout

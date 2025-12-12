@@ -10,13 +10,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { validateFirstAccess, completeFirstAccess } from '@/lib/actions/auth-actions';
 import { toast } from 'sonner';
 import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useSmoothNavigation } from '@/hooks/use-smooth-navigation';
 
 type ValidateFormData = z.infer<typeof firstAccessValidateSchema>;
 type CompleteFormData = z.infer<typeof firstAccessCompleteSchema>;
 
 export function FirstAccessForm() {
-  const router = useRouter();
+  const { navigate } = useSmoothNavigation();
   const [step, setStep] = useState<1 | 2>(1);
   const [isPending, startTransition] = useTransition();
   const [validatedData, setValidatedData] = useState<ValidateFormData | null>(null);
@@ -58,7 +58,7 @@ export function FirstAccessForm() {
       const result = await completeFirstAccess(data);
       if (result.success) {
         toast.success('Senha definida com sucesso. Faça login.');
-        router.push('/login');
+        navigate('/login');
       } else {
         toast.error(result.error || 'Falha ao definir senha');
       }
