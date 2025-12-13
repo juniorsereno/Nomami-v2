@@ -29,7 +29,14 @@ export async function middleware(request: NextRequest) {
   );
 
   // Rotas públicas que não precisam de autenticação
-  const publicRoutes = ['/login', '/first-access', '/api/auth', '/parceiros', '/card'];
+  const publicRoutes = [
+    '/login', 
+    '/first-access', 
+    '/api/auth', 
+    '/api/webhook', // Webhooks externos (Asaas, Stripe, etc)
+    '/parceiros', 
+    '/card'
+  ];
   const isPublicRoute = publicRoutes.some(route => nextUrl.pathname.startsWith(route));
 
   if (isPublicRoute) {
