@@ -60,6 +60,20 @@ async function processPaymentOverdue(
 ): Promise<WebhookResult> {
   const customerId = payment.customer;
   
+  logger.info({
+    service: 'asaas',
+    event: 'PAYMENT_OVERDUE',
+    customerId,
+    dueDate: payment.dueDate
+  }, `
+╭──────────────────────────────────────────────────
+│ ⚠️ ASAAS PAYMENT OVERDUE
+│
+│ 👤 Customer ID: ${customerId}
+│ 📅 Data Vencimento: ${payment.dueDate}
+│ 💰 Valor: R$ ${payment.value}
+╰──────────────────────────────────────────────────`);
+
   try {
     // 1. Busca dados do cliente na API Asaas
     let customerResponse;
@@ -80,13 +94,27 @@ async function processPaymentOverdue(
 
     const customerData = await customerResponse.json();
     const asaasApiResponse = customerData;
-    const { cpfCnpj } = customerData;
+    const { cpfCnpj, name: customerName } = customerData;
 
     if (!cpfCnpj) {
       const errorMessage = 'CPF/CNPJ não encontrado nos dados do cliente';
       await logAsaasWebhook(body, 'failed', errorMessage, asaasApiResponse);
       return { success: false, error: errorMessage, status: 400 };
     }
+
+    logger.info({
+      service: 'asaas',
+      customerId,
+      cpfCnpj,
+      customerName
+    }, `
+╭──────────────────────────────────────────────────
+│ 🔍 ASAAS CUSTOMER FOUND
+│
+│ 👤 Nome: ${customerName}
+│ 📄 CPF/CNPJ: ${cpfCnpj}
+│ 🔑 Customer ID: ${customerId}
+╰──────────────────────────────────────────────────`);
 
     // 2. Busca assinante pelo CPF
     const existingSubscriber = await sql`
@@ -112,7 +140,22 @@ async function processPaymentOverdue(
     `;
 
     const successMsg = `Assinante marcado como vencido: ${existingSubscriber[0].name} (CPF: ${cpfCnpj}). Data de vencimento: ${payment.dueDate}`;
-    console.log(`[ASAAS WEBHOOK] ${successMsg}`);
+    
+    logger.info({
+      service: 'asaas',
+      customerId,
+      cpfCnpj,
+      subscriberName: existingSubscriber[0].name
+    }, `
+╭──────────────────────────────────────────────────
+│ ✅ ASAAS SUBSCRIBER MARKED OVERDUE
+│
+│ 👤 Nome: ${existingSubscriber[0].name}
+│ 📄 CPF: ${cpfCnpj}
+│ 📅 Data Vencimento: ${payment.dueDate}
+│ 📋 Status: ativo → vencido
+╰──────────────────────────────────────────────────`);
+
     await logAsaasWebhook(body, 'success', successMsg, asaasApiResponse);
     
     return { 

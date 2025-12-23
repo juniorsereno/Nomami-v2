@@ -13,6 +13,8 @@ export async function GET(request: Request) {
     const order = searchParams.get('order') === 'desc' ? 'DESC' : 'ASC';
     const offset = (page - 1) * pageSize;
 
+    const status = searchParams.get('status');
+
     const conditions = [];
     if (search) {
       const searchTerm = '%' + search + '%';
@@ -20,6 +22,9 @@ export async function GET(request: Request) {
     }
     if (plan) {
       conditions.push(sql`plan_type = ${plan}`);
+    }
+    if (status) {
+      conditions.push(sql`status = ${status}`);
     }
     if (dateRange) {
       switch (dateRange) {

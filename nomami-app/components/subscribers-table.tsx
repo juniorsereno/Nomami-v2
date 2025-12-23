@@ -29,6 +29,7 @@ export function SubscribersTable({ initialSubscribers, initialTotal }: Subscribe
   const [sorting, setSorting] = useState<SortingState>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [plan, setPlan] = useState('all');
+  const [status, setStatus] = useState('all');
   const [dateRange, setDateRange] = useState('all');
 
   // Debounce search term
@@ -48,7 +49,7 @@ export function SubscribersTable({ initialSubscribers, initialTotal }: Subscribe
   useEffect(() => {
     const fetchSubscribers = async () => {
       // Skip fetch if it's the initial render with initial data
-      if (pagination.pageIndex === 0 && !debouncedSearchTerm && plan === 'all' && dateRange === 'all' && sorting.length === 0) {
+      if (pagination.pageIndex === 0 && !debouncedSearchTerm && plan === 'all' && status === 'all' && dateRange === 'all' && sorting.length === 0) {
         setSubscribers(initialSubscribers);
         setTotalSubscribers(initialTotal);
         return;
@@ -58,6 +59,7 @@ export function SubscribersTable({ initialSubscribers, initialTotal }: Subscribe
         const params = new URLSearchParams();
         if (debouncedSearchTerm) params.append('search', debouncedSearchTerm);
         if (plan !== 'all') params.append('plan', plan);
+        if (status !== 'all') params.append('status', status);
         if (dateRange !== 'all') params.append('dateRange', dateRange);
         params.append('page', (pagination.pageIndex + 1).toString());
         params.append('pageSize', pagination.pageSize.toString());
@@ -80,7 +82,7 @@ export function SubscribersTable({ initialSubscribers, initialTotal }: Subscribe
     };
 
     fetchSubscribers();
-  }, [debouncedSearchTerm, plan, dateRange, pagination, sorting, initialSubscribers, initialTotal]);
+  }, [debouncedSearchTerm, plan, status, dateRange, pagination, sorting, initialSubscribers, initialTotal]);
 
   const pageCount = useMemo(() => {
     return Math.ceil(totalSubscribers / pagination.pageSize);
@@ -103,6 +105,16 @@ export function SubscribersTable({ initialSubscribers, initialTotal }: Subscribe
             <SelectItem value="all">Todos os Planos</SelectItem>
             <SelectItem value="mensal">Mensal</SelectItem>
             <SelectItem value="anual">Anual</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={status} onValueChange={setStatus}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Todos os Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os Status</SelectItem>
+            <SelectItem value="ativo">Ativo</SelectItem>
+            <SelectItem value="vencido">Vencido</SelectItem>
           </SelectContent>
         </Select>
         <Select value={dateRange} onValueChange={setDateRange}>
