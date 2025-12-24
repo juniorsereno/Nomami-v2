@@ -1,5 +1,7 @@
 import sql from '@/lib/db-pool';
 import { logger, logWebhookPayload, logError } from '@/lib/logger';
+import { executeCadence, SubscriberInfo } from '@/lib/whatsapp/cadence-service';
+import { getWhatsAppConfig } from '@/lib/whatsapp/config';
 
 export interface WebhookResult {
   success: boolean;
@@ -246,9 +248,10 @@ export async function processStripeWebhook(body: StripeWebhookEvent): Promise<We
       return { success: true, message: 'Assinante atualizado com sucesso.', status: 200 };
     } else {
       // Criação (Novo Assinante)
-      await sql`
+      const newSubscriberResult = await sql`
         INSERT INTO subscribers (name, email, cpf, phone, plan_type, start_date, next_due_date, status, stripe_customer_id, stripe_subscription_id, value, created_at)
         VALUES (${customerName}, ${customerEmail}, ${null}, ${customerPhone}, 'mensal', NOW(), ${nextDueDate.toISOString()}, 'ativo', ${customerId}, ${subscriptionId}, ${value}, NOW())
+        RETURNING id
       `;
 
       const successMsg = `Novo assinante criado: ${customerName} (Email: ${customerEmail})`;
@@ -263,6 +266,56 @@ export async function processStripeWebhook(body: StripeWebhookEvent): Promise<We
 ╰──────────────────────────────────────────────────`);
 
       await logStripeWebhook(body, 'success', successMsg);
+
+      // Execute WhatsApp cadence for new subscriber (if enabled)
+      try {
+        const whatsappConfig = await getWhatsAppConfig();
+        
+        if (whatsappConfig.cadenceEnabled && customerPhone) {
+          logger.info({
+            subscriberId: newSubscriberResult[0].id,
+            subscriberName: customerName,
+            phone: customerPhone
+          }, 'Starting WhatsApp cadence for new Stripe subscriber');
+
+          const subscriberInfo: SubscriberInfo = {
+            id: newSubscriberResult[0].id,
+            name: customerName,
+            phone: customerPhone,
+            subscriptionDate: new Date().toISOString(),
+          };
+
+          // Execute cadence asynchronously (don't block webhook response)
+          executeCadence(subscriberInfo).then(result => {
+            if (result.success) {
+              logger.info({
+                subscriberId: newSubscriberResult[0].id,
+                messagesSucceeded: result.messagesSucceeded
+              }, 'WhatsApp cadence completed successfully for Stripe subscriber');
+            } else {
+              logger.warn({
+                subscriberId: newSubscriberResult[0].id,
+                messagesFailed: result.messagesFailed,
+                errors: result.errors
+              }, 'WhatsApp cadence completed with failures for Stripe subscriber');
+            }
+          }).catch(error => {
+            logError(error, 'Error executing WhatsApp cadence for Stripe subscriber');
+          });
+        } else if (!whatsappConfig.cadenceEnabled) {
+          logger.info({
+            subscriberId: newSubscriberResult[0].id
+          }, 'WhatsApp cadence is disabled, skipping for Stripe subscriber');
+        } else if (!customerPhone) {
+          logger.info({
+            subscriberId: newSubscriberResult[0].id
+          }, 'Stripe subscriber has no phone number, skipping WhatsApp cadence');
+        }
+      } catch (cadenceError) {
+        // Don't fail the webhook if cadence fails
+        logError(cadenceError, 'Error initiating WhatsApp cadence for Stripe subscriber');
+      }
+
       return { success: true, message: 'Novo assinante criado com sucesso.', status: 200 };
     }
 

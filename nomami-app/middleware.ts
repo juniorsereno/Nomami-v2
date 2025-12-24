@@ -34,6 +34,7 @@ export async function middleware(request: NextRequest) {
     '/first-access', 
     '/api/auth', 
     '/api/webhook', // Webhooks externos (Asaas, Stripe, etc)
+    '/api/whatsapp/test-cadence', // Rota de teste temporária
     '/parceiros', 
     '/card'
   ];

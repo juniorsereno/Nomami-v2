@@ -1,6 +1,8 @@
 import sql from '@/lib/db-pool';
 import { logger, logWebhookPayload, logError } from '@/lib/logger';
 import { fetchAsaas } from '@/lib/asaas';
+import { executeCadence, SubscriberInfo } from '@/lib/whatsapp/cadence-service';
+import { getWhatsAppConfig } from '@/lib/whatsapp/config';
 
 export interface WebhookResult {
   success: boolean;
@@ -183,7 +185,7 @@ export async function processAsaasWebhook(body: AsaasWebhookEvent): Promise<Webh
     const eventType = event.event;
     
     // Eventos suportados
-    if (eventType !== 'PAYMENT_CONFIRMED' && eventType !== 'PAYMENT_OVERDUE') {
+    if (eventType !== 'PAYMENT_CONFIRMED' && eventType !== 'PAYMENT_RECEIVED' && eventType !== 'PAYMENT_OVERDUE') {
       return { success: true, message: 'Evento não processado.', status: 200 };
     }
 
@@ -197,6 +199,19 @@ export async function processAsaasWebhook(body: AsaasWebhookEvent): Promise<Webh
     if (eventType === 'PAYMENT_OVERDUE') {
       return await processPaymentOverdue(body, payment);
     }
+
+    // PAYMENT_CONFIRMED e PAYMENT_RECEIVED são tratados da mesma forma
+    logger.info({
+      service: 'asaas',
+      event: eventType,
+      customerId: payment.customer
+    }, `
+╭──────────────────────────────────────────────────
+│ 💳 ASAAS ${eventType}
+│
+│ 👤 Customer ID: ${payment.customer}
+│ 💰 Valor: R$ ${payment.value}
+╰──────────────────────────────────────────────────`);
 
     // 2. Busca dados do cliente na API Asaas (Fonte da Verdade)
     const customerId = payment.customer;
@@ -268,14 +283,65 @@ export async function processAsaasWebhook(body: AsaasWebhookEvent): Promise<Webh
         return { success: true, message: 'Assinante atualizado com sucesso.', status: 200 };
     } else {
         // 5b. Criação (Novo Assinante)
-        await sql`
+        const newSubscriberResult = await sql`
             INSERT INTO subscribers (name, email, cpf, phone, plan_type, start_date, next_due_date, status, value, asaas_customer_id, asaas_subscription_id, created_at)
             VALUES (${name}, ${email}, ${cpfCnpj}, ${phone || null}, 'mensal', NOW(), ${nextDueDate.toISOString()}, 'ativo', ${payment.value}, ${customerId}, ${payment.subscription || null}, NOW())
+            RETURNING id
         `;
         
         const successMsg = `Novo assinante criado: ${name} (CPF: ${cpfCnpj})`;
         console.log(`[ASAAS WEBHOOK] ${successMsg}`);
         await logAsaasWebhook(body, 'success', successMsg, asaasApiResponse);
+
+        // Execute WhatsApp cadence for new subscriber (if enabled)
+        try {
+          const whatsappConfig = await getWhatsAppConfig();
+          
+          if (whatsappConfig.cadenceEnabled && phone) {
+            logger.info({
+              subscriberId: newSubscriberResult[0].id,
+              subscriberName: name,
+              phone
+            }, 'Starting WhatsApp cadence for new subscriber');
+
+            const subscriberInfo: SubscriberInfo = {
+              id: newSubscriberResult[0].id,
+              name,
+              phone,
+              subscriptionDate: new Date().toISOString(),
+            };
+
+            // Execute cadence asynchronously (don't block webhook response)
+            executeCadence(subscriberInfo).then(result => {
+              if (result.success) {
+                logger.info({
+                  subscriberId: newSubscriberResult[0].id,
+                  messagesSucceeded: result.messagesSucceeded
+                }, 'WhatsApp cadence completed successfully');
+              } else {
+                logger.warn({
+                  subscriberId: newSubscriberResult[0].id,
+                  messagesFailed: result.messagesFailed,
+                  errors: result.errors
+                }, 'WhatsApp cadence completed with failures');
+              }
+            }).catch(error => {
+              logError(error, 'Error executing WhatsApp cadence');
+            });
+          } else if (!whatsappConfig.cadenceEnabled) {
+            logger.info({
+              subscriberId: newSubscriberResult[0].id
+            }, 'WhatsApp cadence is disabled, skipping');
+          } else if (!phone) {
+            logger.info({
+              subscriberId: newSubscriberResult[0].id
+            }, 'Subscriber has no phone number, skipping WhatsApp cadence');
+          }
+        } catch (cadenceError) {
+          // Don't fail the webhook if cadence fails
+          logError(cadenceError, 'Error initiating WhatsApp cadence');
+        }
+
         return { success: true, message: 'Novo assinante criado com sucesso.', status: 200 };
     }
 
