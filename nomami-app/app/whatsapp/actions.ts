@@ -4,9 +4,25 @@ const API_KEY = process.env.WHATSAPP_API_KEY || '';
 const BASE_URL = process.env.WHATSAPP_API_URL || '';
 const INSTANCE_NAME = process.env.WHATSAPP_INSTANCE || 'nomami';
 
+// Log para debug em produção
+console.log('[WhatsApp Actions] Environment check:', {
+  hasApiUrl: !!BASE_URL,
+  hasApiKey: !!API_KEY,
+  instance: INSTANCE_NAME,
+  apiUrlLength: BASE_URL.length
+});
+
 export async function getConnectionState() {
     try {
-        const response = await fetch(`${BASE_URL}/instance/connectionState/${INSTANCE_NAME}`, {
+        if (!BASE_URL) {
+            console.error('[WhatsApp Actions] WHATSAPP_API_URL não está configurada. Valor:', process.env.WHATSAPP_API_URL);
+            return { instance: { state: 'error', message: 'API URL não configurada' } };
+        }
+
+        const url = `${BASE_URL}/instance/connectionState/${INSTANCE_NAME}`;
+        console.log('[WhatsApp Actions] Fetching:', url);
+
+        const response = await fetch(url, {
             method: 'GET',
             headers: {
                 'apikey': API_KEY,
@@ -29,7 +45,15 @@ export async function getConnectionState() {
 
 export async function connectInstance() {
     try {
-        const response = await fetch(`${BASE_URL}/instance/connect/${INSTANCE_NAME}`, {
+        if (!BASE_URL) {
+            console.error('[WhatsApp Actions] WHATSAPP_API_URL não está configurada');
+            return null;
+        }
+
+        const url = `${BASE_URL}/instance/connect/${INSTANCE_NAME}`;
+        console.log('[WhatsApp Actions] Connecting:', url);
+
+        const response = await fetch(url, {
             method: 'GET',
             headers: {
                 'apikey': API_KEY,
