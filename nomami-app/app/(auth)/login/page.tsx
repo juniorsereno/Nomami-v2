@@ -16,7 +16,7 @@ export default async function LoginPage() {
         <div className="flex justify-center md:justify-start">
           <a href="/dashboard">
             <Image
-              src="https://nomami.com.br/assets/LOGO_1752579727506-Cc7LLzXJ.png"
+              src="/nomami-logo.jpeg"
               alt="NoMami Logo"
               width={150}
               height={40}
