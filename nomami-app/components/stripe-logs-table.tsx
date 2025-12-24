@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { toast } from "sonner"
 
 interface Log {
   id: number;
@@ -30,21 +31,55 @@ interface Log {
 export function StripeLogsTable() {
   const [logs, setLogs] = useState<Log[]>([]);
   const [selectedLog, setSelectedLog] = useState<Log | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isReprocessing, setIsReprocessing] = useState<number | null>(null);
+  const itemsPerPage = 5;
+
+  async function fetchLogs() {
+    try {
+      const response = await fetch('/api/webhook/stripe/logs');
+      if (response.ok) {
+        const data = await response.json();
+        setLogs(data);
+      }
+    } catch (error) {
+      console.error("Falha ao buscar logs:", error);
+      toast.error("Falha ao carregar os logs do Stripe.");
+    }
+  }
 
   useEffect(() => {
-    async function fetchLogs() {
-      try {
-        const response = await fetch('/api/webhook/stripe/logs');
-        if (response.ok) {
-          const data = await response.json();
-          setLogs(data);
-        }
-      } catch (error) {
-        console.error("Falha ao buscar logs:", error);
-      }
-    }
     fetchLogs();
   }, []);
+
+  const handleReprocess = async (logId: number) => {
+    setIsReprocessing(logId);
+    try {
+      const response = await fetch('/api/webhook/stripe/reprocess', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ logId }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success(result.message || "Log reprocessado com sucesso!");
+        fetchLogs();
+      } else {
+        toast.error(result.error || "Falha ao reprocessar o log.");
+      }
+    } catch {
+      toast.error("Ocorreu um erro de rede ao tentar reprocessar.");
+    } finally {
+      setIsReprocessing(null);
+    }
+  };
+
+  const totalPages = Math.ceil(logs.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentLogs = logs.slice(startIndex, endIndex);
 
   return (
     <div className="mt-6">
@@ -60,8 +95,8 @@ export function StripeLogsTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {logs.length > 0 ? (
-              logs.map((log) => (
+            {currentLogs.length > 0 ? (
+              currentLogs.map((log) => (
                 <TableRow key={log.id}>
                   <TableCell>{new Date(log.received_at).toLocaleString()}</TableCell>
                   <TableCell>
@@ -99,6 +134,15 @@ export function StripeLogsTable() {
                             </div>
                           </div>
                         )}
+                        {selectedLog?.status === 'failed' && (
+                          <Button
+                            className="mt-4"
+                            onClick={() => handleReprocess(selectedLog.id)}
+                            disabled={isReprocessing === selectedLog.id}
+                          >
+                            {isReprocessing === selectedLog.id ? 'Reprocessando...' : 'Reprocessar'}
+                          </Button>
+                        )}
                       </DialogContent>
                     </Dialog>
                   </TableCell>
@@ -114,6 +158,29 @@ export function StripeLogsTable() {
           </TableBody>
         </Table>
       </div>
+      {totalPages > 1 && (
+        <div className="flex items-center justify-end space-x-2 py-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Anterior
+          </Button>
+          <div className="text-sm text-muted-foreground">
+            Página {currentPage} de {totalPages}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            Próxima
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

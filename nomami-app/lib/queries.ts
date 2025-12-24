@@ -76,7 +76,7 @@ export async function getSubscriberStats() {
   }
 }
 
-export async function getSubscribers({ page = 1, pageSize = 20, search = '', plan = 'all', dateRange = 'all' }) {
+export async function getSubscribers({ page = 1, pageSize = 20, search = '', plan = 'all', dateRange = 'all', status = 'all' }) {
   try {
     const offset = (page - 1) * pageSize;
     const conditions = [];
@@ -86,6 +86,9 @@ export async function getSubscribers({ page = 1, pageSize = 20, search = '', pla
     }
     if (plan !== 'all') {
       conditions.push(sql`plan_type = ${plan}`);
+    }
+    if (status !== 'all') {
+      conditions.push(sql`status = ${status}`);
     }
     if (dateRange !== 'all') {
       switch (dateRange) {

@@ -1,8 +1,8 @@
 'use server'
 
-const API_KEY = '3646379846E0-400B-806F-2E52A157F4BE';
-const BASE_URL = 'https://criativa-evolution-api.cyzbs5.easypanel.host';
-const INSTANCE_NAME = 'nomami';
+const API_KEY = process.env.WHATSAPP_API_KEY || '';
+const BASE_URL = process.env.WHATSAPP_API_URL || '';
+const INSTANCE_NAME = process.env.WHATSAPP_INSTANCE || 'nomami';
 
 export async function getConnectionState() {
     try {
