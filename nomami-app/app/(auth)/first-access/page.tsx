@@ -10,7 +10,7 @@ export default function FirstAccessPage() {
         <div className="flex justify-center mb-8">
           <Link href="/login">
             <Image
-              src="https://nomami.com.br/assets/LOGO_1752579727506-Cc7LLzXJ.png"
+              src="/nomami-logo.jpeg"
               alt="NoMami Logo"
               width={150}
               height={40}

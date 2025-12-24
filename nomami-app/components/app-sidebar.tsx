@@ -90,7 +90,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader className="flex justify-center p-4">
         <SmoothLink href="/dashboard">
           <Image
-            src="https://nomami.com.br/assets/LOGO_1752579727506-Cc7LLzXJ.png"
+            src="/nomami-logo.jpeg"
             alt="NoMami Logo"
             width={150}
             height={40}
