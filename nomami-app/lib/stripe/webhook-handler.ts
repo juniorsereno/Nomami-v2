@@ -248,9 +248,12 @@ export async function processStripeWebhook(body: StripeWebhookEvent): Promise<We
       return { success: true, message: 'Assinante atualizado com sucesso.', status: 200 };
     } else {
       // Criação (Novo Assinante)
+      // Generate unique card_id (8 character hex string)
+      const cardId = Math.random().toString(16).substring(2, 10).toUpperCase();
+      
       const newSubscriberResult = await sql`
-        INSERT INTO subscribers (name, email, cpf, phone, plan_type, start_date, next_due_date, status, stripe_customer_id, stripe_subscription_id, value, created_at)
-        VALUES (${customerName}, ${customerEmail}, ${null}, ${customerPhone}, 'mensal', NOW(), ${nextDueDate.toISOString()}, 'ativo', ${customerId}, ${subscriptionId}, ${value}, NOW())
+        INSERT INTO subscribers (name, email, cpf, phone, plan_type, start_date, next_due_date, status, stripe_customer_id, stripe_subscription_id, value, card_id, created_at)
+        VALUES (${customerName}, ${customerEmail}, ${null}, ${customerPhone}, 'mensal', NOW(), ${nextDueDate.toISOString()}, 'ativo', ${customerId}, ${subscriptionId}, ${value}, ${cardId}, NOW())
         RETURNING id
       `;
 

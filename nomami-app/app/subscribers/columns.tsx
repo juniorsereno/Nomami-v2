@@ -19,6 +19,7 @@ export interface Subscriber {
   phone: string;
   email: string;
   cpf: string;
+  card_id: string;
   plan_type: string;
   start_date: string;
   next_due_date: string;
@@ -100,7 +101,7 @@ export const columns: ColumnDef<Subscriber>[] = [
 
       return (
         <div className="flex items-center gap-2">
-          <Link href={`/card/${subscriber.cpf}`} target="_blank">
+          <Link href={`/card/${subscriber.card_id}`} target="_blank">
             <Button variant="ghost" size="icon" title="Ver Carteirinha">
               <CreditCard className="h-4 w-4" />
             </Button>
@@ -127,7 +128,7 @@ export const columns: ColumnDef<Subscriber>[] = [
                   Editar Assinante
                 </DropdownMenuItem>
               </SubscriberEditDialog>
-              <Link href={`/card/${subscriber.cpf}`} target="_blank" className="w-full">
+              <Link href={`/card/${subscriber.card_id}`} target="_blank" className="w-full">
                 <DropdownMenuItem>
                   <CreditCard className="mr-2 h-4 w-4" />
                   Ver Carteirinha

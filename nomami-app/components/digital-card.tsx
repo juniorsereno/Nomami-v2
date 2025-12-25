@@ -5,7 +5,8 @@ import { NomamiLogo } from "@/components/nomami-logo";
 interface DigitalCardProps {
     subscriber: {
         name: string;
-        cpf: string;
+        cpf?: string;
+        card_id?: string;
         next_due_date: string;
         plan_type: string;
     }
@@ -51,11 +52,7 @@ export function DigitalCard({ subscriber }: DigitalCardProps) {
                         </div>
 
                         {/* Footer Info */}
-                        <div className="flex justify-between items-end mt-2">
-                            <div>
-                                <p className="text-[10px] opacity-75 uppercase">CPF</p>
-                                <p className="font-mono text-sm tracking-wider">{subscriber.cpf}</p>
-                            </div>
+                        <div className="flex justify-end items-end mt-2">
                             <div className="text-right">
                                 <p className="text-[10px] opacity-75 uppercase">Válido Até</p>
                                 <p className="font-mono text-sm font-bold">{formattedDate}</p>

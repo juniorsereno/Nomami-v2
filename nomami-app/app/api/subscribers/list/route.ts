@@ -62,7 +62,7 @@ export async function GET(request: Request) {
     }
 
     const subscribers = await sql`
-      SELECT id, name, phone, email, cpf, plan_type, start_date, next_due_date, status, value
+      SELECT id, name, phone, email, cpf, plan_type, start_date, next_due_date, status, value, card_id
       FROM subscribers
       ${whereClause}
       ${orderByClause}
