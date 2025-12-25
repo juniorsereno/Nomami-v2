@@ -114,7 +114,7 @@ export function AddPartnerForm({ onPartnerAdded, initialData, partnerId }: AddPa
     try {
       const cleanedValues = {
         ...values,
-        cnpj: values.cnpj.replace(/\D/g, ''),
+        cnpj: values.cnpj ? values.cnpj.replace(/\D/g, '') : '',
       };
 
       const url = partnerId ? `/api/partners/${partnerId}` : '/api/partners';
