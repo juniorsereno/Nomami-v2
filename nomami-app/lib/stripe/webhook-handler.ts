@@ -97,7 +97,8 @@ async function processPaymentFailed(
     // Atualiza status para vencido
     await sql`
       UPDATE subscribers SET
-        status = 'vencido'
+        status = 'vencido',
+        expired_at = NOW()
       WHERE id = ${existingSubscriber[0].id}
     `;
 
@@ -228,7 +229,8 @@ export async function processStripeWebhook(body: StripeWebhookEvent): Promise<We
           status = 'ativo',
           stripe_customer_id = ${customerId},
           stripe_subscription_id = ${subscriptionId},
-          value = ${value}
+          value = ${value},
+          expired_at = NULL
         WHERE id = ${existingSubscriber[0].id}
       `;
 

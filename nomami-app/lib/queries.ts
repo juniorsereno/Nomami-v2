@@ -14,13 +14,18 @@ export async function getDashboardMetrics() {
       FROM subscribers
       WHERE start_date >= date_trunc('month', current_date)
     `;
-    const activePartnersResult = await sql`SELECT COUNT(*) FROM parceiros WHERE ativo = true`;
+    const expiredThisMonthResult = await sql`
+      SELECT COUNT(*)
+      FROM subscribers
+      WHERE status = 'vencido'
+        AND (expired_at AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('month', now() AT TIME ZONE 'America/Sao_Paulo')
+    `;
 
     const metrics = {
       activeSubscribers: parseInt(activeSubscribersResult[0]?.count ?? '0', 10),
       mrr: parseFloat(mrrResult[0]?.total_mrr ?? '0'),
       newSubscribers: parseInt(newSubscribersResult[0]?.count ?? '0', 10),
-      activePartners: parseInt(activePartnersResult[0]?.count ?? '0', 10),
+      expiredThisMonth: parseInt(expiredThisMonthResult[0]?.count ?? '0', 10),
     };
     return metrics;
   } catch (error) {

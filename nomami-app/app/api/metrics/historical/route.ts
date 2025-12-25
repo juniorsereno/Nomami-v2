@@ -23,7 +23,11 @@ export async function GET() {
         (SELECT COUNT(*)
            FROM subscribers s
            WHERE s.start_date::date = d.day
-          ) AS new_subscribers
+          ) AS new_subscribers,
+        (SELECT COUNT(*)
+           FROM subscribers s
+           WHERE (s.expired_at AT TIME ZONE 'America/Sao_Paulo')::date = d.day
+          ) AS expired_subscribers
         FROM date_series d
         ORDER BY d.day ASC;
     `;
@@ -31,7 +35,8 @@ export async function GET() {
     const formattedData = historicalData.map(item => ({
       date: item.date,
       active_subscribers: parseInt(item.active_subscribers, 10),
-      new_subscribers: parseInt(item.new_subscribers, 10)
+      new_subscribers: parseInt(item.new_subscribers, 10),
+      expired_subscribers: parseInt(item.expired_subscribers, 10)
     }));
 
     return NextResponse.json(formattedData);

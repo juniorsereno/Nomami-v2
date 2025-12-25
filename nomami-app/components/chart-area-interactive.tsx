@@ -41,12 +41,17 @@ const chartConfig = {
     label: "Novos Assinantes",
     color: "#613EC2",
   },
+  expiredSubscribers: {
+    label: "Vencidos",
+    color: "#DC2626",
+  },
 } satisfies ChartConfig
 
 interface HistoricalData {
   date: string;
   active_subscribers: number;
   new_subscribers: number;
+  expired_subscribers: number;
 }
 
 export function ChartAreaInteractive() {
@@ -90,6 +95,8 @@ export function ChartAreaInteractive() {
   })
 
   const maxNewSubscribers = Math.max(...filteredData.map((d) => d.new_subscribers), 0)
+  const maxExpiredSubscribers = Math.max(...filteredData.map((d) => d.expired_subscribers), 0)
+  const maxBarValue = Math.max(maxNewSubscribers, maxExpiredSubscribers)
 
   return (
     <Card className="@container/card">
@@ -171,7 +178,7 @@ export function ChartAreaInteractive() {
               yAxisId="right"
               orientation="right"
               hide
-              domain={[0, maxNewSubscribers + 3]}
+              domain={[0, maxBarValue + 3]}
             />
             <ChartTooltip
               cursor={false}
@@ -199,6 +206,13 @@ export function ChartAreaInteractive() {
               yAxisId="right"
               dataKey="new_subscribers"
               fill="var(--color-newSubscribers)"
+              radius={[4, 4, 0, 0]}
+              barSize={20}
+            />
+            <Bar
+              yAxisId="right"
+              dataKey="expired_subscribers"
+              fill="var(--color-expiredSubscribers)"
               radius={[4, 4, 0, 0]}
               barSize={20}
             />
