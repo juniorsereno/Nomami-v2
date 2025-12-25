@@ -1,26 +1,52 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
-export function useSession(options?: { or?: "redirect" }) {
+export interface SessionUser {
+  id: string
+  name: string
+  email: string
+  role: string
+}
+
+export interface Session {
+  user: SessionUser | null
+  loading: boolean
+}
+
+export function useSession(options?: { or?: "redirect" }): Session {
   const router = useRouter()
+  const [session, setSession] = useState<Session>({ user: null, loading: true })
 
   useEffect(() => {
-    if (options?.or === "redirect") {
-      // Verificar se há sessão via fetch
-      fetch("/api/auth/session")
-        .then((res) => res.json())
-        .then((session) => {
-          if (!session || !session.user) {
+    fetch("/api/auth/session")
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data || !data.user) {
+          setSession({ user: null, loading: false })
+          if (options?.or === "redirect") {
             router.push("/login")
           }
-        })
-        .catch(() => {
+        } else {
+          setSession({ 
+            user: {
+              id: data.user.id,
+              name: data.user.name,
+              email: data.user.email,
+              role: data.user.role,
+            }, 
+            loading: false 
+          })
+        }
+      })
+      .catch(() => {
+        setSession({ user: null, loading: false })
+        if (options?.or === "redirect") {
           router.push("/login")
-        })
-    }
-  }, [options, router])
+        }
+      })
+  }, [options?.or, router])
 
-  return null
+  return session
 }

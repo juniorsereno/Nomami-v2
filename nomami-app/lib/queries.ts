@@ -117,7 +117,7 @@ export async function getSubscribers({ page = 1, pageSize = 20, search = '', pla
     const totalRecords = parseInt(countResult[0]?.count ?? '0', 10);
 
     const subscribers = await sql`
-      SELECT id, name, phone, email, cpf, plan_type, start_date, next_due_date, status, value
+      SELECT id, name, phone, email, cpf, plan_type, start_date, next_due_date, status, value, card_id
       FROM subscribers
       ${whereClause}
       ORDER BY name ASC
@@ -195,5 +195,21 @@ export async function getSubscriberByCpf(cpf: string) {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch subscriber by CPF.');
+  }
+}
+
+export async function getSubscriberByCardId(cardId: string) {
+  try {
+    const subscribers = await sql`
+      SELECT id, name, card_id, next_due_date, status, plan_type
+      FROM subscribers
+      WHERE card_id = ${cardId}
+      LIMIT 1
+    `;
+
+    return subscribers[0];
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch subscriber by card ID.');
   }
 }

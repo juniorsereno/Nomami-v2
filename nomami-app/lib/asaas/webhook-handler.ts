@@ -283,9 +283,12 @@ export async function processAsaasWebhook(body: AsaasWebhookEvent): Promise<Webh
         return { success: true, message: 'Assinante atualizado com sucesso.', status: 200 };
     } else {
         // 5b. Criação (Novo Assinante)
+        // Generate unique card_id (8 character hex string)
+        const cardId = Math.random().toString(16).substring(2, 10).toUpperCase();
+        
         const newSubscriberResult = await sql`
-            INSERT INTO subscribers (name, email, cpf, phone, plan_type, start_date, next_due_date, status, value, asaas_customer_id, asaas_subscription_id, created_at)
-            VALUES (${name}, ${email}, ${cpfCnpj}, ${phone || null}, 'mensal', NOW(), ${nextDueDate.toISOString()}, 'ativo', ${payment.value}, ${customerId}, ${payment.subscription || null}, NOW())
+            INSERT INTO subscribers (name, email, cpf, phone, plan_type, start_date, next_due_date, status, value, asaas_customer_id, asaas_subscription_id, card_id, created_at)
+            VALUES (${name}, ${email}, ${cpfCnpj}, ${phone || null}, 'mensal', NOW(), ${nextDueDate.toISOString()}, 'ativo', ${payment.value}, ${customerId}, ${payment.subscription || null}, ${cardId}, NOW())
             RETURNING id
         `;
         
