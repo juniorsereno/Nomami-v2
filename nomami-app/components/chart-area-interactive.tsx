@@ -41,12 +41,17 @@ const chartConfig = {
     label: "Novos Assinantes",
     color: "#613EC2",
   },
+  expiredSubscribers: {
+    label: "Vencidos",
+    color: "#DC2626",
+  },
 } satisfies ChartConfig
 
 interface HistoricalData {
   date: string;
   active_subscribers: number;
   new_subscribers: number;
+  expired_subscribers: number;
 }
 
 export function ChartAreaInteractive() {
@@ -87,9 +92,16 @@ export function ChartAreaInteractive() {
     const startDate = new Date(now)
     startDate.setDate(startDate.getDate() - daysToSubtract)
     return date >= startDate
-  })
+  }).map((item) => ({
+    date: item.date,
+    activeSubscribers: item.active_subscribers,
+    newSubscribers: item.new_subscribers,
+    expiredSubscribers: item.expired_subscribers,
+  }))
 
-  const maxNewSubscribers = Math.max(...filteredData.map((d) => d.new_subscribers), 0)
+  const maxNewSubscribers = Math.max(...filteredData.map((d) => d.newSubscribers), 0)
+  const maxExpiredSubscribers = Math.max(...filteredData.map((d) => d.expiredSubscribers), 0)
+  const maxBarValue = Math.max(maxNewSubscribers, maxExpiredSubscribers)
 
   return (
     <Card className="@container/card">
@@ -171,7 +183,7 @@ export function ChartAreaInteractive() {
               yAxisId="right"
               orientation="right"
               hide
-              domain={[0, maxNewSubscribers + 3]}
+              domain={[0, maxBarValue + 3]}
             />
             <ChartTooltip
               cursor={false}
@@ -189,7 +201,7 @@ export function ChartAreaInteractive() {
             />
             <Area
               yAxisId="left"
-              dataKey="active_subscribers"
+              dataKey="activeSubscribers"
               type="natural"
               fill="url(#fillActiveSubscribers)"
               stroke="var(--color-activeSubscribers)"
@@ -197,8 +209,15 @@ export function ChartAreaInteractive() {
             />
             <Bar
               yAxisId="right"
-              dataKey="new_subscribers"
+              dataKey="newSubscribers"
               fill="var(--color-newSubscribers)"
+              radius={[4, 4, 0, 0]}
+              barSize={20}
+            />
+            <Bar
+              yAxisId="right"
+              dataKey="expiredSubscribers"
+              fill="var(--color-expiredSubscribers)"
               radius={[4, 4, 0, 0]}
               barSize={20}
             />

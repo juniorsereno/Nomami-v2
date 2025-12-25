@@ -137,7 +137,8 @@ async function processPaymentOverdue(
     await sql`
       UPDATE subscribers SET
         status = 'vencido',
-        next_due_date = ${dueDate.toISOString()}
+        next_due_date = ${dueDate.toISOString()},
+        expired_at = NOW()
       WHERE id = ${existingSubscriber[0].id}
     `;
 
@@ -273,7 +274,8 @@ export async function processAsaasWebhook(body: AsaasWebhookEvent): Promise<Webh
                 status = 'ativo',
                 value = ${payment.value},
                 asaas_customer_id = ${customerId},
-                asaas_subscription_id = ${payment.subscription || null}
+                asaas_subscription_id = ${payment.subscription || null},
+                expired_at = NULL
             WHERE id = ${existingSubscriber[0].id}
         `;
         

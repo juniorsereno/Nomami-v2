@@ -6,7 +6,6 @@ export interface Subscriber {
   id: string
   name: string
   phone: string
-  cpf: string
   start_date: string
   next_due_date: string
   plan_type: string
@@ -20,10 +19,6 @@ export const columns: ColumnDef<Subscriber>[] = [
   {
     accessorKey: "phone",
     header: "Telefone",
-  },
-  {
-    accessorKey: "cpf",
-    header: "CPF",
   },
   {
     accessorKey: "start_date",

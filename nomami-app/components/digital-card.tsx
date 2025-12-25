@@ -1,3 +1,5 @@
+"use client"
+
 import React from 'react';
 import { CardContent } from "@/components/ui/card";
 import { NomamiLogo } from "@/components/nomami-logo";
@@ -16,7 +18,10 @@ export function DigitalCard({ subscriber }: DigitalCardProps) {
     const formattedDate = new Date(subscriber.next_due_date).toLocaleDateString('pt-BR');
 
     return (
-        <div className="relative flex items-center justify-center min-h-screen bg-gray-100 p-4 overflow-hidden">
+        <div 
+            className="relative flex items-center justify-center min-h-screen bg-gray-100 p-4 overflow-hidden select-none"
+            onContextMenu={(e) => e.preventDefault()}
+        >
             {/* Page Background Image */}
 
             <div className="relative z-10 w-full max-w-sm perspective-1000">
@@ -27,7 +32,7 @@ export function DigitalCard({ subscriber }: DigitalCardProps) {
                         </svg>
                     </div>
 
-                    <CardContent className="relative z-10 flex flex-col h-full p-6 text-white">
+                    <CardContent className="relative z-10 flex flex-col h-full p-6 text-white pointer-events-none">
                         {/* Header with Logo */}
                         <div className="flex justify-between items-start">
                             <div className="relative w-32 h-12">
@@ -46,16 +51,24 @@ export function DigitalCard({ subscriber }: DigitalCardProps) {
                         </div>
 
                         {/* Subscriber Info - Pushed down */}
-                        <div className="mt-auto mb-8 ml-0">
+                        <div className="mt-auto mb-8 ml-0 pr-20">
                             <p className="text-xs opacity-75 uppercase mb-1">Nome do Titular</p>
-                            <h2 className="text-xl font-medium tracking-wide truncate">{subscriber.name}</h2>
+                            <h2 
+                                className="font-medium tracking-wide leading-tight break-words" 
+                                data-protected="true"
+                                style={{
+                                    fontSize: subscriber.name.length > 30 ? '0.875rem' : subscriber.name.length > 20 ? '1rem' : '1.25rem'
+                                }}
+                            >
+                                {subscriber.name}
+                            </h2>
                         </div>
 
                         {/* Footer Info */}
                         <div className="flex justify-end items-end mt-2">
                             <div className="text-right">
                                 <p className="text-[10px] opacity-75 uppercase">Válido Até</p>
-                                <p className="font-mono text-sm font-bold">{formattedDate}</p>
+                                <p className="font-mono text-sm font-bold" data-protected="true">{formattedDate}</p>
                             </div>
                         </div>
                         {/* Plan Type Badge */}
@@ -74,7 +87,7 @@ export function DigitalCard({ subscriber }: DigitalCardProps) {
                 <div className="mt-6 text-center">
                     <a
                         href="/parceiros"
-                        className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-[#602986] rounded-full shadow-lg hover:bg-[#4b206a] transition-colors duration-200 gap-2"
+                        className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-[#602986] rounded-full shadow-lg hover:bg-[#4b206a] transition-colors duration-200 gap-2 pointer-events-auto"
                     >
                         <span>Ver Lista de Parceiros</span>
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-right"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>

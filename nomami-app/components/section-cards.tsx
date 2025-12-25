@@ -20,6 +20,7 @@ interface Metrics {
   mrr?: number;
   newSubscribers?: number;
   newSubscribersToday?: number;
+  expiredThisMonth?: number;
 }
 
 interface Variations {
@@ -166,6 +167,21 @@ export function SectionCards({ metrics }: SectionCardsProps) {
           <CardFooter className="flex-col items-start gap-1.5 text-sm">
             <div className="text-muted-foreground">
               Assinantes cadastrados hoje.
+            </div>
+          </CardFooter>
+        </Card>
+      )}
+      {metrics.expiredThisMonth !== undefined && (
+        <Card className="@container/card">
+          <CardHeader>
+            <CardDescription>Vencidos (Mês)</CardDescription>
+            <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-red-600">
+              {metrics.expiredThisMonth}
+            </CardTitle>
+          </CardHeader>
+          <CardFooter className="flex-col items-start gap-1.5 text-sm">
+            <div className="text-muted-foreground">
+              Assinaturas vencidas no mês corrente.
             </div>
           </CardFooter>
         </Card>

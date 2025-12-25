@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     // Atualiza assinantes que estão 'ativo' mas com next_due_date no passado
     const result = await sql`
       UPDATE subscribers
-      SET status = 'vencido'
+      SET status = 'vencido', expired_at = NOW()
       WHERE status = 'ativo'
         AND next_due_date < CURRENT_DATE
       RETURNING id, name, email;
