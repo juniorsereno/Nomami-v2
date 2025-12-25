@@ -29,7 +29,9 @@ const categories = ["Saúde", "Lazer", "Alimentação", "Transporte", "Vestuári
 
 const formSchema = z.object({
   company_name: z.string().min(2, "O nome da empresa é obrigatório."),
-  cnpj: z.string().optional(),
+  cnpj: z.string().optional().refine((val) => !val || (val.replace(/\D/g, '').length === 14), {
+    message: "O CNPJ deve ter 14 dígitos.",
+  }),
   phone: z.string().optional(),
   address: z.string().optional(),
   category: z.enum(categories as unknown as [string, ...string[]], {
