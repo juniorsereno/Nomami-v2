@@ -30,6 +30,9 @@ COPY --from=build_stage /app/public ./public
 COPY --from=build_stage /app/.next ./.next
 COPY --from=build_stage /app/next.config.ts ./
 
+# Cria pasta de uploads com permissões corretas
+RUN mkdir -p /app/public/uploads && chmod 777 /app/public/uploads
+
 # Expõe a porta em que a aplicação Next.js roda
 EXPOSE 3000
 
