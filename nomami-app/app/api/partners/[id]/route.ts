@@ -5,9 +5,10 @@ import { z } from 'zod';
 const partnerSchema = z.object({
     company_name: z.string().min(2, "O nome da empresa é obrigatório."),
     cnpj: z.string()
+        .nullable()
         .optional()
         .transform(val => val ? val.replace(/\D/g, '') : null)
-        .refine(val => val === null || val.length === 14, "O CNPJ deve ter 14 dígitos."),
+        .refine(val => val === null || val === '' || val.length === 14, "O CNPJ deve ter 14 dígitos."),
     phone: z.string().optional(),
     address: z.string().min(5, "O endereço é obrigatório."),
     category: z.string().min(1, "A categoria é obrigatória."),
