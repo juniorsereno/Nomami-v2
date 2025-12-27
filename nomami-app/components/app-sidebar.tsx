@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import * as React from "react"
+import { useRouter } from "next/navigation"
 import {
   IconDashboard,
   IconPlus,
@@ -73,6 +74,7 @@ const navSecondary = [
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [isPartnerDialogOpen, setIsPartnerDialogOpen] = React.useState(false)
   const session = useSession()
+  const router = useRouter()
 
   const user = {
     name: session.user?.name || "Carregando...",
@@ -82,6 +84,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const handlePartnerAdded = () => {
     setIsPartnerDialogOpen(false)
+    router.refresh()
   }
 
   return (
