@@ -5,7 +5,10 @@ import { logger, logError } from '@/lib/logger';
 
 const partnerSchema = z.object({
   company_name: z.string().min(2, "O nome da empresa é obrigatório."),
-  cnpj: z.string().min(14, "O CNPJ deve ter 14 caracteres.").max(14, "O CNPJ deve ter 14 caracteres."),
+  cnpj: z.string()
+    .optional()
+    .transform(val => val ? val.replace(/\D/g, '') : null)
+    .refine(val => val === null || val.length === 14, "O CNPJ deve ter 14 dígitos."),
   phone: z.string().optional(),
   address: z.string().min(5, "O endereço é obrigatório."),
   category: z.string().min(1, "A categoria é obrigatória."),
