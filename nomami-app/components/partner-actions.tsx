@@ -41,7 +41,39 @@ export function PartnerActions({ partner }: PartnerActionsProps) {
     // Helper to ensure category is one of the allowed values, or default to the first one if somehow invalid
     // In a real app, you might want better validation here
     const mapCategory = (category: string) => {
-        const validCategories = ["Saúde", "Lazer", "Alimentação", "Transporte", "Vestuário", "Serviços"] as const;
+        const validCategories = [
+            "Academia",
+            "Alimentação",
+            "Amamentação/Pós-parto",
+            "Auto Peças",
+            "Beleza/Cosméticos",
+            "Calçados",
+            "Clínicas/Saúde",
+            "Construção",
+            "Contabilidade",
+            "Decoração/Festa",
+            "Educação",
+            "Enxoval",
+            "Esportes",
+            "Farmácia",
+            "Fotografia/Video",
+            "Fraldas",
+            "Lazer",
+            "Loja de Brinquedos",
+            "Maquiagem",
+            "Massagem",
+            "Mercado/Hostifruti",
+            "Perfuração Auricular",
+            "Personal Online",
+            "Pet Shop/Veterinário",
+            "Religioso",
+            "Roupa Adulto",
+            "Roupa Infantil",
+            "Serviços",
+            "Telemedicina",
+            "Transporte",
+            "Vestuário",
+        ] as const;
         type Category = typeof validCategories[number];
         return validCategories.includes(category as Category) ? category as Category : "Serviços";
     }

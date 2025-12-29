@@ -25,7 +25,39 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-const categories = ["Saúde", "Lazer", "Alimentação", "Transporte", "Vestuário", "Serviços"] as const;
+const categories = [
+  "Academia",
+  "Alimentação",
+  "Amamentação/Pós-parto",
+  "Auto Peças",
+  "Beleza/Cosméticos",
+  "Calçados",
+  "Clínicas/Saúde",
+  "Construção",
+  "Contabilidade",
+  "Decoração/Festa",
+  "Educação",
+  "Enxoval",
+  "Esportes",
+  "Farmácia",
+  "Fotografia/Video",
+  "Fraldas",
+  "Lazer",
+  "Loja de Brinquedos",
+  "Maquiagem",
+  "Massagem",
+  "Mercado/Hostifruti",
+  "Perfuração Auricular",
+  "Personal Online",
+  "Pet Shop/Veterinário",
+  "Religioso",
+  "Roupa Adulto",
+  "Roupa Infantil",
+  "Serviços",
+  "Telemedicina",
+  "Transporte",
+  "Vestuário",
+] as const;
 
 const formSchema = z.object({
   company_name: z.string().min(2, "O nome da empresa é obrigatório."),
