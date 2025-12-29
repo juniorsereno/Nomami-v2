@@ -61,17 +61,17 @@ const categories = [
 
 const formSchema = z.object({
   company_name: z.string().min(2, "O nome da empresa é obrigatório."),
-  cnpj: z.string().nullable().optional().refine((val) => !val || val === '' || (val.replace(/\D/g, '').length === 14), {
+  cnpj: z.string().optional().refine((val) => !val || val === '' || (val.replace(/\D/g, '').length === 14), {
     message: "O CNPJ deve ter 14 dígitos.",
   }),
-  phone: z.string().nullable().optional(),
-  address: z.string().nullable().optional(),
-  category: z.string().nullable().optional(),
-  benefit_description: z.string().nullable().optional(),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  category: z.string().optional(),
+  benefit_description: z.string().optional(),
   status: z.enum(['ativo', 'inativo']),
-  logo_url: z.string().nullable().optional(),
-  site_url: z.string().nullable().optional(),
-  instagram_url: z.string().nullable().optional(),
+  logo_url: z.string().optional(),
+  site_url: z.string().optional(),
+  instagram_url: z.string().optional(),
 })
 
 interface AddPartnerFormProps {

@@ -109,15 +109,15 @@ export function PartnerActions({ partner }: PartnerActionsProps) {
                         partnerId={partner.id}
                         initialData={{
                             company_name: partner.company_name,
-                            cnpj: partner.cnpj,
-                            phone: partner.phone || undefined,
-                            address: partner.address,
-                            benefit_description: partner.benefit_description,
+                            cnpj: partner.cnpj || "",
+                            phone: partner.phone || "",
+                            address: partner.address || "",
+                            benefit_description: partner.benefit_description || "",
                             status: mapStatus(partner.status),
-                            category: mapCategory(partner.category),
-                            logo_url: partner.logo_url || undefined,
-                            site_url: partner.site_url || undefined,
-                            instagram_url: partner.instagram_url || undefined,
+                            category: partner.category ? mapCategory(partner.category) : "",
+                            logo_url: partner.logo_url || "",
+                            site_url: partner.site_url || "",
+                            instagram_url: partner.instagram_url || "",
                         }}
                     />
                 </DialogContent>
