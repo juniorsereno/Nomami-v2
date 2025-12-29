@@ -10,14 +10,14 @@ const partnerSchema = z.object({
     .optional()
     .transform(val => val ? val.replace(/\D/g, '') : null)
     .refine(val => val === null || val === '' || val.length === 14, "O CNPJ deve ter 14 dígitos."),
-  phone: z.string().optional(),
-  address: z.string().min(5, "O endereço é obrigatório."),
-  category: z.string().min(1, "A categoria é obrigatória."),
-  benefit_description: z.string().min(5, "A descrição do benefício é obrigatória."),
+  phone: z.string().nullable().optional(),
+  address: z.string().nullable().optional(),
+  category: z.string().nullable().optional(),
+  benefit_description: z.string().nullable().optional(),
   status: z.enum(['ativo', 'inativo']),
-  logo_url: z.string().optional(),
-  site_url: z.string().optional(),
-  instagram_url: z.string().optional(),
+  logo_url: z.string().nullable().optional(),
+  site_url: z.string().nullable().optional(),
+  instagram_url: z.string().nullable().optional(),
 });
 
 export async function POST(request: Request) {
