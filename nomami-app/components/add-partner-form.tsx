@@ -66,10 +66,8 @@ const formSchema = z.object({
   }),
   phone: z.string().optional(),
   address: z.string().optional(),
-  category: z.enum(categories as unknown as [string, ...string[]], {
-    message: "A categoria é obrigatória.",
-  }),
-  benefit_description: z.string().min(5, "A descrição do benefício é obrigatória."),
+  category: z.string().optional(),
+  benefit_description: z.string().optional(),
   status: z.enum(['ativo', 'inativo']),
   logo_url: z.string().optional(),
   site_url: z.string().optional(),
