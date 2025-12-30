@@ -95,14 +95,18 @@ export function PartnerCard({ partner }: PartnerCardProps) {
       </div>
 
       {/* Description */}
-      <p className={`text-center text-[#4A148C] font-extrabold leading-tight px-2 flex-grow flex items-center ${partner.benefit_description.length > 80 ? 'text-sm' : partner.benefit_description.length > 50 ? 'text-base' : 'text-lg'}`}>
-        {partner.benefit_description}
-      </p>
+      {partner.benefit_description && (
+        <p className={`text-center text-[#4A148C] font-extrabold leading-tight px-2 flex-grow flex items-center ${partner.benefit_description.length > 80 ? 'text-sm' : partner.benefit_description.length > 50 ? 'text-base' : 'text-lg'}`}>
+          {partner.benefit_description}
+        </p>
+      )}
       
       {/* Address */}
-      <p className={`text-center text-[#4A148C]/80 font-bold mt-2 px-2 line-clamp-2 ${partner.address.length > 60 ? 'text-xs' : 'text-sm'}`}>
-        {partner.address}
-      </p>
+      {partner.address && (
+        <p className={`text-center text-[#4A148C]/80 font-bold mt-2 px-2 line-clamp-2 ${partner.address.length > 60 ? 'text-xs' : 'text-sm'}`}>
+          {partner.address}
+        </p>
+      )}
 
     </div>
   );
