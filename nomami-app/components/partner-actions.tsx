@@ -63,6 +63,7 @@ export function PartnerActions({ partner }: PartnerActionsProps) {
             "Maquiagem",
             "Massagem",
             "Mercado/Hostifruti",
+            "Papelaria",
             "Perfuração Auricular",
             "Personal Online",
             "Pet Shop/Veterinário",
