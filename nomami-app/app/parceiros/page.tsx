@@ -1,18 +1,18 @@
 import { getPartners } from "@/lib/queries";
-import { PartnerCard } from "@/components/partner-card";
+import { PartnersFilter } from "@/components/partners-filter";
 import { NomamiLogo } from "@/components/nomami-logo";
 
 export const dynamic = 'force-dynamic';
 
 export default async function PublicPartnersPage() {
-  const partners = await getPartners();
+  const partners = await getPartners() ?? [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const activePartners = partners.filter((p: any) => p.status === 'Ativo').map((p: any) => ({
     id: p.id,
-    company_name: p.company_name,
-    category: p.category,
-    benefit_description: p.benefit_description,
-    address: p.address,
+    company_name: p.company_name || '',
+    category: p.category || '',
+    benefit_description: p.benefit_description || '',
+    address: p.address || '',
     phone: p.phone,
     logo_url: p.logo_url,
     site_url: p.site_url,
@@ -28,7 +28,7 @@ export default async function PublicPartnersPage() {
       </header>
       
       <main className="flex-1 container mx-auto px-4 py-8 font-[family-name:var(--font-nunito)]">
-        <div className="mb-12 text-center space-y-4">
+        <div className="mb-8 text-center space-y-4">
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white uppercase drop-shadow-md">
             Guia de <span className="text-[#adc1d8]">PARCEIROS</span>
           </h1>
@@ -40,17 +40,7 @@ export default async function PublicPartnersPage() {
           </p>
         </div>
 
-        {activePartners.length === 0 ? (
-          <div className="text-center py-12 text-white/60">
-            Nenhum parceiro encontrado no momento.
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-fr">
-            {activePartners.map((partner) => (
-              <PartnerCard key={partner.id} partner={partner} />
-            ))}
-          </div>
-        )}
+        <PartnersFilter partners={activePartners} />
       </main>
 
       <footer className="border-t border-white/10 py-8 text-center text-white/80 font-[family-name:var(--font-nunito)]">
