@@ -47,6 +47,8 @@ const categories = [
   "Maquiagem",
   "Massagem",
   "Mercado/Hostifruti",
+  "Ótica",
+  "Papelaria",
   "Perfuração Auricular",
   "Personal Online",
   "Pet Shop/Veterinário",
