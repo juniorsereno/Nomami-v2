@@ -5,6 +5,7 @@ import { auth } from './lib/auth';
 
 export async function middleware(request: NextRequest) {
   const { method, url, nextUrl } = request;
+  const isProd = process.env.NODE_ENV === 'production';
   
   // Ignorar arquivos estáticos e internos do Next.js para não poluir logs
   if (
@@ -15,18 +16,26 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  logger.info(
-    {
-      req: {
-        method,
-        url,
-        pathname: nextUrl.pathname,
-        ip: (request as unknown as { ip?: string }).ip || request.headers.get('x-forwarded-for'),
-        userAgent: request.headers.get('user-agent'),
-      },
-    },
-    `Incoming Request: ${method} ${nextUrl.pathname}`
+  // Em produção, logar apenas rotas importantes (não APIs de métricas frequentes)
+  const shouldLog = !isProd || (
+    !nextUrl.pathname.startsWith('/api/metrics') &&
+    !nextUrl.pathname.startsWith('/api/health')
   );
+
+  if (shouldLog) {
+    logger.info(
+      {
+        req: {
+          method,
+          url,
+          pathname: nextUrl.pathname,
+          ip: (request as unknown as { ip?: string }).ip || request.headers.get('x-forwarded-for'),
+          userAgent: request.headers.get('user-agent'),
+        },
+      },
+      `Incoming Request: ${method} ${nextUrl.pathname}`
+    );
+  }
 
   // Rotas públicas que não precisam de autenticação
   const publicRoutes = [
@@ -35,32 +44,41 @@ export async function middleware(request: NextRequest) {
     '/api/auth', 
     '/api/webhook', // Webhooks externos (Asaas, Stripe, etc)
     '/api/whatsapp/test-cadence', // Rota de teste temporária
+    '/api/health', // Health check
     '/parceiros', 
     '/card'
   ];
   const isPublicRoute = publicRoutes.some(route => nextUrl.pathname.startsWith(route));
 
   if (isPublicRoute) {
-    logger.info(`Public route accessed: ${nextUrl.pathname}`);
+    if (shouldLog) {
+      logger.info(`Public route accessed: ${nextUrl.pathname}`);
+    }
     return NextResponse.next();
   }
 
   // Verificar autenticação para rotas protegidas
   const session = await auth();
   
-  logger.info({
-    pathname: nextUrl.pathname,
-    hasSession: !!session,
-    hasUser: !!session?.user,
-  }, 'Session check');
+  if (shouldLog) {
+    logger.info({
+      pathname: nextUrl.pathname,
+      hasSession: !!session,
+      hasUser: !!session?.user,
+    }, 'Session check');
+  }
   
   if (!session || !session.user) {
-    logger.info('No valid session found, redirecting to login');
+    if (shouldLog) {
+      logger.info('No valid session found, redirecting to login');
+    }
     const response = NextResponse.redirect(new URL('/login', request.url));
     return response;
   }
 
-  logger.info(`Authenticated access to: ${nextUrl.pathname}`);
+  if (shouldLog) {
+    logger.info(`Authenticated access to: ${nextUrl.pathname}`);
+  }
   return NextResponse.next();
 }
 

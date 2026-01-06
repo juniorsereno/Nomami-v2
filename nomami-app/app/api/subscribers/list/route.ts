@@ -47,11 +47,6 @@ export async function GET(request: Request) {
       ? sql`WHERE ${conditions.reduce((acc, cond) => sql`${acc} AND ${cond}`)}`
       : sql``;
 
-    const countResult = await sql`
-      SELECT COUNT(*) FROM subscribers ${whereClause}
-    `;
-    const totalRecords = parseInt(countResult[0]?.count ?? '0', 10);
-
     let orderByClause = sql`ORDER BY name ASC`;
     if (sort === 'start_date') {
       orderByClause = order === 'DESC' ? sql`ORDER BY start_date DESC, created_at DESC` : sql`ORDER BY start_date ASC, created_at ASC`;
@@ -61,14 +56,20 @@ export async function GET(request: Request) {
       orderByClause = order === 'DESC' ? sql`ORDER BY created_at DESC` : sql`ORDER BY created_at ASC`;
     }
 
-    const subscribers = await sql`
-      SELECT id, name, phone, email, cpf, plan_type, start_date, next_due_date, status, value, card_id
-      FROM subscribers
-      ${whereClause}
-      ${orderByClause}
-      LIMIT ${pageSize}
-      OFFSET ${offset}
-    `;
+    // Executar count e data em paralelo
+    const [countResult, subscribers] = await Promise.all([
+      sql`SELECT COUNT(*) FROM subscribers ${whereClause}`,
+      sql`
+        SELECT id, name, phone, email, cpf, plan_type, start_date, next_due_date, status, value, card_id
+        FROM subscribers
+        ${whereClause}
+        ${orderByClause}
+        LIMIT ${pageSize}
+        OFFSET ${offset}
+      `
+    ]);
+
+    const totalRecords = parseInt(countResult[0]?.count ?? '0', 10);
 
     return NextResponse.json({
       data: subscribers,

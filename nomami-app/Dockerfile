@@ -21,9 +21,13 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
+# Definir NODE_ENV antes de instalar dependências
+ENV NODE_ENV=production
+ENV NODE_OPTIONS="--max-old-space-size=512"
+
 # Copia as dependências de produção do estágio de build
 COPY --from=build_stage /app/package.json /app/package-lock.json ./
-RUN npm install --production && npm install typescript --no-save
+RUN npm ci --only=production --ignore-scripts
 
 # Copia os artefatos de build do estágio anterior
 COPY --from=build_stage /app/public ./public
