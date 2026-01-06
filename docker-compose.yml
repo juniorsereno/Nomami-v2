@@ -4,6 +4,10 @@ services:
       context: ./nomami-app
       dockerfile: Dockerfile
     environment:
+      # Node.js
+      NODE_ENV: production
+      LOG_LEVEL: warn
+      
       # Database
       DATABASE_URL: ${DATABASE_URL}
       DATABASE_POOL_URL: ${DATABASE_POOL_URL}
@@ -25,6 +29,14 @@ services:
       WHATSAPP_INSTANCE: ${WHATSAPP_INSTANCE}
     volumes:
       - uploads_data:/app/public/uploads
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     restart: unless-stopped
 
 volumes:

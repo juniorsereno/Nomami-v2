@@ -157,6 +157,7 @@ chmod +x scripts/test-auth.sh
 ## 🛠️ Tecnologias
 
 - **Framework:** Next.js 15 (App Router)
+- **Runtime:** Node.js 24 LTS
 - **Autenticação:** NextAuth.js v5
 - **Banco de Dados:** Neon Postgres (Serverless)
 - **UI:** Tailwind CSS + Radix UI
