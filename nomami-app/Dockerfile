@@ -1,5 +1,5 @@
 # Estágio 1: Builder - Compila a aplicação
-FROM node:20-alpine AS build_stage
+FROM node:24-alpine AS build_stage
 
 # Define o diretório de trabalho
 WORKDIR /app
@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # Estágio 2: Runner - Executa a aplicação
-FROM node:20-alpine AS runner
+FROM node:24-alpine AS runner
 
 WORKDIR /app
 

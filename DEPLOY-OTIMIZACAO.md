@@ -102,7 +102,7 @@ Resposta esperada:
     "heapUsed": "180MB",
     "heapTotal": "220MB"
   },
-  "nodeVersion": "v20.x.x"
+  "nodeVersion": "v24.x.x"
 }
 ```
 
