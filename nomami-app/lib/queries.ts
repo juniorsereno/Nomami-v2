@@ -81,33 +81,44 @@ export async function getSubscriberStats() {
   }
 }
 
-export async function getSubscribers({ page = 1, pageSize = 20, search = '', plan = 'all', dateRange = 'all', status = 'all' }) {
+export async function getSubscribers({ page = 1, pageSize = 20, search = '', plan = 'all', dateRange = 'all', status = 'all', subscriberType = 'all' }: {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  plan?: string;
+  dateRange?: string;
+  status?: string;
+  subscriberType?: 'all' | 'individual' | 'corporate';
+}) {
   try {
     const offset = (page - 1) * pageSize;
     const conditions = [];
     if (search) {
       const searchTerm = '%' + search + '%';
-      conditions.push(sql`(name ILIKE ${searchTerm} OR phone ILIKE ${searchTerm})`);
+      conditions.push(sql`(s.name ILIKE ${searchTerm} OR s.phone ILIKE ${searchTerm} OR s.cpf ILIKE ${searchTerm} OR s.card_id ILIKE ${searchTerm})`);
     }
     if (plan !== 'all') {
-      conditions.push(sql`plan_type = ${plan}`);
+      conditions.push(sql`s.plan_type = ${plan}`);
     }
     if (status !== 'all') {
-      conditions.push(sql`status = ${status}`);
+      conditions.push(sql`s.status = ${status}`);
+    }
+    if (subscriberType !== 'all') {
+      conditions.push(sql`COALESCE(s.subscriber_type, 'individual') = ${subscriberType}`);
     }
     if (dateRange !== 'all') {
       switch (dateRange) {
         case 'today':
-          conditions.push(sql`(start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo')`);
+          conditions.push(sql`(s.start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo')`);
           break;
         case '7d':
-          conditions.push(sql`(start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '6 days')`);
+          conditions.push(sql`(s.start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '6 days')`);
           break;
         case '15d':
-          conditions.push(sql`(start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '14 days')`);
+          conditions.push(sql`(s.start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '14 days')`);
           break;
         case '30d':
-          conditions.push(sql`(start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '29 days')`);
+          conditions.push(sql`(s.start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '29 days')`);
           break;
       }
     }
@@ -117,15 +128,30 @@ export async function getSubscribers({ page = 1, pageSize = 20, search = '', pla
       : sql``;
 
     const countResult = await sql`
-      SELECT COUNT(*) FROM subscribers ${whereClause}
+      SELECT COUNT(*) FROM subscribers s ${whereClause}
     `;
     const totalRecords = parseInt(countResult[0]?.count ?? '0', 10);
 
     const subscribers = await sql`
-      SELECT id, name, phone, email, cpf, plan_type, start_date, next_due_date, status, value, card_id
-      FROM subscribers
+      SELECT 
+        s.id, 
+        s.name, 
+        s.phone, 
+        s.email, 
+        s.cpf, 
+        s.plan_type, 
+        s.start_date, 
+        s.next_due_date, 
+        s.status, 
+        s.value, 
+        s.card_id,
+        COALESCE(s.subscriber_type, 'individual') as subscriber_type,
+        s.company_id,
+        c.name as company_name
+      FROM subscribers s
+      LEFT JOIN companies c ON c.id = s.company_id
       ${whereClause}
-      ORDER BY name ASC
+      ORDER BY s.name ASC
       LIMIT ${pageSize}
       OFFSET ${offset}
     `;
@@ -190,9 +216,19 @@ export async function getPartners() {
 export async function getSubscriberByCpf(cpf: string) {
   try {
     const subscribers = await sql`
-      SELECT id, name, cpf, next_due_date, status, plan_type
-      FROM subscribers
-      WHERE cpf = ${cpf}
+      SELECT 
+        s.id, 
+        s.name, 
+        s.cpf, 
+        s.next_due_date, 
+        s.status, 
+        s.plan_type,
+        COALESCE(s.subscriber_type, 'individual') as subscriber_type,
+        s.company_id,
+        c.name as company_name
+      FROM subscribers s
+      LEFT JOIN companies c ON c.id = s.company_id
+      WHERE s.cpf = ${cpf}
       LIMIT 1
     `;
 
@@ -206,9 +242,19 @@ export async function getSubscriberByCpf(cpf: string) {
 export async function getSubscriberByCardId(cardId: string) {
   try {
     const subscribers = await sql`
-      SELECT id, name, card_id, next_due_date, status, plan_type
-      FROM subscribers
-      WHERE card_id = ${cardId}
+      SELECT 
+        s.id, 
+        s.name, 
+        s.card_id, 
+        s.next_due_date, 
+        s.status, 
+        s.plan_type,
+        COALESCE(s.subscriber_type, 'individual') as subscriber_type,
+        s.company_id,
+        c.name as company_name
+      FROM subscribers s
+      LEFT JOIN companies c ON c.id = s.company_id
+      WHERE s.card_id = ${cardId}
       LIMIT 1
     `;
 

@@ -10,10 +10,12 @@ import {
   IconStethoscope,
   IconUsers,
   IconMessageCircle,
+  IconBuilding,
 } from "@tabler/icons-react"
 
 import { Button } from "@/components/ui/button"
 import { AddPartnerForm } from "@/components/add-partner-form"
+import { AddCompanyForm } from "@/components/add-company-form"
 import {
   Dialog,
   DialogContent,
@@ -52,6 +54,11 @@ const navMain = [
     icon: IconUsers,
   },
   {
+    title: "Empresas",
+    url: "/empresas",
+    icon: IconBuilding,
+  },
+  {
     title: "Tele Medicina",
     url: "/tele-medicine",
     icon: IconStethoscope,
@@ -73,6 +80,7 @@ const navSecondary = [
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [isPartnerDialogOpen, setIsPartnerDialogOpen] = React.useState(false)
+  const [isCompanyDialogOpen, setIsCompanyDialogOpen] = React.useState(false)
   const session = useSession()
   const router = useRouter()
 
@@ -84,6 +92,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const handlePartnerAdded = () => {
     setIsPartnerDialogOpen(false)
+    router.refresh()
+  }
+
+  const handleCompanyAdded = () => {
+    setIsCompanyDialogOpen(false)
     router.refresh()
   }
 
@@ -120,6 +133,25 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </DialogDescription>
               </DialogHeader>
               <AddPartnerForm onPartnerAdded={handlePartnerAdded} />
+            </DialogContent>
+          </Dialog>
+          <Dialog open={isCompanyDialogOpen} onOpenChange={setIsCompanyDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="w-full justify-start">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                  <IconBuilding className="size-4" />
+                </div>
+                <span className="ml-2 text-sm font-medium">Adicionar Empresa</span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Adicionar Nova Empresa</DialogTitle>
+                <DialogDescription>
+                  Preencha os campos abaixo para cadastrar uma nova empresa com plano corporativo.
+                </DialogDescription>
+              </DialogHeader>
+              <AddCompanyForm onCompanyAdded={handleCompanyAdded} />
             </DialogContent>
           </Dialog>
         </div>
