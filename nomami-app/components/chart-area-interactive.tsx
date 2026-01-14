@@ -148,7 +148,7 @@ export function ChartAreaInteractive() {
           config={chartConfig}
           className="aspect-auto h-[250px] w-full"
         >
-          <ComposedChart data={filteredData}>
+          <ComposedChart data={filteredData} margin={{ left: 12, right: 12 }}>
             <defs>
               <linearGradient id="fillActiveSubscribers" x1="0" y1="0" x2="0" y2="1">
                 <stop
@@ -169,7 +169,7 @@ export function ChartAreaInteractive() {
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              minTickGap={32}
+              minTickGap={24}
               tickFormatter={(value) => {
                 const date = new Date(value)
                 return date.toLocaleDateString("pt-BR", {
@@ -183,8 +183,14 @@ export function ChartAreaInteractive() {
             <YAxis
               yAxisId="right"
               orientation="right"
-              hide
-              domain={[0, maxBarValue + 3]}
+              tickLine={false}
+              axisLine={false}
+              allowDecimals={false}
+              domain={[0, (dataMin: number, dataMax: number) => {
+                const max = Number.isFinite(dataMax) ? dataMax : 0;
+                return Math.ceil(Math.max(max * 1.3, 5));
+              }]}
+              tickCount={10} // Try to force more ticks
             />
             <ChartTooltip
               cursor={false}
@@ -193,6 +199,7 @@ export function ChartAreaInteractive() {
                   labelFormatter={(value) => {
                     const date = new Date(value);
                     return date.toLocaleDateString("pt-BR", {
+                      weekday: "short",
                       month: "short",
                       day: "numeric",
                       timeZone: "UTC",
@@ -205,7 +212,7 @@ export function ChartAreaInteractive() {
             <Area
               yAxisId="left"
               dataKey="activeSubscribers"
-              type="natural"
+              type="monotone"
               fill="url(#fillActiveSubscribers)"
               stroke="var(--color-activeSubscribers)"
               stackId="a"
@@ -215,14 +222,14 @@ export function ChartAreaInteractive() {
               dataKey="newSubscribers"
               fill="var(--color-newSubscribers)"
               radius={[4, 4, 0, 0]}
-              barSize={20}
+              barSize={32}
             />
             <Bar
               yAxisId="right"
               dataKey="expiredSubscribers"
               fill="var(--color-expiredSubscribers)"
               radius={[4, 4, 0, 0]}
-              barSize={20}
+              barSize={32}
             />
           </ComposedChart>
         </ChartContainer>
