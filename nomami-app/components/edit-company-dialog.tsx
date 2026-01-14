@@ -85,6 +85,7 @@ export function EditCompanyDialog({ company, plan }: EditCompanyDialogProps) {
   const [pendingStatus, setPendingStatus] = useState<'cancelled' | null>(null)
 
   const form = useForm<FormValues>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(formSchema) as any,
     defaultValues: {
       name: company.name,

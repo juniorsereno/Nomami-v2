@@ -45,11 +45,11 @@ interface AddCorporateSubscriberFormProps {
   onSuccess?: () => void;
 }
 
-export function AddCorporateSubscriberForm({ 
-  companyId, 
-  contractedQuantity, 
+export function AddCorporateSubscriberForm({
+  companyId,
+  contractedQuantity,
   activeSubscribers,
-  onSuccess 
+  onSuccess
 }: AddCorporateSubscriberFormProps) {
   const router = useRouter()
   const [mode, setMode] = React.useState<"single" | "batch">("single")
@@ -131,7 +131,7 @@ export function AddCorporateSubscriberForm({
 
       const data = await response.json();
       if (data.warning) toast.warning(data.warning);
-      
+
       toast.success("Colaborador adicionado com sucesso!");
       singleForm.reset();
       router.refresh();
@@ -157,7 +157,7 @@ export function AddCorporateSubscriberForm({
       if (!response.ok) throw new Error('Falha ao adicionar lote.');
 
       const data = await response.json();
-      
+
       if (data.errors && data.errors.length > 0) {
         toast.error(`${data.errors.length} erro(s) ao adicionar lote. Veja o log.`);
         console.error('Batch Errors:', data.errors);
@@ -181,13 +181,13 @@ export function AddCorporateSubscriberForm({
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            Limite atingido ({activeSubscribers}/{contractedQuantity}). 
+            Limite atingido ({activeSubscribers}/{contractedQuantity}).
             Novas adições excederão o limite do plano.
           </AlertDescription>
         </Alert>
       )}
 
-      <Tabs value={mode} onValueChange={(v) => setMode(v as any)} className="w-full">
+      <Tabs value={mode} onValueChange={(v) => setMode(v as "single" | "batch")} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="single" className="flex items-center gap-2">
             <User className="h-4 w-4" /> Individual
@@ -326,12 +326,12 @@ export function AddCorporateSubscriberForm({
                           />
                         </TableCell>
                         <TableCell className="p-1">
-                          <Button 
-                            type="button" 
-                            variant="ghost" 
-                            size="icon" 
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
                             className="h-7 w-7"
-                            onClick={() => remove(index)} 
+                            onClick={() => remove(index)}
                             disabled={fields.length <= 1}
                           >
                             <Trash2 className="h-3 w-3" />
