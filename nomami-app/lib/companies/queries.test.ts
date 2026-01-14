@@ -10,7 +10,7 @@
  * without requiring a real database connection.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import * as fc from 'fast-check';
 import { calculateMonthlyValue } from './billing';
 
@@ -189,7 +189,7 @@ describe('Property 5: Plan History Tracking', () => {
             pricePerSubscriber: fc.integer({ min: 1, max: 1000 }),
             billingDay: fc.integer({ min: 1, max: 28 }),
           }),
-          (oldPlan, newPlan) => {
+          (oldPlan, _newPlan) => {
             // Simulate creating history record
             const historyRecord = {
               contractedQuantity: oldPlan.contractedQuantity,

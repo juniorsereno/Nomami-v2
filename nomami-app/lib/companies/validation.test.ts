@@ -22,7 +22,7 @@ import {
   formatCnpj,
   formatCpf,
 } from './validation';
-import type { CreateCompanyRequest, AddCorporateSubscriberRequest } from './types';
+import type { CreateCompanyRequest as _, AddCorporateSubscriberRequest as __ } from './types';
 
 // ============ Generators ============
 

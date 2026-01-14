@@ -11,7 +11,7 @@
  * using property-based testing with fast-check.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import * as fc from 'fast-check';
 
 // Mock the db-pool module

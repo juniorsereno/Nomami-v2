@@ -7,7 +7,7 @@
  * Requirements: 1.5, 1.6, 1.7, 1.8
  */
 
-import { CadenceMessage, CreateMessageRequest, UpdateMessageRequest, MessageType } from './types';
+import { CadenceMessage, CreateMessageRequest, UpdateMessageRequest } from './types';
 import { validateTextMessage, validateMediaUrl } from './validation';
 
 /**
