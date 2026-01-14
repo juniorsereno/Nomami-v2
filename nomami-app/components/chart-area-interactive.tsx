@@ -54,6 +54,32 @@ interface HistoricalData {
   expired_subscribers: number;
 }
 
+const CustomGridLines = (props: any) => {
+  const { x, y, width, height } = props;
+  return (
+    <g>
+      <line
+        x1={x}
+        y1={y}
+        x2={x}
+        y2={y + height}
+        stroke="var(--border)"
+        strokeDasharray="4 4"
+        strokeOpacity={0.5}
+      />
+      <line
+        x1={x + width}
+        y1={y}
+        x2={x + width}
+        y2={y + height}
+        stroke="var(--border)"
+        strokeDasharray="4 4"
+        strokeOpacity={0.5}
+      />
+    </g>
+  );
+};
+
 export function ChartAreaInteractive() {
   const isMobile = useIsMobile()
   const [timeRange, setTimeRange] = React.useState("30d")
@@ -163,7 +189,7 @@ export function ChartAreaInteractive() {
                 />
               </linearGradient>
             </defs>
-            <CartesianGrid vertical={false} />
+            <CartesianGrid vertical={true} />
             <XAxis
               dataKey="date"
               tickLine={false}

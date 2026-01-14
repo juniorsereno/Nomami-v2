@@ -1,11 +1,7 @@
 "use client"
-import { useEffect, useState } from "react"
-import { IconTrendingDown, IconTrendingUp } from "@tabler/icons-react"
 
-import { Badge } from "@/components/ui/badge"
 import {
   Card,
-  CardAction,
   CardDescription,
   CardFooter,
   CardHeader,
@@ -23,35 +19,11 @@ interface Metrics {
   expiredThisMonth?: number;
 }
 
-interface Variations {
-  mrrVariation: number;
-  newSubscribersVariation: number;
-}
-
 interface SectionCardsProps {
   metrics: Metrics;
 }
 
 export function SectionCards({ metrics }: SectionCardsProps) {
-  const [variations, setVariations] = useState<Variations | null>(null);
-
-  useEffect(() => {
-    const fetchVariations = async () => {
-      try {
-        const response = await fetch('/api/metrics/variations');
-        if (!response.ok) {
-          throw new Error('Failed to fetch variations');
-        }
-        const data = await response.json();
-        setVariations(data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchVariations();
-  }, []);
-
   return (
     <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
       {metrics.activeSubscribers !== undefined && (
@@ -121,14 +93,6 @@ export function SectionCards({ metrics }: SectionCardsProps) {
             <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
               R$ {metrics.mrr.toFixed(2)}
             </CardTitle>
-            {variations && (
-              <CardAction>
-                <Badge variant="outline">
-                  {variations.mrrVariation >= 0 ? <IconTrendingUp /> : <IconTrendingDown />}
-                  {variations.mrrVariation.toFixed(1)}%
-                </Badge>
-              </CardAction>
-            )}
           </CardHeader>
           <CardFooter className="flex-col items-start gap-1.5 text-sm">
             <div className="text-muted-foreground">Receita recorrente mensal</div>
@@ -142,14 +106,6 @@ export function SectionCards({ metrics }: SectionCardsProps) {
             <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
               {metrics.newSubscribers}
             </CardTitle>
-            {variations && (
-              <CardAction>
-                <Badge variant="outline">
-                  {variations.newSubscribersVariation >= 0 ? <IconTrendingUp /> : <IconTrendingDown />}
-                  {variations.newSubscribersVariation.toFixed(1)}%
-                </Badge>
-              </CardAction>
-            )}
           </CardHeader>
           <CardFooter className="flex-col items-start gap-1.5 text-sm">
             <div className="text-muted-foreground">Aquisição no mês corrente</div>
