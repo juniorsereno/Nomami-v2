@@ -17,12 +17,12 @@ export async function GET() {
         d.day AS date,
         (SELECT COUNT(*)
            FROM subscribers s
-           WHERE s.start_date <= d.day
+           WHERE (s.start_date AT TIME ZONE 'America/Sao_Paulo')::date <= d.day
              AND s.status = 'ativo'
           ) AS active_subscribers,
         (SELECT COUNT(*)
            FROM subscribers s
-           WHERE s.start_date::date = d.day
+           WHERE (s.start_date AT TIME ZONE 'America/Sao_Paulo')::date = d.day
           ) AS new_subscribers,
         (SELECT COUNT(*)
            FROM subscribers s
