@@ -9,20 +9,33 @@ interface PageProps {
     }>;
 }
 
+interface Subscriber {
+    name: string;
+    card_id: string;
+    next_due_date: string;
+    plan_type: string;
+    subscriber_type?: 'individual' | 'corporate';
+    company_name?: string;
+    company_id?: string;
+    status?: string;
+}
+
 export default async function CardPage({ params }: PageProps) {
     const { cardId } = await params;
-
-    interface Subscriber {
-        name: string;
-        card_id: string;
-        next_due_date: string;
-        plan_type: string;
-    }
 
     const subscriber = await getSubscriberByCardId(cardId.toUpperCase()) as unknown as Subscriber;
 
     if (!subscriber) {
         notFound();
+    }
+
+    const isCorporate = subscriber.subscriber_type === 'corporate';
+    const isInactive = subscriber.status === 'inativo';
+
+    // For inactive corporate subscribers, show the digital card with inactive state
+    // The DigitalCard component handles the inactive display
+    if (isCorporate && isInactive) {
+        return <DigitalCard subscriber={subscriber} />;
     }
 
     const nextDueDate = new Date(subscriber.next_due_date);
@@ -33,6 +46,7 @@ export default async function CardPage({ params }: PageProps) {
 
     const isExpired = nextDueDate < today;
 
+    // For expired individual subscribers or expired corporate subscribers, show expired card
     if (isExpired) {
         return <ExpiredCard />;
     }

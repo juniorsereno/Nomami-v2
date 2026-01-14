@@ -11,11 +11,58 @@ interface DigitalCardProps {
         card_id?: string;
         next_due_date: string;
         plan_type: string;
+        subscriber_type?: 'individual' | 'corporate';
+        company_name?: string;
+        status?: string;
     }
 }
 
 export function DigitalCard({ subscriber }: DigitalCardProps) {
     const formattedDate = new Date(subscriber.next_due_date).toLocaleDateString('pt-BR');
+    const isCorporate = subscriber.subscriber_type === 'corporate';
+    const isInactive = subscriber.status === 'inativo';
+
+    // For inactive corporate subscribers, show a different message
+    if (isInactive && isCorporate) {
+        return (
+            <div 
+                className="relative flex items-center justify-center min-h-screen bg-gray-100 p-4 overflow-hidden select-none"
+                onContextMenu={(e) => e.preventDefault()}
+            >
+                <div className="relative z-10 w-full max-w-sm">
+                    <div className="relative w-full h-56 bg-gradient-to-br from-gray-600 via-gray-500 to-gray-700 rounded-xl shadow-2xl overflow-hidden">
+                        <CardContent className="relative z-10 flex flex-col h-full p-6 text-white pointer-events-none">
+                            <div className="flex justify-between items-start">
+                                <div className="relative w-32 h-12 opacity-50">
+                                    <NomamiLogo width={128} height={48} priority />
+                                </div>
+                            </div>
+
+                            <div className="flex-1 flex flex-col items-center justify-center">
+                                <div className="text-center">
+                                    <p className="text-lg font-semibold mb-2">Cartão Inativo</p>
+                                    <p className="text-sm opacity-75">
+                                        Este cartão corporativo não está mais ativo.
+                                    </p>
+                                    {subscriber.company_name && (
+                                        <p className="text-xs opacity-60 mt-2">
+                                            Empresa: {subscriber.company_name}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="text-center">
+                                <p className="text-xs opacity-60">
+                                    Entre em contato com sua empresa para mais informações.
+                                </p>
+                            </div>
+                        </CardContent>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div 
@@ -25,7 +72,7 @@ export function DigitalCard({ subscriber }: DigitalCardProps) {
             {/* Page Background Image */}
 
             <div className="relative z-10 w-full max-w-sm perspective-1000">
-                <div className="relative w-full h-56 bg-gradient-to-br from-gray-900 via-slate-800 to-black rounded-xl shadow-2xl overflow-hidden transform transition-transform hover:scale-105 duration-300">
+                <div className={`relative w-full h-56 ${isCorporate ? 'bg-gradient-to-br from-indigo-900 via-purple-800 to-violet-900' : 'bg-gradient-to-br from-gray-900 via-slate-800 to-black'} rounded-xl shadow-2xl overflow-hidden transform transition-transform hover:scale-105 duration-300`}>
                     {/* Background Pattern */}
                     <div className="absolute inset-0 opacity-35">
                         <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -52,6 +99,15 @@ export function DigitalCard({ subscriber }: DigitalCardProps) {
 
                         {/* Subscriber Info - Pushed down */}
                         <div className="mt-auto mb-8 ml-0 pr-20">
+                            {/* Company Name for Corporate Subscribers */}
+                            {isCorporate && subscriber.company_name && (
+                                <div className="mb-2">
+                                    <p className="text-[10px] opacity-75 uppercase">Empresa</p>
+                                    <p className="text-xs font-medium opacity-90 truncate" data-protected="true">
+                                        {subscriber.company_name}
+                                    </p>
+                                </div>
+                            )}
                             <p className="text-xs opacity-75 uppercase mb-1">Nome do Titular</p>
                             <h2 
                                 className="font-medium tracking-wide leading-tight break-words" 
@@ -73,8 +129,8 @@ export function DigitalCard({ subscriber }: DigitalCardProps) {
                         </div>
                         {/* Plan Type Badge */}
                         <div className="absolute top-9 right-6">
-                            <span className="bg-white/20 backdrop-blur-sm px-2 py-1 rounded text-xs font-bold uppercase border border-white/30">
-                                Membro
+                            <span className={`${isCorporate ? 'bg-purple-500/30' : 'bg-white/20'} backdrop-blur-sm px-2 py-1 rounded text-xs font-bold uppercase border ${isCorporate ? 'border-purple-300/30' : 'border-white/30'}`}>
+                                {isCorporate ? 'Corporativo' : 'Membro'}
                             </span>
                         </div>
                     </CardContent>

@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table"
-import { MoreHorizontal, FileText, Pencil, ArrowUpDown, CreditCard } from "lucide-react"
+import { MoreHorizontal, FileText, Pencil, ArrowUpDown, CreditCard, Building2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -9,6 +9,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Badge } from "@/components/ui/badge"
 import { SubscriberDetailsDialog } from "@/components/subscriber-details-dialog"
 import { SubscriberEditDialog } from "@/components/subscriber-edit-dialog"
 import Link from "next/link"
@@ -25,12 +26,43 @@ export interface Subscriber {
   next_due_date: string;
   status: string;
   value: number;
+  subscriber_type?: 'individual' | 'corporate';
+  company_id?: string;
+  company_name?: string;
 }
 
 export const columns: ColumnDef<Subscriber>[] = [
   {
     accessorKey: "name",
     header: "Nome",
+    cell: ({ row }) => {
+      const subscriber = row.original;
+      const isCorporate = subscriber.subscriber_type === 'corporate';
+      
+      return (
+        <div className="flex items-center gap-2">
+          <span>{subscriber.name}</span>
+          {isCorporate && (
+            <Badge variant="secondary" className="text-xs">
+              <Building2 className="mr-1 h-3 w-3" />
+              Corporativo
+            </Badge>
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "company_name",
+    header: "Empresa",
+    cell: ({ row }) => {
+      const companyName = row.getValue("company_name") as string | undefined;
+      return companyName ? (
+        <span className="text-muted-foreground">{companyName}</span>
+      ) : (
+        <span className="text-muted-foreground">-</span>
+      );
+    },
   },
   {
     accessorKey: "email",

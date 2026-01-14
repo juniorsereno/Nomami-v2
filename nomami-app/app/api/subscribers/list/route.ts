@@ -14,31 +14,35 @@ export async function GET(request: Request) {
     const offset = (page - 1) * pageSize;
 
     const status = searchParams.get('status');
+    const subscriberType = searchParams.get('subscriberType'); // 'individual', 'corporate', or null for all
 
     const conditions = [];
     if (search) {
       const searchTerm = '%' + search + '%';
-      conditions.push(sql`(name ILIKE ${searchTerm} OR phone ILIKE ${searchTerm})`);
+      conditions.push(sql`(s.name ILIKE ${searchTerm} OR s.phone ILIKE ${searchTerm} OR s.cpf ILIKE ${searchTerm} OR s.card_id ILIKE ${searchTerm})`);
     }
     if (plan) {
-      conditions.push(sql`plan_type = ${plan}`);
+      conditions.push(sql`s.plan_type = ${plan}`);
     }
     if (status) {
-      conditions.push(sql`status = ${status}`);
+      conditions.push(sql`s.status = ${status}`);
+    }
+    if (subscriberType) {
+      conditions.push(sql`COALESCE(s.subscriber_type, 'individual') = ${subscriberType}`);
     }
     if (dateRange) {
       switch (dateRange) {
         case 'today':
-          conditions.push(sql`(start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo')`);
+          conditions.push(sql`(s.start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo')`);
           break;
         case '7d':
-          conditions.push(sql`(start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '6 days')`);
+          conditions.push(sql`(s.start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '6 days')`);
           break;
         case '15d':
-          conditions.push(sql`(start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '14 days')`);
+          conditions.push(sql`(s.start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '14 days')`);
           break;
         case '30d':
-          conditions.push(sql`(start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '29 days')`);
+          conditions.push(sql`(s.start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '29 days')`);
           break;
       }
     }
@@ -47,21 +51,36 @@ export async function GET(request: Request) {
       ? sql`WHERE ${conditions.reduce((acc, cond) => sql`${acc} AND ${cond}`)}`
       : sql``;
 
-    let orderByClause = sql`ORDER BY name ASC`;
+    let orderByClause = sql`ORDER BY s.name ASC`;
     if (sort === 'start_date') {
-      orderByClause = order === 'DESC' ? sql`ORDER BY start_date DESC, created_at DESC` : sql`ORDER BY start_date ASC, created_at ASC`;
+      orderByClause = order === 'DESC' ? sql`ORDER BY s.start_date DESC, s.created_at DESC` : sql`ORDER BY s.start_date ASC, s.created_at ASC`;
     } else if (sort === 'next_due_date') {
-      orderByClause = order === 'DESC' ? sql`ORDER BY next_due_date DESC` : sql`ORDER BY next_due_date ASC`;
+      orderByClause = order === 'DESC' ? sql`ORDER BY s.next_due_date DESC` : sql`ORDER BY s.next_due_date ASC`;
     } else if (sort === 'created_at') {
-      orderByClause = order === 'DESC' ? sql`ORDER BY created_at DESC` : sql`ORDER BY created_at ASC`;
+      orderByClause = order === 'DESC' ? sql`ORDER BY s.created_at DESC` : sql`ORDER BY s.created_at ASC`;
     }
 
     // Executar count e data em paralelo
     const [countResult, subscribers] = await Promise.all([
-      sql`SELECT COUNT(*) FROM subscribers ${whereClause}`,
+      sql`SELECT COUNT(*) FROM subscribers s ${whereClause}`,
       sql`
-        SELECT id, name, phone, email, cpf, plan_type, start_date, next_due_date, status, value, card_id
-        FROM subscribers
+        SELECT 
+          s.id, 
+          s.name, 
+          s.phone, 
+          s.email, 
+          s.cpf, 
+          s.plan_type, 
+          s.start_date, 
+          s.next_due_date, 
+          s.status, 
+          s.value, 
+          s.card_id,
+          COALESCE(s.subscriber_type, 'individual') as subscriber_type,
+          s.company_id,
+          c.name as company_name
+        FROM subscribers s
+        LEFT JOIN companies c ON c.id = s.company_id
         ${whereClause}
         ${orderByClause}
         LIMIT ${pageSize}
