@@ -54,31 +54,7 @@ interface HistoricalData {
   expired_subscribers: number;
 }
 
-const CustomGridLines = (props: any) => {
-  const { x, y, width, height } = props;
-  return (
-    <g>
-      <line
-        x1={x}
-        y1={y}
-        x2={x}
-        y2={y + height}
-        stroke="var(--border)"
-        strokeDasharray="4 4"
-        strokeOpacity={0.5}
-      />
-      <line
-        x1={x + width}
-        y1={y}
-        x2={x + width}
-        y2={y + height}
-        stroke="var(--border)"
-        strokeDasharray="4 4"
-        strokeOpacity={0.5}
-      />
-    </g>
-  );
-};
+
 
 export function ChartAreaInteractive() {
   const isMobile = useIsMobile()
@@ -125,9 +101,7 @@ export function ChartAreaInteractive() {
     expiredSubscribers: item.expired_subscribers,
   }))
 
-  const maxNewSubscribers = Math.max(...filteredData.map((d) => d.newSubscribers), 0)
-  const maxExpiredSubscribers = Math.max(...filteredData.map((d) => d.expiredSubscribers), 0)
-  const maxBarValue = Math.max(maxNewSubscribers, maxExpiredSubscribers)
+
 
   return (
     <Card className="@container/card">
