@@ -171,11 +171,11 @@ export function ChartAreaInteractive() {
               tickMargin={8}
               minTickGap={32}
               tickFormatter={(value) => {
-                const [year, month, day] = value.split('-').map(Number);
-                const date = new Date(year, month - 1, day)
+                const date = new Date(value)
                 return date.toLocaleDateString("pt-BR", {
                   month: "short",
                   day: "numeric",
+                  timeZone: "UTC",
                 })
               }}
             />
@@ -191,11 +191,11 @@ export function ChartAreaInteractive() {
               content={
                 <ChartTooltipContent
                   labelFormatter={(value) => {
-                    const [year, month, day] = value.split('-').map(Number);
-                    const date = new Date(year, month - 1, day);
+                    const date = new Date(value);
                     return date.toLocaleDateString("pt-BR", {
                       month: "short",
                       day: "numeric",
+                      timeZone: "UTC",
                     })
                   }}
                   indicator="dot"
