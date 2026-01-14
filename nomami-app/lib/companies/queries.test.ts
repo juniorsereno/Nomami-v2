@@ -10,7 +10,7 @@
  * without requiring a real database connection.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import * as fc from 'fast-check';
 import { calculateMonthlyValue } from './billing';
 
@@ -88,8 +88,8 @@ describe('Property 8: Metrics Accuracy', () => {
       fc.assert(
         fc.property(
           fc.array(fc.record({
-            companyStatus: fc.constantFrom('suspended', 'cancelled'),
-            planStatus: fc.constantFrom('active', 'suspended', 'cancelled'),
+            companyStatus: fc.constantFrom('suspended', 'cancelled') as fc.Arbitrary<string>,
+            planStatus: fc.constantFrom('active', 'suspended', 'cancelled') as fc.Arbitrary<string>,
             contractedQuantity: fc.integer({ min: 1, max: 1000 }),
             pricePerSubscriber: fc.integer({ min: 1, max: 1000 }),
           }), { minLength: 0, maxLength: 50 }),
@@ -109,8 +109,8 @@ describe('Property 8: Metrics Accuracy', () => {
       fc.assert(
         fc.property(
           fc.array(fc.record({
-            companyStatus: fc.constantFrom('active', 'suspended', 'cancelled'),
-            planStatus: fc.constantFrom('suspended', 'cancelled'),
+            companyStatus: fc.constantFrom('active', 'suspended', 'cancelled') as fc.Arbitrary<string>,
+            planStatus: fc.constantFrom('suspended', 'cancelled') as fc.Arbitrary<string>,
             contractedQuantity: fc.integer({ min: 1, max: 1000 }),
             pricePerSubscriber: fc.integer({ min: 1, max: 1000 }),
           }), { minLength: 0, maxLength: 50 }),
@@ -189,7 +189,7 @@ describe('Property 5: Plan History Tracking', () => {
             pricePerSubscriber: fc.integer({ min: 1, max: 1000 }),
             billingDay: fc.integer({ min: 1, max: 28 }),
           }),
-          (oldPlan, newPlan) => {
+          (oldPlan, _newPlan) => {
             // Simulate creating history record
             const historyRecord = {
               contractedQuantity: oldPlan.contractedQuantity,

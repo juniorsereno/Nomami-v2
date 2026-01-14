@@ -28,6 +28,7 @@ async function getCompanies(): Promise<CompanyRow[]> {
       contractedQuantity: c.contractedQuantity,
       activeSubscribers: c.activeSubscribers,
       monthlyValue: c.monthlyValue,
+      createdAt: c.createdAt.toISOString(),
     }));
   } catch (error) {
     console.error('Failed to fetch companies:', error);

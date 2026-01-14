@@ -22,7 +22,7 @@ describe('WhatsApp Message Service - Property Tests', () => {
   });
 
   // Arbitraries for generating test data
-  const messageTypeArb = fc.constantFrom<MessageType>('text', 'image', 'video');
+  const _messageTypeArb = fc.constantFrom<MessageType>('text', 'image', 'video');
   
   const textContentArb = fc.string({ minLength: 1, maxLength: 500 })
     .filter(s => s.trim().length > 0);

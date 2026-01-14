@@ -12,7 +12,7 @@
 
 import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { DigitalCard } from './digital-card';
 
 // ============ Generators ============
@@ -44,11 +44,6 @@ const validFutureDateArb = fc.integer({
  * Generates a valid plan type
  */
 const validPlanTypeArb = fc.constantFrom('mensal', 'anual', 'corporativo');
-
-/**
- * Generates a valid subscriber status
- */
-const validStatusArb = fc.constantFrom('ativo', 'inativo', 'vencido');
 
 /**
  * Generates a valid individual subscriber
