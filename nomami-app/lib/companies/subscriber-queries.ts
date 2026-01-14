@@ -274,6 +274,102 @@ export async function addCorporateSubscriber(
 }
 
 /**
+ * Adds multiple corporate subscribers to a company
+ */
+export async function addCorporateSubscribersBatch(
+  companyId: string,
+  subscribers: AddCorporateSubscriberRequest[]
+): Promise<{ 
+  successCount: number; 
+  errors: { cpf: string; error: string }[];
+  warning?: string;
+}> {
+  try {
+    // Get company plan
+    const plan = await getCompanyPlan(companyId);
+    if (!plan) throw new Error('COMPANY_NOT_FOUND');
+
+    // Check company status
+    const companyResult = await sql`SELECT status FROM companies WHERE id = ${companyId}`;
+    if (companyResult.length === 0) throw new Error('COMPANY_NOT_FOUND');
+    if (companyResult[0].status === 'cancelled') throw new Error('COMPANY_CANCELLED');
+
+    const nextDueDateStr = plan.nextBillingDate.toISOString().split('T')[0];
+    const results = {
+      successCount: 0,
+      errors: [] as { cpf: string; error: string }[]
+    };
+
+    // Process each subscriber
+    // Note: In a high-scale environment, this should be a transaction or bulk insert
+    // But to maintain logic consistency (CPF checks, card_id generation) and given small batch sizes, 
+    // we process them sequentially or with Promise.all for simplicity.
+    
+    for (const req of subscribers) {
+      try {
+        const cleanedCpf = cleanCpf(req.cpf);
+        
+        // Duplicate check
+        const existing = await sql`
+          SELECT id FROM subscribers 
+          WHERE company_id = ${companyId} AND cpf = ${cleanedCpf} AND removed_at IS NULL
+        `;
+        if (existing.length > 0) {
+          results.errors.push({ cpf: req.cpf, error: 'CPF já cadastrado' });
+          continue;
+        }
+
+        const cardId = generateCardId();
+
+        await sql`
+          INSERT INTO subscribers (
+            name, cpf, phone, email, company_id, subscriber_type, 
+            status, card_id, start_date, next_due_date, plan_type, value
+          )
+          VALUES (
+            ${req.name},
+            ${cleanedCpf},
+            ${req.phone},
+            ${req.email},
+            ${companyId},
+            'corporate',
+            'ativo',
+            ${cardId},
+            CURRENT_DATE,
+            ${nextDueDateStr},
+            'corporativo',
+            ${plan.pricePerSubscriber}
+          )
+        `;
+        results.successCount++;
+      } catch (err) {
+        results.errors.push({ 
+          cpf: req.cpf, 
+          error: err instanceof Error ? err.message : 'Erro desconhecido' 
+        });
+      }
+    }
+
+    // Check capacity warning
+    const activeCountResult = await sql`
+      SELECT COUNT(*) FROM subscribers 
+      WHERE company_id = ${companyId} AND status = 'ativo' AND removed_at IS NULL
+    `;
+    const activeCount = parseInt(String(activeCountResult[0]?.count ?? '0'), 10);
+    
+    let warning: string | undefined;
+    if (activeCount > plan.contractedQuantity) {
+      warning = 'OVER_CONTRACTED_QUANTITY';
+    }
+
+    return { ...results, warning };
+  } catch (error) {
+    console.error('Batch Database Error:', error);
+    throw error;
+  }
+}
+
+/**
  * Removes a corporate subscriber (soft delete)
  * Requirements: 3.6, 3.7
  */

@@ -6,10 +6,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getCompanySubscribers, addCorporateSubscriber } from '@/lib/companies/subscriber-queries';
+import { getCompanySubscribers, addCorporateSubscriber, addCorporateSubscribersBatch } from '@/lib/companies/subscriber-queries';
 import { validateAddCorporateSubscriberRequest } from '@/lib/companies/validation';
 import { logger, logError } from '@/lib/logger';
-import type { SubscriberStatus } from '@/lib/companies/types';
+import type { SubscriberStatus, AddCorporateSubscriberRequest } from '@/lib/companies/types';
 
 export async function GET(
   request: NextRequest,
@@ -44,6 +44,23 @@ export async function POST(
     const { id } = await params;
     const body = await request.json();
 
+    // Handle Batch Mode
+    if (Array.isArray(body)) {
+      logger.info({ companyId: id, count: body.length }, 'Adicionando lote de colaboradores corporativos');
+      
+      const result = await addCorporateSubscribersBatch(id, body as AddCorporateSubscriberRequest[]);
+      
+      return NextResponse.json({
+        message: `${result.successCount} colaboradores adicionados com sucesso!`,
+        successCount: result.successCount,
+        errors: result.errors,
+        warning: result.warning === 'OVER_CONTRACTED_QUANTITY' 
+          ? 'Quantidade de colaboradores ativos excede a quantidade contratada'
+          : undefined,
+      }, { status: 201 });
+    }
+
+    // Single record mode (existing)
     // Validate request
     const validation = validateAddCorporateSubscriberRequest(body);
     if (!validation.valid) {
