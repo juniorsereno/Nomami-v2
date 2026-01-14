@@ -21,6 +21,10 @@ export async function GET(request: Request) {
       const searchTerm = '%' + search + '%';
       conditions.push(sql`(s.name ILIKE ${searchTerm} OR s.phone ILIKE ${searchTerm} OR s.cpf ILIKE ${searchTerm} OR s.card_id ILIKE ${searchTerm})`);
     }
+
+    // Always exclude soft-deleted subscribers
+    conditions.push(sql`s.removed_at IS NULL`);
+
     if (plan) {
       conditions.push(sql`s.plan_type = ${plan}`);
     }

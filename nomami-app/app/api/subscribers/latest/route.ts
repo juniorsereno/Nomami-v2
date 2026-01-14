@@ -14,6 +14,8 @@ export async function GET() {
         plan_type
       FROM
         subscribers
+      WHERE
+        removed_at IS NULL
       ORDER BY
         start_date DESC
       LIMIT 10

@@ -145,7 +145,7 @@ export default async function CompanyDetailPage({
                   </div>
                   {getStatusBadge(company.status)}
                 </div>
-                <EditCompanyDialog company={company} />
+                <EditCompanyDialog company={company} plan={plan} />
               </div>
 
               {/* Info Cards */}
@@ -207,7 +207,7 @@ export default async function CompanyDetailPage({
                     <div>
                       <p className="text-sm text-muted-foreground">Próxima Cobrança</p>
                       <p className="font-medium">
-                        {plan.nextBillingDate instanceof Date 
+                        {plan.nextBillingDate instanceof Date
                           ? plan.nextBillingDate.toLocaleDateString('pt-BR')
                           : new Date(plan.nextBillingDate).toLocaleDateString('pt-BR')}
                       </p>
@@ -264,8 +264,8 @@ export default async function CompanyDetailPage({
                               Adicione um novo colaborador ao plano corporativo de {company.name}
                             </DialogDescription>
                           </DialogHeader>
-                          <AddCorporateSubscriberForm 
-                            companyId={company.id} 
+                          <AddCorporateSubscriberForm
+                            companyId={company.id}
                             contractedQuantity={plan.contractedQuantity}
                             activeSubscribers={metrics.activeSubscribers}
                           />

@@ -7,8 +7,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getCompanyById, updateCompany, deleteCompany } from '@/lib/companies/queries';
-import { validateUpdateCompanyRequest } from '@/lib/companies/validation';
+import { getCompanyById, updateCompany, deleteCompany, updateCompanyPlan } from '@/lib/companies/queries';
+import { validateUpdateCompanyRequest, validateUpdatePlanRequest } from '@/lib/companies/validation';
 import { logger, logError } from '@/lib/logger';
 
 export async function GET(
@@ -17,9 +17,9 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    
+
     const company = await getCompanyById(id);
-    
+
     if (!company) {
       return NextResponse.json({ error: 'Empresa não encontrada' }, { status: 404 });
     }
@@ -43,27 +43,46 @@ export async function PUT(
     const validation = validateUpdateCompanyRequest(body);
     if (!validation.valid) {
       logger.warn({ errors: validation.errors }, 'Tentativa de atualização de empresa com dados inválidos');
-      return NextResponse.json({ 
-        error: 'Dados inválidos', 
-        details: validation.errors 
+      return NextResponse.json({
+        error: 'Dados inválidos',
+        details: validation.errors
       }, { status: 400 });
+    }
+
+    // Validate plan if present
+    if (body.plan) {
+      const planValidation = validateUpdatePlanRequest(body.plan);
+      if (!planValidation.valid) {
+        logger.warn({ errors: planValidation.errors }, 'Tentativa de atualização de plano com dados inválidos');
+        return NextResponse.json({
+          error: 'Dados do plano inválidos',
+          details: planValidation.errors
+        }, { status: 400 });
+      }
     }
 
     logger.info({ companyId: id }, 'Atualizando empresa');
 
     const company = await updateCompany(id, body);
 
+    let plan = null;
+    if (body.plan) {
+      logger.info({ companyId: id }, 'Atualizando plano da empresa');
+      plan = await updateCompanyPlan(id, body.plan);
+    }
+
     logger.info({ companyId: id }, 'Empresa atualizada com sucesso');
 
     return NextResponse.json({
       message: 'Empresa atualizada com sucesso!',
       company,
+      plan,
     });
   } catch (error) {
     if (error instanceof Error && error.message === 'COMPANY_NOT_FOUND') {
       return NextResponse.json({ error: 'Empresa não encontrada' }, { status: 404 });
     }
-    
+
     logError(error, 'Erro ao atualizar empresa');
     return NextResponse.json({ error: 'Erro ao atualizar empresa.' }, { status: 500 });
   }
@@ -89,7 +108,7 @@ export async function DELETE(
     if (error instanceof Error && error.message === 'COMPANY_NOT_FOUND') {
       return NextResponse.json({ error: 'Empresa não encontrada' }, { status: 404 });
     }
-    
+
     logError(error, 'Erro ao cancelar empresa');
     return NextResponse.json({ error: 'Erro ao cancelar empresa.' }, { status: 500 });
   }

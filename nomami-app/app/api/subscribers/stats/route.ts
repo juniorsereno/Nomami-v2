@@ -4,7 +4,7 @@ import sql from '@/lib/db-pool';
 export async function GET() {
   try {
     const activeSubscribersResult = await sql`SELECT COUNT(*) FROM subscribers WHERE status = 'ativo'`;
-    
+
     const mrrResult = await sql`
       SELECT
         SUM(value) as total_mrr
@@ -16,18 +16,21 @@ export async function GET() {
       SELECT COUNT(*)
       FROM subscribers
       WHERE (start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '6 days')
+      AND removed_at IS NULL
     `;
 
     const newSubscribers30dResult = await sql`
       SELECT COUNT(*)
       FROM subscribers
       WHERE (start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '29 days')
+      AND removed_at IS NULL
     `;
 
     const newSubscribersTodayResult = await sql`
       SELECT COUNT(*)
       FROM subscribers
       WHERE (start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo')
+      AND removed_at IS NULL
     `;
 
     const activeSubscribers = parseInt(activeSubscribersResult[0]?.count ?? '0', 10);

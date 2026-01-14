@@ -133,6 +133,7 @@ export interface UpdateCompanyRequest {
   contactPhone?: string;
   contactPerson?: string;
   status?: CompanyStatus;
+  plan?: UpdatePlanRequest;
 }
 
 /**
