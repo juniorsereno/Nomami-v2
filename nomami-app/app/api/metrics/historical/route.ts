@@ -17,16 +17,19 @@ export async function GET() {
         d.day AS date,
         (SELECT COUNT(*)
            FROM subscribers s
-           WHERE (s.start_date AT TIME ZONE 'America/Sao_Paulo')::date <= d.day
+           WHERE s.start_date::date <= d.day
              AND s.status = 'ativo'
+             AND COALESCE(s.subscriber_type, 'individual') = 'individual'
           ) AS active_subscribers,
         (SELECT COUNT(*)
            FROM subscribers s
-           WHERE (s.start_date AT TIME ZONE 'America/Sao_Paulo')::date = d.day
+           WHERE s.start_date::date = d.day
+             AND COALESCE(s.subscriber_type, 'individual') = 'individual'
           ) AS new_subscribers,
         (SELECT COUNT(*)
            FROM subscribers s
            WHERE (s.expired_at AT TIME ZONE 'America/Sao_Paulo')::date = d.day
+             AND COALESCE(s.subscriber_type, 'individual') = 'individual'
           ) AS expired_subscribers
         FROM date_series d
         ORDER BY d.day ASC;

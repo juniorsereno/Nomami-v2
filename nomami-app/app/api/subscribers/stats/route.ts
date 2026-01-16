@@ -15,21 +15,21 @@ export async function GET() {
     const newSubscribers7dResult = await sql`
       SELECT COUNT(*)
       FROM subscribers
-      WHERE (start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '6 days')
+      WHERE start_date >= CURRENT_DATE - INTERVAL '6 days'
       AND removed_at IS NULL
     `;
 
     const newSubscribers30dResult = await sql`
       SELECT COUNT(*)
       FROM subscribers
-      WHERE (start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '29 days')
+      WHERE start_date >= CURRENT_DATE - INTERVAL '29 days'
       AND removed_at IS NULL
     `;
 
     const newSubscribersTodayResult = await sql`
       SELECT COUNT(*)
       FROM subscribers
-      WHERE (start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo')
+      WHERE start_date >= CURRENT_DATE
       AND removed_at IS NULL
     `;
 

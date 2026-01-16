@@ -61,12 +61,12 @@ export async function getSubscriberStats() {
     const newSubscribers30dResult = await sql`
       SELECT COUNT(*)
       FROM subscribers
-      WHERE (start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '29 days')
+      WHERE start_date >= CURRENT_DATE - INTERVAL '29 days'
     `;
     const newSubscribersTodayResult = await sql`
       SELECT COUNT(*)
       FROM subscribers
-      WHERE (start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo')
+      WHERE start_date >= CURRENT_DATE
     `;
 
     const stats = {

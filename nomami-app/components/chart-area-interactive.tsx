@@ -186,11 +186,8 @@ export function ChartAreaInteractive() {
               tickLine={false}
               axisLine={false}
               allowDecimals={false}
-              domain={[0, (dataMin: number, dataMax: number) => {
-                const max = Number.isFinite(dataMax) ? dataMax : 0;
-                return Math.ceil(Math.max(max * 1.3, 5));
-              }]}
-              tickCount={10} // Try to force more ticks
+              domain={[0, (dataMax: number) => Math.max(dataMax + 2, 5)]}
+              tickCount={6}
             />
             <ChartTooltip
               cursor={false}

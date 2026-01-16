@@ -7,7 +7,7 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
-import { getDashboardMetrics, getLatestSubscribers } from "@/lib/queries"
+import { getDashboardMetrics, getLatestSubscribers, getSubscriberStats } from "@/lib/queries"
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { columns, Subscriber } from "./columns"
@@ -21,8 +21,15 @@ async function DashboardPage() {
     redirect("/login");
   }
 
-  const metrics = await getDashboardMetrics();
+  const dashboardMetrics = await getDashboardMetrics();
+  const subscriberStats = await getSubscriberStats();
   const latestSubscribers = (await getLatestSubscribers()) as Subscriber[];
+
+  // Combina as métricas
+  const metrics = {
+    ...dashboardMetrics,
+    ...subscriberStats,
+  };
 
   return (
     <SidebarProvider

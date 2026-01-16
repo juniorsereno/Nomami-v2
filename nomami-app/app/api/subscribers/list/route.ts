@@ -36,28 +36,46 @@ export async function GET(request: Request) {
     }
     if (dateRange) {
       // Escolhe a coluna de data baseado no status:
-      // - 'vencido': usa expired_at (data de vencimento)
-      // - 'ativo': usa start_date (data de início)
-      // - sem filtro (all): usa created_at (data de criação)
-      let dateColumn = 's.created_at'; // padrão quando não há filtro de status
-      if (status === 'vencido') {
-        dateColumn = 's.expired_at';
-      } else if (status === 'ativo') {
-        dateColumn = 's.start_date';
-      }
+      // - 'vencido': usa expired_at (data de vencimento) - TEM timezone
+      // - 'ativo': usa start_date (data de início) - SEM timezone
+      // - sem filtro (all): usa created_at (data de criação) - TEM timezone
       
       switch (dateRange) {
         case 'today':
-          conditions.push(sql`(${sql.unsafe(dateColumn)} AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo')`);
+          if (status === 'vencido') {
+            conditions.push(sql`(s.expired_at AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo')`);
+          } else if (status === 'ativo') {
+            conditions.push(sql`s.start_date >= CURRENT_DATE`);
+          } else {
+            conditions.push(sql`(s.created_at AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo')`);
+          }
           break;
         case '7d':
-          conditions.push(sql`(${sql.unsafe(dateColumn)} AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '6 days')`);
+          if (status === 'vencido') {
+            conditions.push(sql`(s.expired_at AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '6 days')`);
+          } else if (status === 'ativo') {
+            conditions.push(sql`s.start_date >= CURRENT_DATE - INTERVAL '6 days'`);
+          } else {
+            conditions.push(sql`(s.created_at AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '6 days')`);
+          }
           break;
         case '15d':
-          conditions.push(sql`(${sql.unsafe(dateColumn)} AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '14 days')`);
+          if (status === 'vencido') {
+            conditions.push(sql`(s.expired_at AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '14 days')`);
+          } else if (status === 'ativo') {
+            conditions.push(sql`s.start_date >= CURRENT_DATE - INTERVAL '14 days'`);
+          } else {
+            conditions.push(sql`(s.created_at AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '14 days')`);
+          }
           break;
         case '30d':
-          conditions.push(sql`(${sql.unsafe(dateColumn)} AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '29 days')`);
+          if (status === 'vencido') {
+            conditions.push(sql`(s.expired_at AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '29 days')`);
+          } else if (status === 'ativo') {
+            conditions.push(sql`s.start_date >= CURRENT_DATE - INTERVAL '29 days'`);
+          } else {
+            conditions.push(sql`(s.created_at AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '29 days')`);
+          }
           break;
       }
     }
