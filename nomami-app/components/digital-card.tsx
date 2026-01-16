@@ -31,7 +31,7 @@ export function DigitalCard({ subscriber }: DigitalCardProps) {
                 onContextMenu={(e) => e.preventDefault()}
             >
                 <div className="relative z-10 w-full max-w-sm">
-                    <div className="relative w-full h-56 bg-gradient-to-br from-gray-600 via-gray-500 to-gray-700 rounded-xl shadow-2xl overflow-hidden">
+                    <div className="relative w-full h-64 bg-gradient-to-br from-gray-600 via-gray-500 to-gray-700 rounded-xl shadow-2xl overflow-hidden">
                         <CardContent className="relative z-10 flex flex-col h-full p-6 text-white pointer-events-none">
                             <div className="flex justify-between items-start">
                                 <div className="relative w-32 h-12 opacity-50">
@@ -92,7 +92,7 @@ export function DigitalCard({ subscriber }: DigitalCardProps) {
             {/* Page Background Image */}
 
             <div className="relative z-10 w-full max-w-sm perspective-1000">
-                <div className={`relative w-full h-56 ${isCorporate ? 'bg-gradient-to-br from-indigo-900 via-purple-800 to-violet-900' : 'bg-gradient-to-br from-gray-900 via-slate-800 to-black'} rounded-xl shadow-2xl overflow-hidden transform transition-transform hover:scale-105 duration-300`}>
+                <div className={`relative w-full h-64 ${isCorporate ? 'bg-gradient-to-br from-indigo-900 via-purple-800 to-violet-900' : 'bg-gradient-to-br from-gray-900 via-slate-800 to-black'} rounded-xl shadow-2xl overflow-hidden transform transition-transform hover:scale-105 duration-300`}>
                     {/* Background Pattern */}
                     <div className="absolute inset-0 opacity-35">
                         <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">

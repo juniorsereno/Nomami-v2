@@ -1,6 +1,7 @@
 import { getSubscriberByCardId } from "@/lib/queries";
 import { DigitalCard } from "@/components/digital-card";
 import { ExpiredCard } from "@/components/expired-card";
+import { AddToHomePrompt } from "@/components/add-to-home-prompt";
 import { notFound } from "next/navigation";
 
 interface PageProps {
@@ -35,7 +36,12 @@ export default async function CardPage({ params }: PageProps) {
     // For inactive corporate subscribers, show the digital card with inactive state
     // The DigitalCard component handles the inactive display
     if (isCorporate && isInactive) {
-        return <DigitalCard subscriber={subscriber} />;
+        return (
+            <>
+                <DigitalCard subscriber={subscriber} />
+                <AddToHomePrompt />
+            </>
+        );
     }
 
     const nextDueDate = new Date(subscriber.next_due_date);
@@ -51,5 +57,10 @@ export default async function CardPage({ params }: PageProps) {
         return <ExpiredCard />;
     }
 
-    return <DigitalCard subscriber={subscriber} />;
+    return (
+        <>
+            <DigitalCard subscriber={subscriber} />
+            <AddToHomePrompt />
+        </>
+    );
 }
