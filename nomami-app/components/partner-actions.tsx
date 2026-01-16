@@ -38,46 +38,13 @@ export function PartnerActions({ partner }: PartnerActionsProps) {
         return status === 'Ativo' ? 'ativo' : 'inativo';
     }
 
-    // Helper to ensure category is one of the allowed values, or default to the first one if somehow invalid
-    // In a real app, you might want better validation here
-    const mapCategory = (category: string) => {
-        const validCategories = [
-            "Academia",
-            "Alimentação",
-            "Amamentação/Pós-parto",
-            "Auto Peças",
-            "Beleza/Cosméticos",
-            "Calçados",
-            "Clínicas/Saúde",
-            "Construção",
-            "Contabilidade",
-            "Decoração/Festa",
-            "Educação",
-            "Enxoval",
-            "Esportes",
-            "Farmácia",
-            "Fotografia/Video",
-            "Fraldas",
-            "Lazer",
-            "Loja de Brinquedos",
-            "Maquiagem",
-            "Massagem",
-            "Mercado/Hostifruti",
-            "Ótica",
-            "Papelaria",
-            "Perfuração Auricular",
-            "Personal Online",
-            "Pet Shop/Veterinário",
-            "Religioso",
-            "Roupa Adulto",
-            "Roupa Infantil",
-            "Serviços",
-            "Telemedicina",
-            "Transporte",
-            "Vestuário",
-        ] as const;
-        type Category = typeof validCategories[number];
-        return validCategories.includes(category as Category) ? category as Category : "Serviços";
+    // Helper to convert category string to array
+    const mapCategories = (category: string | null | undefined): string[] => {
+        if (!category) return [];
+        // Se já for um array (caso de edição), retorna como está
+        if (Array.isArray(category)) return category;
+        // Converte string separada por vírgula em array
+        return category.split(',').map(cat => cat.trim()).filter(Boolean);
     }
 
     return (
@@ -116,7 +83,7 @@ export function PartnerActions({ partner }: PartnerActionsProps) {
                             address: partner.address || "",
                             benefit_description: partner.benefit_description || "",
                             status: mapStatus(partner.status),
-                            category: partner.category ? mapCategory(partner.category) : "",
+                            categories: mapCategories(partner.category),
                             logo_url: partner.logo_url || "",
                             site_url: partner.site_url || "",
                             instagram_url: partner.instagram_url || "",

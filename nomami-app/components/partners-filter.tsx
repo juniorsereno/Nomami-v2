@@ -24,11 +24,15 @@ export function PartnersFilter({ partners }: PartnersFilterProps) {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("todas");
 
-  // Extrai categorias únicas dos parceiros
+  // Extrai categorias únicas dos parceiros (considerando múltiplas categorias)
   const categories = useMemo(() => {
     const cats = new Set<string>();
     partners.forEach((p) => {
-      if (p.category) cats.add(p.category);
+      if (p.category) {
+        // Divide categorias separadas por vírgula
+        const partnerCategories = p.category.split(',').map(cat => cat.trim());
+        partnerCategories.forEach(cat => cats.add(cat));
+      }
     });
     return Array.from(cats).sort();
   }, [partners]);
@@ -39,8 +43,9 @@ export function PartnersFilter({ partners }: PartnersFilterProps) {
       const matchesSearch = search === "" || 
         partner.company_name.toLowerCase().includes(search.toLowerCase());
       
+      // Verifica se o parceiro tem a categoria selecionada (suporta múltiplas categorias)
       const matchesCategory = selectedCategory === "todas" || 
-        partner.category === selectedCategory;
+        (partner.category && partner.category.split(',').map(cat => cat.trim()).includes(selectedCategory));
 
       return matchesSearch && matchesCategory;
     });

@@ -3,6 +3,7 @@
 import React from 'react';
 import { CardContent } from "@/components/ui/card";
 import { NomamiLogo } from "@/components/nomami-logo";
+import { QRCodeSVG } from 'qrcode.react';
 
 interface DigitalCardProps {
     subscriber: {
@@ -44,6 +45,11 @@ export function DigitalCard({ subscriber }: DigitalCardProps) {
                                     <p className="text-sm opacity-75">
                                         Este cartão corporativo não está mais ativo.
                                     </p>
+                                    {subscriber.card_id && (
+                                        <p className="text-xs opacity-60 mt-2">
+                                            Cartão Nº: {subscriber.card_id}
+                                        </p>
+                                    )}
                                     {subscriber.company_name && (
                                         <p className="text-xs opacity-60 mt-2">
                                             Empresa: {subscriber.company_name}
@@ -57,6 +63,20 @@ export function DigitalCard({ subscriber }: DigitalCardProps) {
                                     Entre em contato com sua empresa para mais informações.
                                 </p>
                             </div>
+
+                            {/* QR Code - Bottom Left Corner */}
+                            {subscriber.card_id && (
+                                <div className="absolute bottom-4 left-8 bg-white p-1 rounded">
+                                    <QRCodeSVG
+                                        value={`${typeof window !== 'undefined' ? window.location.origin : 'https://nomami.com.br'}/verificar/${subscriber.card_id}`}
+                                        size={60}
+                                        bgColor="#FFFFFF"
+                                        fgColor="#000000"
+                                        level="M"
+                                        marginSize={1}
+                                    />
+                                </div>
+                            )}
                         </CardContent>
                     </div>
                 </div>
@@ -89,16 +109,29 @@ export function DigitalCard({ subscriber }: DigitalCardProps) {
 
                         {/* Chip Icon - Centered vertically relative to card, right aligned */}
                         <div className="absolute top-1/2 -translate-y-1/2 right-6">
-                            <div className="w-12 h-10 bg-yellow-400 rounded-md opacity-80 flex items-center justify-center overflow-hidden shadow-sm">
-                                <div className="w-full h-[1px] bg-black opacity-20 mb-1"></div>
-                                <div className="w-full h-[1px] bg-black opacity-20 mt-1"></div>
-                                <div className="h-full w-[1px] bg-black opacity-20 ml-1"></div>
-                                <div className="h-full w-[1px] bg-black opacity-20 mr-1"></div>
+                            <div className="relative w-12 h-10 bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-500 rounded-md shadow-lg">
+                                {/* Chip grid pattern */}
+                                <div className="absolute inset-0 grid grid-cols-4 grid-rows-3 gap-[1px] p-1.5">
+                                    <div className="bg-yellow-600/40 rounded-[1px]"></div>
+                                    <div className="bg-yellow-600/40 rounded-[1px]"></div>
+                                    <div className="bg-yellow-600/40 rounded-[1px]"></div>
+                                    <div className="bg-yellow-600/40 rounded-[1px]"></div>
+                                    <div className="bg-yellow-600/40 rounded-[1px]"></div>
+                                    <div className="bg-yellow-600/40 rounded-[1px]"></div>
+                                    <div className="bg-yellow-600/40 rounded-[1px]"></div>
+                                    <div className="bg-yellow-600/40 rounded-[1px]"></div>
+                                    <div className="bg-yellow-600/40 rounded-[1px]"></div>
+                                    <div className="bg-yellow-600/40 rounded-[1px]"></div>
+                                    <div className="bg-yellow-600/40 rounded-[1px]"></div>
+                                    <div className="bg-yellow-600/40 rounded-[1px]"></div>
+                                </div>
+                                {/* Shine effect */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent rounded-md"></div>
                             </div>
                         </div>
 
                         {/* Subscriber Info - Pushed down */}
-                        <div className="mt-auto mb-8 ml-0 pr-20">
+                        <div className={`mt-auto ml-0 pr-20 ${isCorporate ? 'mb-2' : 'mb-8'}`}>
                             {/* Company Name for Corporate Subscribers */}
                             {isCorporate && subscriber.company_name && (
                                 <div className="mb-2">
@@ -118,10 +151,16 @@ export function DigitalCard({ subscriber }: DigitalCardProps) {
                             >
                                 {subscriber.name}
                             </h2>
+                            {/* Card ID Display */}
+                            {subscriber.card_id && (
+                                <p className="text-xs opacity-75 mt-1" data-protected="true">
+                                    Cartão Nº: {subscriber.card_id}
+                                </p>
+                            )}
                         </div>
 
                         {/* Footer Info */}
-                        <div className="flex justify-end items-end mt-2">
+                        <div className={`flex justify-end items-end ${isCorporate ? 'mt-0' : 'mt-2'}`}>
                             <div className="text-right">
                                 <p className="text-[10px] opacity-75 uppercase">Válido Até</p>
                                 <p className="font-mono text-sm font-bold" data-protected="true">{formattedDate}</p>
@@ -133,6 +172,20 @@ export function DigitalCard({ subscriber }: DigitalCardProps) {
                                 {isCorporate ? 'Corporativo' : 'Membro'}
                             </span>
                         </div>
+
+                        {/* QR Code - Bottom Left Corner */}
+                        {subscriber.card_id && (
+                            <div className="absolute bottom-4 left-6 bg-white p-1 rounded">
+                                <QRCodeSVG
+                                    value={`${typeof window !== 'undefined' ? window.location.origin : 'https://nomami.com.br'}/verificar/${subscriber.card_id}`}
+                                    size={60}
+                                    bgColor="#FFFFFF"
+                                    fgColor="#000000"
+                                    level="M"
+                                    marginSize={1}
+                                />
+                            </div>
+                        )}
                     </CardContent>
                 </div>
 

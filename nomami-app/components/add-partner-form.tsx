@@ -24,6 +24,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Badge } from "@/components/ui/badge"
 
 const categories = [
   "Academia",
@@ -31,30 +33,35 @@ const categories = [
   "Amamentação/Pós-parto",
   "Auto Peças",
   "Beleza/Cosméticos",
+  "Bem Estar",
   "Calçados",
-  "Clínicas/Saúde",
+  "Clínicas",
   "Construção",
   "Contabilidade",
   "Decoração/Festa",
   "Educação",
   "Enxoval",
   "Esportes",
+  "Estética",
   "Farmácia",
   "Fotografia/Video",
   "Fraldas",
+  "Hortifruti",
   "Lazer",
   "Loja de Brinquedos",
   "Maquiagem",
   "Massagem",
-  "Mercado/Hostifruti",
+  "Mercado",
   "Ótica",
   "Papelaria",
   "Perfuração Auricular",
   "Personal Online",
   "Pet Shop/Veterinário",
+  "Pilates",
   "Religioso",
   "Roupa Adulto",
   "Roupa Infantil",
+  "Saúde",
   "Serviços",
   "Telemedicina",
   "Transporte",
@@ -68,7 +75,7 @@ const formSchema = z.object({
   }),
   phone: z.string().optional(),
   address: z.string().optional(),
-  category: z.string().optional(),
+  categories: z.array(z.string()).min(1, "Selecione pelo menos uma categoria."),
   benefit_description: z.string().optional(),
   status: z.enum(['ativo', 'inativo']),
   logo_url: z.string().optional(),
@@ -90,6 +97,7 @@ export function AddPartnerForm({ onPartnerAdded, initialData, partnerId }: AddPa
       cnpj: "",
       phone: "",
       address: "",
+      categories: [],
       benefit_description: "",
       status: "ativo",
       logo_url: "",
@@ -149,12 +157,15 @@ export function AddPartnerForm({ onPartnerAdded, initialData, partnerId }: AddPa
         cnpj: values.cnpj ? values.cnpj.replace(/\D/g, '') : null,
         address: values.address || null,
         phone: values.phone || null,
-        category: values.category || null,
+        category: values.categories.join(', '), // Converte array para string separada por vírgula
         benefit_description: values.benefit_description || null,
         logo_url: values.logo_url || null,
         site_url: values.site_url || null,
         instagram_url: values.instagram_url || null,
       };
+
+      // Remove o campo categories do objeto enviado
+      const { categories, ...dataToSend } = cleanedValues;
 
       const url = partnerId ? `/api/partners/${partnerId}` : '/api/partners';
       const method = partnerId ? 'PUT' : 'POST';
@@ -164,7 +175,7 @@ export function AddPartnerForm({ onPartnerAdded, initialData, partnerId }: AddPa
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(cleanedValues),
+        body: JSON.stringify(dataToSend),
       });
 
       if (!response.ok) {
@@ -288,24 +299,59 @@ export function AddPartnerForm({ onPartnerAdded, initialData, partnerId }: AddPa
         />
         <FormField
           control={form.control}
-          name="category"
-          render={({ field }) => (
+          name="categories"
+          render={() => (
             <FormItem>
-              <FormLabel>Categoria</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a categoria" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
+              <div className="mb-4">
+                <FormLabel className="text-base">Categorias</FormLabel>
+                <p className="text-sm text-muted-foreground">
+                  Selecione uma ou mais categorias para o parceiro
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-3 max-h-[300px] overflow-y-auto border rounded-md p-4">
+                {categories.map((category) => (
+                  <FormField
+                    key={category}
+                    control={form.control}
+                    name="categories"
+                    render={({ field }) => {
+                      return (
+                        <FormItem
+                          key={category}
+                          className="flex flex-row items-start space-x-3 space-y-0"
+                        >
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value?.includes(category)}
+                              onCheckedChange={(checked) => {
+                                return checked
+                                  ? field.onChange([...field.value, category])
+                                  : field.onChange(
+                                      field.value?.filter(
+                                        (value) => value !== category
+                                      )
+                                    )
+                              }}
+                            />
+                          </FormControl>
+                          <FormLabel className="text-sm font-normal cursor-pointer">
+                            {category}
+                          </FormLabel>
+                        </FormItem>
+                      )
+                    }}
+                  />
+                ))}
+              </div>
+              {form.watch("categories")?.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {form.watch("categories").map((cat) => (
+                    <Badge key={cat} variant="secondary">
+                      {cat}
+                    </Badge>
                   ))}
-                </SelectContent>
-              </Select>
+                </div>
+              )}
               <FormMessage />
             </FormItem>
           )}

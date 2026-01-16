@@ -31,6 +31,7 @@ export function SubscribersTable({ initialSubscribers, initialTotal }: Subscribe
   const [plan, setPlan] = useState('all');
   const [status, setStatus] = useState('all');
   const [dateRange, setDateRange] = useState('all');
+  const [subscriberType, setSubscriberType] = useState<'all' | 'individual' | 'corporate'>('all');
 
   // Debounce search term
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
@@ -49,7 +50,7 @@ export function SubscribersTable({ initialSubscribers, initialTotal }: Subscribe
   useEffect(() => {
     const fetchSubscribers = async () => {
       // Skip fetch if it's the initial render with initial data
-      if (pagination.pageIndex === 0 && !debouncedSearchTerm && plan === 'all' && status === 'all' && dateRange === 'all' && sorting.length === 0) {
+      if (pagination.pageIndex === 0 && !debouncedSearchTerm && plan === 'all' && status === 'all' && dateRange === 'all' && subscriberType === 'all' && sorting.length === 0) {
         setSubscribers(initialSubscribers);
         setTotalSubscribers(initialTotal);
         return;
@@ -61,6 +62,7 @@ export function SubscribersTable({ initialSubscribers, initialTotal }: Subscribe
         if (plan !== 'all') params.append('plan', plan);
         if (status !== 'all') params.append('status', status);
         if (dateRange !== 'all') params.append('dateRange', dateRange);
+        if (subscriberType !== 'all') params.append('subscriberType', subscriberType);
         params.append('page', (pagination.pageIndex + 1).toString());
         params.append('pageSize', pagination.pageSize.toString());
 
@@ -82,11 +84,21 @@ export function SubscribersTable({ initialSubscribers, initialTotal }: Subscribe
     };
 
     fetchSubscribers();
-  }, [debouncedSearchTerm, plan, status, dateRange, pagination, sorting, initialSubscribers, initialTotal]);
+  }, [debouncedSearchTerm, plan, status, dateRange, subscriberType, pagination, sorting, initialSubscribers, initialTotal]);
 
   const pageCount = useMemo(() => {
     return Math.ceil(totalSubscribers / pagination.pageSize);
   }, [totalSubscribers, pagination.pageSize]);
+
+  // Label dinâmico para o filtro de data baseado no status selecionado
+  const dateFilterLabel = useMemo(() => {
+    if (status === 'vencido') {
+      return 'Data de Vencimento';
+    } else if (status === 'ativo') {
+      return 'Data de Início';
+    }
+    return 'Data de Criação';
+  }, [status]);
 
   return (
     <div className="px-4 lg:px-6">
@@ -119,7 +131,7 @@ export function SubscribersTable({ initialSubscribers, initialTotal }: Subscribe
         </Select>
         <Select value={dateRange} onValueChange={setDateRange}>
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Qualquer data" />
+            <SelectValue placeholder={dateFilterLabel} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Qualquer data</SelectItem>
@@ -127,6 +139,16 @@ export function SubscribersTable({ initialSubscribers, initialTotal }: Subscribe
             <SelectItem value="7d">Últimos 7 dias</SelectItem>
             <SelectItem value="15d">Últimos 15 dias</SelectItem>
             <SelectItem value="30d">Últimos 30 dias</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={subscriberType} onValueChange={(value) => setSubscriberType(value as 'all' | 'individual' | 'corporate')}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Tipo" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os Tipos</SelectItem>
+            <SelectItem value="individual">Individual</SelectItem>
+            <SelectItem value="corporate">Corporativo</SelectItem>
           </SelectContent>
         </Select>
       </div>

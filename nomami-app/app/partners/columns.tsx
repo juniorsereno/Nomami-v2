@@ -24,16 +24,23 @@ export const columns: ColumnDef<Partner>[] = [
     header: "Nome da Empresa",
   },
   {
-    accessorKey: "cnpj",
-    header: "CNPJ",
-  },
-  {
-    accessorKey: "phone",
-    header: "Telefone",
-  },
-  {
-    accessorKey: "address",
-    header: "Endereço",
+    accessorKey: "category",
+    header: "Categoria",
+    cell: ({ row }) => {
+      const category = row.getValue("category") as string;
+      if (!category) return <span className="text-muted-foreground">-</span>;
+      
+      // Se tiver múltiplas categorias, mostra a primeira + contador
+      const categories = category.split(',').map(cat => cat.trim());
+      if (categories.length > 1) {
+        return (
+          <span title={category}>
+            {categories[0]} <span className="text-muted-foreground text-xs">+{categories.length - 1}</span>
+          </span>
+        );
+      }
+      return <span>{category}</span>;
+    },
   },
   {
     accessorKey: "benefit_description",
@@ -54,6 +61,7 @@ export const columns: ColumnDef<Partner>[] = [
   },
   {
     id: "actions",
+    header: "Ações",
     cell: ({ row }) => <PartnerActions partner={row.original} />,
   },
 ]

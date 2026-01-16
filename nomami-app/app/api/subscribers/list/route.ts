@@ -29,24 +29,35 @@ export async function GET(request: Request) {
       conditions.push(sql`s.plan_type = ${plan}`);
     }
     if (status) {
-      conditions.push(sql`s.status = ${status}`);
+      conditions.push(sql`LOWER(TRIM(s.status)) = LOWER(${status})`);
     }
     if (subscriberType) {
       conditions.push(sql`COALESCE(s.subscriber_type, 'individual') = ${subscriberType}`);
     }
     if (dateRange) {
+      // Escolhe a coluna de data baseado no status:
+      // - 'vencido': usa expired_at (data de vencimento)
+      // - 'ativo': usa start_date (data de início)
+      // - sem filtro (all): usa created_at (data de criação)
+      let dateColumn = 's.created_at'; // padrão quando não há filtro de status
+      if (status === 'vencido') {
+        dateColumn = 's.expired_at';
+      } else if (status === 'ativo') {
+        dateColumn = 's.start_date';
+      }
+      
       switch (dateRange) {
         case 'today':
-          conditions.push(sql`(s.start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo')`);
+          conditions.push(sql`(${sql.unsafe(dateColumn)} AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo')`);
           break;
         case '7d':
-          conditions.push(sql`(s.start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '6 days')`);
+          conditions.push(sql`(${sql.unsafe(dateColumn)} AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '6 days')`);
           break;
         case '15d':
-          conditions.push(sql`(s.start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '14 days')`);
+          conditions.push(sql`(${sql.unsafe(dateColumn)} AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '14 days')`);
           break;
         case '30d':
-          conditions.push(sql`(s.start_date AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '29 days')`);
+          conditions.push(sql`(${sql.unsafe(dateColumn)} AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('day', now() AT TIME ZONE 'America/Sao_Paulo' - interval '29 days')`);
           break;
       }
     }

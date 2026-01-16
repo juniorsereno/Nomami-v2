@@ -45,8 +45,11 @@ export async function middleware(request: NextRequest) {
     '/api/webhook', // Webhooks externos (Asaas, Stripe, etc)
     '/api/whatsapp/test-cadence', // Rota de teste temporária
     '/api/health', // Health check
+    '/api/consulta', // API de consulta de carteirinha
     '/parceiros', 
-    '/card'
+    '/card',
+    '/consulta', // Página de consulta de carteirinha
+    '/verificar' // Página de verificação via QR code
   ];
   const isPublicRoute = publicRoutes.some(route => nextUrl.pathname.startsWith(route));
 

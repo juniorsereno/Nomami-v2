@@ -42,6 +42,11 @@ export function SubscriberEditDialog({ subscriber, children, onSubscriberUpdate 
     setFormData(prev => ({ ...prev, status: value }));
   };
 
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({ ...prev, [id]: value }));
+  };
+
   const handleSubmit = async () => {
     try {
       const response = await fetch(`/api/subscribers/${subscriber.id}`, {
@@ -112,6 +117,18 @@ export function SubscriberEditDialog({ subscriber, children, onSubscriberUpdate 
                 <SelectItem value="vencido">Vencido</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="next_due_date" className="text-right">
+              Próximo Vencimento
+            </Label>
+            <Input 
+              id="next_due_date" 
+              type="date" 
+              value={formData.next_due_date ? new Date(formData.next_due_date).toISOString().split('T')[0] : ''} 
+              onChange={handleDateChange} 
+              className="col-span-3" 
+            />
           </div>
         </div>
         <DialogFooter>

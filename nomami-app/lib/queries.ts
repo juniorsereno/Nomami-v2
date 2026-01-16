@@ -39,6 +39,7 @@ export async function getLatestSubscribers(limit = 10) {
     const data = await sql`
       SELECT id, name, phone, cpf, start_date, next_due_date, plan_type
       FROM subscribers
+      WHERE COALESCE(subscriber_type, 'individual') = 'individual'
       ORDER BY start_date DESC
       LIMIT ${limit}
     `;
@@ -251,7 +252,8 @@ export async function getSubscriberByCardId(cardId: string) {
         s.plan_type,
         COALESCE(s.subscriber_type, 'individual') as subscriber_type,
         s.company_id,
-        c.name as company_name
+        c.name as company_name,
+        s.removed_at
       FROM subscribers s
       LEFT JOIN companies c ON c.id = s.company_id
       WHERE s.card_id = ${cardId}
