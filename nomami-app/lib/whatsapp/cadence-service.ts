@@ -21,6 +21,7 @@ export interface SubscriberInfo {
   name: string;
   phone: string;
   subscriptionDate: string;
+  cardId?: string;
 }
 
 /**
@@ -58,19 +59,22 @@ function getFirstName(fullName: string): string {
  * - {nome_completo} - Full name of the subscriber
  * - {telefone} - Phone number of the subscriber
  * - {data_assinatura} - Subscription date
+ * - {link_carteirinha} - Direct link to the digital card
  */
 export function replaceMessageVariables(
   content: string,
   subscriber: SubscriberInfo
 ): string {
   const firstName = getFirstName(subscriber.name);
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || 'https://app.nomami.com.br';
+  const cardLink = subscriber.cardId ? `${baseUrl}/card/${subscriber.cardId}` : '';
   
-  // Use a function replacer to avoid issues with special regex replacement patterns ($&, $`, etc.)
   return content
     .replace(/\{nome\}/gi, () => firstName)
     .replace(/\{nome_completo\}/gi, () => subscriber.name || 'Cliente')
     .replace(/\{telefone\}/gi, () => subscriber.phone || '')
-    .replace(/\{data_assinatura\}/gi, () => subscriber.subscriptionDate || '');
+    .replace(/\{data_assinatura\}/gi, () => subscriber.subscriptionDate || '')
+    .replace(/\{link_carteirinha\}/gi, () => cardLink);
 }
 
 /**

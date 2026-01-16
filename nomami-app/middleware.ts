@@ -46,10 +46,12 @@ export async function middleware(request: NextRequest) {
     '/api/whatsapp/test-cadence', // Rota de teste temporária
     '/api/health', // Health check
     '/api/consulta', // API de consulta de carteirinha
+    '/api/minha-carteirinha', // API de consulta por e-mail
     '/parceiros', 
     '/card',
     '/consulta', // Página de consulta de carteirinha
-    '/verificar' // Página de verificação via QR code
+    '/verificar', // Página de verificação via QR code
+    '/minha-carteirinha' // Página de acesso à carteirinha por e-mail
   ];
   const isPublicRoute = publicRoutes.some(route => nextUrl.pathname.startsWith(route));
 

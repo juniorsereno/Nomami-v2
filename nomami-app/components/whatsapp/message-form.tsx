@@ -193,7 +193,7 @@ export function MessageForm({ message, onSave, onCancel, existingOrders, open }:
             )}
             {type === 'text' && (
               <p className="text-xs text-muted-foreground">
-                Variáveis disponíveis: <code className="bg-muted px-1 rounded">{'{nome}'}</code> (primeiro nome), <code className="bg-muted px-1 rounded">{'{nome_completo}'}</code>, <code className="bg-muted px-1 rounded">{'{data_assinatura}'}</code>
+                Variáveis disponíveis: <code className="bg-muted px-1 rounded">{'{nome}'}</code> (primeiro nome), <code className="bg-muted px-1 rounded">{'{nome_completo}'}</code>, <code className="bg-muted px-1 rounded">{'{data_assinatura}'}</code>, <code className="bg-muted px-1 rounded">{'{link_carteirinha}'}</code>
               </p>
             )}
           </div>

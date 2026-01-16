@@ -288,6 +288,7 @@ export async function processStripeWebhook(body: StripeWebhookEvent): Promise<We
             name: customerName,
             phone: customerPhone,
             subscriptionDate: new Date().toISOString(),
+            cardId,
           };
 
           // Execute cadence asynchronously (don't block webhook response)

@@ -22,6 +22,7 @@ describe('WhatsApp Cadence Service - Variable Substitution', () => {
     name: 'João Silva',
     phone: '5561999999999',
     subscriptionDate: '2024-01-15',
+    cardId: 'ABC12345',
   };
 
   it('should replace {nome} with first name', () => {
@@ -46,6 +47,22 @@ describe('WhatsApp Cadence Service - Variable Substitution', () => {
     const content = 'Você assinou em {data_assinatura}';
     const result = replaceMessageVariables(content, subscriber);
     expect(result).toBe('Você assinou em 2024-01-15');
+  });
+
+  it('should replace {link_carteirinha} with card link', () => {
+    const content = 'Acesse sua carteirinha: {link_carteirinha}';
+    const result = replaceMessageVariables(content, subscriber);
+    expect(result).toContain('/card/ABC12345');
+  });
+
+  it('should replace {link_carteirinha} with empty string when cardId is not provided', () => {
+    const subscriberNoCard: SubscriberInfo = {
+      ...subscriber,
+      cardId: undefined,
+    };
+    const content = 'Acesse sua carteirinha: {link_carteirinha}';
+    const result = replaceMessageVariables(content, subscriberNoCard);
+    expect(result).toBe('Acesse sua carteirinha: ');
   });
 
   it('should replace multiple variables in the same message', () => {

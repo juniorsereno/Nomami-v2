@@ -314,6 +314,7 @@ export async function processAsaasWebhook(body: AsaasWebhookEvent): Promise<Webh
               name,
               phone,
               subscriptionDate: new Date().toISOString(),
+              cardId,
             };
 
             // Execute cadence asynchronously (don't block webhook response)
