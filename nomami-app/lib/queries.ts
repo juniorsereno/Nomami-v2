@@ -4,11 +4,24 @@ import sql from './db-pool';
 export async function getDashboardMetrics() {
   try {
     const activeSubscribersResult = await sql`SELECT COUNT(*) FROM subscribers WHERE status = 'ativo'`;
-    const mrrResult = await sql`
-      SELECT SUM(value) as total_mrr
+    
+    // MRR de assinantes individuais mensais
+    const subscriberMrrResult = await sql`
+      SELECT COALESCE(SUM(value), 0) as total_mrr
       FROM subscribers
-      WHERE status = 'ativo' AND plan_type = 'mensal'
+      WHERE status = 'ativo' 
+        AND plan_type = 'mensal'
+        AND COALESCE(subscriber_type, 'individual') = 'individual'
     `;
+    
+    // MRR de empresas ativas (quantidade contratada * preço por assinante)
+    const companyMrrResult = await sql`
+      SELECT COALESCE(SUM(cp.contracted_quantity * cp.price_per_subscriber), 0) as total_mrr
+      FROM company_plans cp
+      INNER JOIN companies c ON c.id = cp.company_id
+      WHERE cp.status = 'active' AND c.status = 'active'
+    `;
+    
     const newSubscribersResult = await sql`
       SELECT COUNT(*)
       FROM subscribers
@@ -21,9 +34,12 @@ export async function getDashboardMetrics() {
         AND (expired_at AT TIME ZONE 'America/Sao_Paulo') >= date_trunc('month', now() AT TIME ZONE 'America/Sao_Paulo')
     `;
 
+    const subscriberMrr = parseFloat(subscriberMrrResult[0]?.total_mrr ?? '0');
+    const companyMrr = parseFloat(companyMrrResult[0]?.total_mrr ?? '0');
+
     const metrics = {
       activeSubscribers: parseInt(activeSubscribersResult[0]?.count ?? '0', 10),
-      mrr: parseFloat(mrrResult[0]?.total_mrr ?? '0'),
+      mrr: subscriberMrr + companyMrr,
       newSubscribers: parseInt(newSubscribersResult[0]?.count ?? '0', 10),
       expiredThisMonth: parseInt(expiredThisMonthResult[0]?.count ?? '0', 10),
     };
@@ -52,21 +68,33 @@ export async function getLatestSubscribers(limit = 10) {
 
 export async function getSubscriberStats() {
   try {
-    const activeSubscribersResult = await sql`SELECT COUNT(*) FROM subscribers WHERE status = 'ativo'`;
-    const mrrResult = await sql`
-      SELECT SUM(value) as total_mrr
-      FROM subscribers
-      WHERE status = 'ativo' AND plan_type = 'mensal'
+    // Conta apenas assinantes individuais ativos
+    const activeSubscribersResult = await sql`
+      SELECT COUNT(*) FROM subscribers 
+      WHERE status = 'ativo' 
+        AND COALESCE(subscriber_type, 'individual') = 'individual'
     `;
+    
+    // MRR apenas de assinantes individuais mensais (sem empresas)
+    const mrrResult = await sql`
+      SELECT COALESCE(SUM(value), 0) as total_mrr
+      FROM subscribers
+      WHERE status = 'ativo' 
+        AND plan_type = 'mensal'
+        AND COALESCE(subscriber_type, 'individual') = 'individual'
+    `;
+    
     const newSubscribers30dResult = await sql`
       SELECT COUNT(*)
       FROM subscribers
       WHERE start_date >= CURRENT_DATE - INTERVAL '29 days'
+        AND COALESCE(subscriber_type, 'individual') = 'individual'
     `;
     const newSubscribersTodayResult = await sql`
       SELECT COUNT(*)
       FROM subscribers
       WHERE start_date >= CURRENT_DATE
+        AND COALESCE(subscriber_type, 'individual') = 'individual'
     `;
 
     const stats = {

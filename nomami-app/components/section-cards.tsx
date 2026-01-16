@@ -14,6 +14,7 @@ interface Metrics {
   inactivePartners?: number;
   newPartners?: number;
   mrr?: number;
+  mrrLabel?: string;
   newSubscribers?: number;
   newSubscribersToday?: number;
   expiredThisMonth?: number;
@@ -89,7 +90,7 @@ export function SectionCards({ metrics }: SectionCardsProps) {
       {metrics.mrr !== undefined && (
         <Card className="@container/card">
           <CardHeader>
-            <CardDescription>MRR (Valor Recorrente)</CardDescription>
+            <CardDescription>{metrics.mrrLabel || 'MRR (Valor Recorrente)'}</CardDescription>
             <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
               R$ {metrics.mrr.toFixed(2)}
             </CardTitle>

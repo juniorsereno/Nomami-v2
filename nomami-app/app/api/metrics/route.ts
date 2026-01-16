@@ -23,15 +23,24 @@ export async function GET() {
     const [
       activeSubscribersResult,
       inactiveSubscribersResult,
-      mrrResult,
+      subscriberMrrResult,
+      companyMrrResult,
       newSubscribersResult
     ] = await Promise.all([
       sql`SELECT COUNT(*) FROM subscribers WHERE status = 'ativo'`,
       sql`SELECT COUNT(*) FROM subscribers WHERE status = 'vencido'`,
       sql`
-        SELECT SUM(value) as total_mrr
+        SELECT COALESCE(SUM(value), 0) as total_mrr
         FROM subscribers
-        WHERE status = 'ativo' AND plan_type = 'mensal'
+        WHERE status = 'ativo' 
+          AND plan_type = 'mensal'
+          AND COALESCE(subscriber_type, 'individual') = 'individual'
+      `,
+      sql`
+        SELECT COALESCE(SUM(cp.contracted_quantity * cp.price_per_subscriber), 0) as total_mrr
+        FROM company_plans cp
+        INNER JOIN companies c ON c.id = cp.company_id
+        WHERE cp.status = 'active' AND c.status = 'active'
       `,
       sql`
         SELECT COUNT(*)
@@ -40,10 +49,13 @@ export async function GET() {
       `
     ]);
 
+    const subscriberMrr = parseFloat(subscriberMrrResult[0]?.total_mrr ?? '0');
+    const companyMrr = parseFloat(companyMrrResult[0]?.total_mrr ?? '0');
+
     const metrics = {
       activeSubscribers: parseInt(activeSubscribersResult[0]?.count ?? '0', 10),
       inactiveSubscribers: parseInt(inactiveSubscribersResult[0]?.count ?? '0', 10),
-      mrr: parseFloat(mrrResult[0]?.total_mrr ?? '0'),
+      mrr: subscriberMrr + companyMrr,
       newSubscribers: parseInt(newSubscribersResult[0]?.count ?? '0', 10),
     };
 

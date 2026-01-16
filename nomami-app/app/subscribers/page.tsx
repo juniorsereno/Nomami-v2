@@ -41,6 +41,7 @@ async function SubscribersPage() {
                 metrics={{
                   activeSubscribers: stats.activeSubscribers,
                   mrr: stats.mrr,
+                  mrrLabel: 'MRR Assinantes',
                   newSubscribers: stats.newSubscribers30d,
                   newSubscribersToday: stats.newSubscribersToday
                 }}

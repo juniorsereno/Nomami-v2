@@ -3,34 +3,44 @@ import sql from '@/lib/db-pool';
 
 export async function GET() {
   try {
-    const activeSubscribersResult = await sql`SELECT COUNT(*) FROM subscribers WHERE status = 'ativo'`;
+    // Conta apenas assinantes individuais ativos
+    const activeSubscribersResult = await sql`
+      SELECT COUNT(*) FROM subscribers 
+      WHERE status = 'ativo' 
+        AND COALESCE(subscriber_type, 'individual') = 'individual'
+    `;
 
+    // MRR apenas de assinantes individuais mensais (sem empresas)
     const mrrResult = await sql`
-      SELECT
-        SUM(value) as total_mrr
+      SELECT COALESCE(SUM(value), 0) as total_mrr
       FROM subscribers
-      WHERE status = 'ativo' AND plan_type = 'mensal'
+      WHERE status = 'ativo' 
+        AND plan_type = 'mensal'
+        AND COALESCE(subscriber_type, 'individual') = 'individual'
     `;
 
     const newSubscribers7dResult = await sql`
       SELECT COUNT(*)
       FROM subscribers
       WHERE start_date >= CURRENT_DATE - INTERVAL '6 days'
-      AND removed_at IS NULL
+        AND removed_at IS NULL
+        AND COALESCE(subscriber_type, 'individual') = 'individual'
     `;
 
     const newSubscribers30dResult = await sql`
       SELECT COUNT(*)
       FROM subscribers
       WHERE start_date >= CURRENT_DATE - INTERVAL '29 days'
-      AND removed_at IS NULL
+        AND removed_at IS NULL
+        AND COALESCE(subscriber_type, 'individual') = 'individual'
     `;
 
     const newSubscribersTodayResult = await sql`
       SELECT COUNT(*)
       FROM subscribers
       WHERE start_date >= CURRENT_DATE
-      AND removed_at IS NULL
+        AND removed_at IS NULL
+        AND COALESCE(subscriber_type, 'individual') = 'individual'
     `;
 
     const activeSubscribers = parseInt(activeSubscribersResult[0]?.count ?? '0', 10);

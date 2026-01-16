@@ -25,10 +25,11 @@ async function DashboardPage() {
   const subscriberStats = await getSubscriberStats();
   const latestSubscribers = (await getLatestSubscribers()) as Subscriber[];
 
-  // Combina as métricas
+  // Combina as métricas, mantendo o MRR do dashboard (que inclui empresas)
   const metrics = {
-    ...dashboardMetrics,
     ...subscriberStats,
+    ...dashboardMetrics, // dashboardMetrics por último para manter o MRR combinado
+    mrrLabel: 'MRR Total',
   };
 
   return (
