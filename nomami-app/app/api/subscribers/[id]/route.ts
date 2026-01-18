@@ -22,53 +22,19 @@ export async function PUT(
       }, { status: 400 });
     }
 
-    // Build update query dynamically based on provided fields
-    const updates: string[] = [];
-    const values: unknown[] = [];
-    let paramIndex = 1;
-
-    if (name !== undefined) {
-      updates.push(`name = $${paramIndex++}`);
-      values.push(name);
-    }
-    if (email !== undefined) {
-      updates.push(`email = $${paramIndex++}`);
-      values.push(email);
-    }
-    if (phone !== undefined) {
-      updates.push(`phone = $${paramIndex++}`);
-      values.push(phone || null);
-    }
-    if (cpf !== undefined) {
-      updates.push(`cpf = $${paramIndex++}`);
-      values.push(cpf || null);
-    }
-    if (status !== undefined) {
-      updates.push(`status = $${paramIndex++}`);
-      values.push(status);
-    }
-    if (next_due_date !== undefined && next_due_date !== null && next_due_date !== '') {
-      updates.push(`next_due_date = $${paramIndex++}`);
-      values.push(next_due_date);
-    }
-
-    if (updates.length === 0) {
-      return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
-    }
-
-    // Add id to values
-    values.push(id);
-
-    const query = `
+    // Update with all fields, using null for optional empty fields
+    const result = await sql`
       UPDATE subscribers
-      SET ${updates.join(', ')}
-      WHERE id = $${paramIndex}
+      SET 
+        name = ${name}, 
+        email = ${email}, 
+        phone = ${phone || null}, 
+        cpf = ${cpf || null}, 
+        status = ${status},
+        next_due_date = ${next_due_date || null}
+      WHERE id = ${id}
       RETURNING *;
     `;
-
-    logger.info({ query, values }, 'Executing update query');
-
-    const result = await sql.unsafe(query, values);
 
     if (result.length === 0) {
       logger.error({ id }, 'Subscriber not found');
