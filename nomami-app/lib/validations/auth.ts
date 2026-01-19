@@ -11,7 +11,7 @@ export const createUserSchema = z.object({
 
 export const updateUserSchema = createUserSchema.partial().extend({
   id: z.string().uuid(),
-  password: z.string().min(8, 'Senha deve ter pelo menos 8 caracteres').optional(),
+  password: z.string().min(8, 'Senha deve ter pelo menos 8 caracteres').optional().or(z.literal('')).transform(val => val === '' ? undefined : val),
 });
 
 export const firstAccessValidateSchema = z.object({

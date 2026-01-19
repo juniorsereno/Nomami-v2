@@ -108,6 +108,10 @@ export function FirstAccessForm() {
   return (
     <Form {...completeForm}>
       <form onSubmit={completeForm.handleSubmit(onComplete)} className="space-y-4">
+        {/* Hidden fields for email and cpf */}
+        <input type="hidden" {...completeForm.register('email')} />
+        <input type="hidden" {...completeForm.register('cpf')} />
+        
         <div className="bg-muted p-4 rounded-md text-sm mb-4">
             <p><strong>Email:</strong> {validatedData?.email}</p>
             <p><strong>CPF:</strong> {validatedData?.cpf}</p>
@@ -120,7 +124,7 @@ export function FirstAccessForm() {
             <FormItem>
               <FormLabel>Nova Senha</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="Mínimo 8 caracteres" {...field} />
+                <Input type="password" placeholder="Mínimo 8 caracteres" {...field} autoComplete="new-password" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -134,17 +138,19 @@ export function FirstAccessForm() {
             <FormItem>
               <FormLabel>Confirmar Senha</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="Repita a senha" {...field} />
+                <Input type="password" placeholder="Repita a senha" {...field} autoComplete="new-password" />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <div className="flex gap-2">
-            <Button type="button" variant="outline" onClick={() => setStep(1)} disabled={isPending}>Voltar</Button>
-            <Button type="submit" className="w-full" disabled={isPending}>
-            {isPending ? 'Definindo Senha...' : 'Definir Senha e Entrar'}
+        <div className="flex gap-2 pt-2">
+            <Button type="button" variant="outline" onClick={() => setStep(1)} disabled={isPending}>
+              Voltar
+            </Button>
+            <Button type="submit" className="flex-1" disabled={isPending}>
+              {isPending ? 'Definindo Senha...' : 'Definir Senha e Entrar'}
             </Button>
         </div>
       </form>

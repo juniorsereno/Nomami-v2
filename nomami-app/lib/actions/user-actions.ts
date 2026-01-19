@@ -76,15 +76,9 @@ export async function updateUser(data: UpdateUserInput) {
         }
      }
 
-    // Dynamic update query construction is tricky with raw SQL tag.
-    // For simplicity/safety, we'll update fields if they are provided.
-    // A more robust ORM/QueryBuilder is recommended for complex dynamic updates.
-    
-    // Simple approach: Update all provided fields. 
-    // Since this is admin-controlled, we trust the input structure mostly.
-    
+    // Hash password if provided and not empty
     let hashedPassword = null;
-    if (password) {
+    if (password && password.trim() !== '') {
         hashedPassword = await hashPassword(password);
     }
 
