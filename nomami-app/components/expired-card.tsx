@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, MessageCircle } from "lucide-react";
 
 export function ExpiredCard() {
     return (
@@ -16,11 +16,38 @@ export function ExpiredCard() {
                 </p>
 
                 <div className="space-y-3">
-                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white" size="lg">
-                        Regularizar Agora
+                    <Button 
+                        className="w-full bg-green-600 hover:bg-green-700 text-white" 
+                        size="lg"
+                        asChild
+                    >
+                        <a 
+                            href="https://buy.stripe.com/9B6bJ134g15T8rI44J5kk01E" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                        >
+                            Regularizar Agora
+                        </a>
                     </Button>
+                    
+                    <Button 
+                        className="w-full bg-[#25D366] hover:bg-[#20BA5A] text-white" 
+                        size="lg"
+                        asChild
+                    >
+                        <a 
+                            href="https://wa.me/5561982122627" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center gap-2"
+                        >
+                            <MessageCircle className="w-5 h-5" />
+                            Falar com Suporte
+                        </a>
+                    </Button>
+                    
                     <p className="text-xs text-gray-400 mt-4">
-                        Dúvidas? Entre em contato com o suporte.
+                        Dúvidas? Entre em contato com o suporte pelo WhatsApp.
                     </p>
                 </div>
             </div>
