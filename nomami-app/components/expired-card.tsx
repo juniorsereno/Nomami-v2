@@ -22,7 +22,7 @@ export function ExpiredCard() {
                         asChild
                     >
                         <a 
-                            href="https://buy.stripe.com/9B6bJ134g15T8rI44J5kk01E" 
+                            href="https://buy.stripe.com/9B6bJ134g15T8rI44J5kk01" 
                             target="_blank" 
                             rel="noopener noreferrer"
                         >
