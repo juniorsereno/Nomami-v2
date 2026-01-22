@@ -36,7 +36,7 @@ export function ExpiredCard() {
                         asChild
                     >
                         <a 
-                            href="https://wa.me/5561982122627" 
+                            href="https://wa.me/5561998212627" 
                             target="_blank" 
                             rel="noopener noreferrer"
                             className="flex items-center justify-center gap-2"
