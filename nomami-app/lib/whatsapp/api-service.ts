@@ -46,7 +46,7 @@ export async function sendText(phone: string, text: string): Promise<ApiResponse
 
     const payload = {
       number: formattedPhone,
-      text: text.replace(/\n/g, '\\n'),
+      text: text,
       delay: 1000,
       linkPreview: false,
     };
@@ -235,7 +235,7 @@ export async function sendAdminNotification(
 
     const payload = {
       number: config.adminPhone,
-      text: message.replace(/\n/g, '\\n'),
+      text: message,
       delay: 1000,
       linkPreview: false,
     };
@@ -306,7 +306,7 @@ export function buildTextPayload(phone: string, text: string) {
   const formattedPhone = formatPhoneForWhatsApp(phone);
   return {
     number: formattedPhone,
-    text: text.replace(/\n/g, '\\n'),
+    text: text,
     delay: 1000,
     linkPreview: false,
   };

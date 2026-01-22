@@ -2,16 +2,15 @@ import pino from 'pino';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
+// Configuração mais simples para evitar problemas com workers threads
 export const logger = pino({
   level: process.env.LOG_LEVEL || 'info',
-  transport: isDevelopment
+  // Desabilita pino-pretty para evitar problemas com thread-stream
+  // Em desenvolvimento, usa formatação JSON simples
+  formatters: isDevelopment
     ? {
-        target: 'pino-pretty',
-        options: {
-          colorize: true,
-          ignore: 'pid,hostname',
-          translateTime: 'SYS:standard',
-          messageFormat: '{msg}', // Simplifica a mensagem para permitir formatação customizada
+        level: (label) => {
+          return { level: label };
         },
       }
     : undefined,
