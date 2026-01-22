@@ -12,6 +12,10 @@ export const metadata: Metadata = {
   title: "Minha Carteirinha - NoMami",
   description: "Carteirinha digital do clube de benefícios NoMami",
   manifest: "/manifest.json",
+  icons: {
+    icon: '/icon.png',
+    apple: '/apple-touch-icon.png',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -24,5 +28,11 @@ export default function CardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <>
+      <link rel="apple-touch-icon" href="/icon.png" />
+      <link rel="apple-touch-icon" sizes="180x180" href="/icon.png" />
+      {children}
+    </>
+  );
 }

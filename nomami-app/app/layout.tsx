@@ -32,6 +32,10 @@ export const metadata: Metadata = {
   title: "NoMami - Clube de Benefícios",
   description: "Sistema de gerenciamento do clube de benefícios NoMami",
   manifest: "/manifest.json",
+  icons: {
+    icon: '/icon.png',
+    apple: '/apple-touch-icon.png',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
