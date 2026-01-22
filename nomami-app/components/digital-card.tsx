@@ -31,7 +31,7 @@ export function DigitalCard({ subscriber }: DigitalCardProps) {
                 onContextMenu={(e) => e.preventDefault()}
             >
                 <div className="relative z-10 w-full max-w-md">
-                    <div className="relative w-full h-72 sm:h-64 bg-gradient-to-br from-gray-600 via-gray-500 to-gray-700 rounded-xl shadow-2xl overflow-hidden">
+                    <div className="relative w-full h-[340px] sm:h-72 bg-gradient-to-br from-gray-600 via-gray-500 to-gray-700 rounded-xl shadow-2xl overflow-hidden">
                         <CardContent className="relative z-10 flex flex-col h-full p-5 sm:p-6 text-white pointer-events-none">
                             <div className="flex justify-between items-start mb-2">
                                 <div className="relative w-36 h-14 sm:w-32 sm:h-12 opacity-50">
@@ -66,14 +66,14 @@ export function DigitalCard({ subscriber }: DigitalCardProps) {
 
                             {/* QR Code - Bottom Left Corner */}
                             {subscriber.card_id && (
-                                <div className="absolute bottom-4 left-5 sm:left-8 bg-white p-1.5 sm:p-1 rounded">
+                                <div className="absolute bottom-4 left-5 sm:bottom-4 sm:left-8 bg-white p-1 rounded">
                                     <QRCodeSVG
                                         value={`${typeof window !== 'undefined' ? window.location.origin : 'https://nomami.com.br'}/verificar/${subscriber.card_id}`}
-                                        size={70}
+                                        size={64}
                                         bgColor="#FFFFFF"
                                         fgColor="#000000"
                                         level="M"
-                                        marginSize={1}
+                                        marginSize={0}
                                     />
                                 </div>
                             )}
@@ -92,7 +92,7 @@ export function DigitalCard({ subscriber }: DigitalCardProps) {
             {/* Page Background Image */}
 
             <div className="relative z-10 w-full max-w-md perspective-1000">
-                <div className={`relative w-full h-72 sm:h-64 ${isCorporate ? 'bg-gradient-to-br from-indigo-900 via-purple-800 to-violet-900' : 'bg-gradient-to-br from-gray-900 via-slate-800 to-black'} rounded-xl shadow-2xl overflow-hidden transform transition-transform hover:scale-105 duration-300`}>
+                <div className={`relative w-full h-[340px] sm:h-72 bg-gradient-to-br from-indigo-950 via-purple-950 to-blue-950 rounded-xl shadow-2xl overflow-hidden transform transition-transform hover:scale-105 duration-300`}>
                     {/* Background Pattern */}
                     <div className="absolute inset-0 opacity-35">
                         <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -131,7 +131,7 @@ export function DigitalCard({ subscriber }: DigitalCardProps) {
                         </div>
 
                         {/* Subscriber Info - Pushed down */}
-                        <div className={`mt-auto ml-0 pr-20 ${isCorporate ? 'mb-3' : 'mb-8'}`}>
+                        <div className={`mt-auto ml-0 pr-20 ${isCorporate ? 'mb-14' : 'mb-14'}`}>
                             {/* Company Name for Corporate Subscribers */}
                             {isCorporate && subscriber.company_name && (
                                 <div className="mb-3">
@@ -160,29 +160,29 @@ export function DigitalCard({ subscriber }: DigitalCardProps) {
                         </div>
 
                         {/* Footer Info */}
-                        <div className={`flex justify-end items-end ${isCorporate ? 'mt-0' : 'mt-3'}`}>
+                        <div className={`flex justify-end items-end ${isCorporate ? 'mt-0 mb-2' : 'mt-3 mb-2'} pr-0`}>
                             <div className="text-right">
                                 <p className="text-xs sm:text-[10px] opacity-75 uppercase">Válido Até</p>
                                 <p className="font-mono text-base sm:text-sm font-bold" data-protected="true">{formattedDate}</p>
                             </div>
                         </div>
                         {/* Plan Type Badge */}
-                        <div className="absolute top-16 sm:top-9 right-5 sm:right-6">
-                            <span className={`${isCorporate ? 'bg-purple-500/30' : 'bg-white/20'} backdrop-blur-sm px-2.5 py-1.5 sm:px-2 sm:py-1 rounded text-sm sm:text-xs font-bold uppercase border ${isCorporate ? 'border-purple-300/30' : 'border-white/30'}`}>
+                        <div className="absolute top-14 sm:top-9 right-5 sm:right-6">
+                            <span className={`${isCorporate ? 'bg-purple-500/30' : 'bg-blue-500/30'} backdrop-blur-sm px-2.5 py-1.5 sm:px-2 sm:py-1 rounded text-sm sm:text-xs font-bold uppercase border ${isCorporate ? 'border-purple-300/30' : 'border-blue-300/30'}`}>
                                 {isCorporate ? 'Corporativo' : 'Membro'}
                             </span>
                         </div>
 
                         {/* QR Code - Bottom Left Corner */}
                         {subscriber.card_id && (
-                            <div className="absolute bottom-4 left-5 sm:left-6 bg-white p-1.5 sm:p-1 rounded">
+                            <div className="absolute bottom-4 left-5 sm:bottom-4 sm:left-6 bg-white p-1 rounded">
                                 <QRCodeSVG
                                     value={`${typeof window !== 'undefined' ? window.location.origin : 'https://nomami.com.br'}/verificar/${subscriber.card_id}`}
-                                    size={70}
+                                    size={64}
                                     bgColor="#FFFFFF"
                                     fgColor="#000000"
                                     level="M"
-                                    marginSize={1}
+                                    marginSize={0}
                                 />
                             </div>
                         )}
