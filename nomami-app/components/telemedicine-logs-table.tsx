@@ -12,9 +12,9 @@ interface TelemedicineLog {
   id: number;
   batch_id: number;
   batch_identifier: string;
-  request_body: any;
+  request_body: Record<string, unknown>;
   response_status: number | null;
-  response_body: any;
+  response_body: Record<string, unknown> | null;
   error_message: string | null;
   created_at: string;
 }

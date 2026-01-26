@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import sql from '@/lib/db-pool';
-import { logger, logError } from '@/lib/logger';
+import { logError } from '@/lib/logger';
 
 export async function GET(request: Request) {
   try {

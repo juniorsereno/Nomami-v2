@@ -97,7 +97,7 @@ export function TelemedicineResendBatches() {
             <AlertDialogHeader>
               <AlertDialogTitle>Confirmar Reenvio</AlertDialogTitle>
               <AlertDialogDescription>
-                Isso irá reenviar TODOS os lotes com status "ativo" para a API de telemedicina.
+                Isso irá reenviar TODOS os lotes com status &quot;ativo&quot; para a API de telemedicina.
                 <br /><br />
                 Os dados serão enviados com os CPFs corrigidos do banco de dados.
                 <br /><br />
