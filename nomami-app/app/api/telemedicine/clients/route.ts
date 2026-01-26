@@ -33,15 +33,19 @@ export async function POST(request: Request) {
 
     // 2. Insere cada cliente, vinculando ao lote
     for (const client of externalApiBody) {
+      // Garante que CPF e Celular sejam strings com zeros à esquerda preservados
+      const cpf = typeof client['CPF*'] === 'string' ? client['CPF*'] : String(client['CPF*']).padStart(11, '0');
+      const cellphone = typeof client['Celular*'] === 'string' ? client['Celular*'] : String(client['Celular*']).padStart(11, '0');
+      
       await sql`
         INSERT INTO telemedicine_clients (batch_id, full_name, cpf, birth_date, gender, cellphone)
         VALUES (
           ${batchId},
           ${client['Nome*']},
-          ${client['CPF*'].toString()},
+          ${cpf},
           ${client['Data_Nascimento*']},
           ${client['Sexo*']},
-          ${client['Celular*'].toString()}
+          ${cellphone}
         );
       `;
     }
@@ -67,17 +71,37 @@ export async function POST(request: Request) {
       body: JSON.stringify(externalApiBody),
     });
 
+    const responseStatus = response.status;
+    let responseData = null;
+    let errorMessage = null;
+
     if (!response.ok) {
       const errorText = await response.text();
+      errorMessage = `${response.statusText}: ${errorText}`;
       logger.error({ errorText, status: response.status }, 'Erro da API externa de Telemedicina');
-      // O lote foi salvo, mas a sincronização falhou. Poderíamos atualizar o status do lote aqui.
+      
+      // Salva log de erro
+      await sql`
+        INSERT INTO telemedicine_api_logs (batch_id, request_body, response_status, error_message)
+        VALUES (${batchId}, ${JSON.stringify(externalApiBody)}, ${responseStatus}, ${errorMessage});
+      `;
+      
       return NextResponse.json({
         message: 'Lote salvo no banco de dados, mas falhou ao enviar para a API externa.',
-        error: `Erro na API externa: ${response.statusText}`
+        error: errorMessage
       }, { status: 502 });
     }
 
-    const responseData = await response.json();
+    responseData = await response.json();
+    
+    // Salva log de sucesso
+    await sql`
+      INSERT INTO telemedicine_api_logs (batch_id, request_body, response_status, response_body)
+      VALUES (${batchId}, ${JSON.stringify(externalApiBody)}, ${responseStatus}, ${JSON.stringify(responseData)});
+    `;
+    
+    logger.info({ batchId, responseStatus }, 'Lote enviado com sucesso para API de Telemedicina');
+    
     return NextResponse.json({
       message: 'Lote processado e salvo com sucesso.',
       externalApiResponse: responseData

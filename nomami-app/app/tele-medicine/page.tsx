@@ -9,6 +9,9 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { AddTelemedicineBatchForm } from '@/components/add-telemedicine-batch-form';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { TelemedicineBatchesTable, TelemedicineBatch } from '@/components/telemedicine-batches-table';
+import { TelemedicineLogsTable } from '@/components/telemedicine-logs-table';
+import { TelemedicineResendBatches } from '@/components/telemedicine-resend-batches';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function TeleMedicinePage() {
   useSession({ or: 'redirect' });
@@ -66,11 +69,26 @@ export default function TeleMedicinePage() {
               </Dialog>
             </div>
 
-            <TelemedicineBatchesTable
-              batches={batches}
-              error={error}
-              refreshData={fetchBatches}
-            />
+            <Tabs defaultValue="batches" className="w-full">
+              <TabsList>
+                <TabsTrigger value="batches">Lotes</TabsTrigger>
+                <TabsTrigger value="logs">Logs da API</TabsTrigger>
+                <TabsTrigger value="resend">Reenviar</TabsTrigger>
+              </TabsList>
+              <TabsContent value="batches">
+                <TelemedicineBatchesTable
+                  batches={batches}
+                  error={error}
+                  refreshData={fetchBatches}
+                />
+              </TabsContent>
+              <TabsContent value="logs">
+                <TelemedicineLogsTable />
+              </TabsContent>
+              <TabsContent value="resend">
+                <TelemedicineResendBatches />
+              </TabsContent>
+            </Tabs>
           </div>
         </main>
       </SidebarInset>

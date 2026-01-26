@@ -67,10 +67,10 @@ export function AddTelemedicineBatchForm({ closeModal, onBatchAdded }: AddTeleme
     const apiBody = values.clients.map(client => ({
       'Sequencial': '',
       'Nome*': client.fullName,
-      'CPF*': parseInt(client.cpf, 10),
+      'CPF*': client.cpf, // Mantém como string para preservar zeros à esquerda
       'Data_Nascimento*': client.birthDate,
       'Sexo*': client.gender,
-      'Celular*': parseInt(client.cellphone, 10),
+      'Celular*': client.cellphone, // Mantém como string para preservar zeros à esquerda
       'E-mail': '',
       'rg': '',
       'fone': '',
