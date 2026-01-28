@@ -10,11 +10,45 @@ Este guia explica como fazer o deploy da aplicação Nomami no EasyPanel usando 
 
 ## 🚀 Passo a Passo
 
-### 1. Preparar o Repositório
+### 1. Estrutura do Repositório
 
-Certifique-se de que o [`Dockerfile`](nomami-app/Dockerfile) está na pasta `nomami-app/`.
+O Dockerfile deve estar na **raiz do repositório** (não na pasta nomami-app):
 
-### 2. Criar o Serviço no EasyPanel
+```
+nomami-v2/
+├── Dockerfile              # ← NA RAIZ
+├── package.json            # ← NA RAIZ (copiado de nomami-app)
+├── package-lock.json       # ← NA RAIZ (copiado de nomami-app)
+├── next.config.ts          # ← NA RAIZ (copiado de nomami-app)
+├── public/                 # ← NA RAIZ (copiado de nomami-app)
+├── app/                    # ← NA RAIZ (copiado de nomami-app)
+├── lib/                    # ← NA RAIZ (copiado de nomami-app)
+├── components/             # ← NA RAIZ (copiado de nomami-app)
+├── ... (todos os arquivos da pasta nomami-app na raiz)
+```
+
+> ⚠️ **IMPORTANTE**: O EasyPanel procura o Dockerfile na raiz do repositório!
+
+### 2. Preparar o Repositório para Deploy
+
+Você tem duas opções:
+
+#### Opção A: Mover arquivos para a raiz (Recomendado)
+```bash
+# Na raiz do projeto
+mv nomami-app/* .
+mv nomami-app/.dockerignore .
+mv nomami-app/.env.example .
+# etc...
+```
+
+#### Opção B: Criar um branch de deploy
+```bash
+git checkout -b deploy-easypanel
+# Copiar Dockerfile para raiz e ajustar paths
+```
+
+### 3. Criar o Serviço no EasyPanel
 
 1. Acesse o EasyPanel
 2. Clique em **Create Service**
@@ -23,9 +57,9 @@ Certifique-se de que o [`Dockerfile`](nomami-app/Dockerfile) está na pasta `nom
 
 #### Source:
 - **Repository**: URL do seu repositório Git
-- **Branch**: `main` (ou sua branch de produção)
-- **Dockerfile Path**: `nomami-app/Dockerfile`
-- **Context Path**: `nomami-app`
+- **Branch**: `main` (ou sua branch de deploy)
+- **Dockerfile Path**: `Dockerfile` (na raiz)
+- **Context Path**: `.` (raiz do repositório)
 
 #### Build Arguments (IMPORTANTE):
 Adicione os build arguments obrigatórios:
@@ -37,7 +71,7 @@ Adicione os build arguments obrigatórios:
 
 > ⚠️ **ATENÇÃO**: Variáveis `NEXT_PUBLIC_*` são build-time, não runtime!
 
-### 3. Configurar Variáveis de Ambiente (Runtime)
+### 4. Configurar Variáveis de Ambiente (Runtime)
 
 Na aba **Environment Variables**, adicione:
 
@@ -77,7 +111,7 @@ WHATSAPP_INSTANCE=nomami
 CRON_SECRET=sua-chave-cron
 ```
 
-### 4. Configurar Recursos
+### 5. Configurar Recursos
 
 Na aba **Resources**:
 - **Memory Limit**: `1024 MB` (1GB) - recomendado
@@ -85,13 +119,13 @@ Na aba **Resources**:
 - **CPU Limit**: `1.0`
 - **CPU Reservation**: `0.5`
 
-### 5. Configurar Portas
+### 6. Configurar Portas
 
 Na aba **Ports**:
 - **Container Port**: `3000`
 - **Published Port**: `3000` (ou deixe o EasyPanel escolher)
 
-### 6. Configurar Volumes
+### 7. Configurar Volumes
 
 Na aba **Volumes**, adicione:
 - **Volume Name**: `uploads`
@@ -99,13 +133,13 @@ Na aba **Volumes**, adicione:
 
 Isso garante que os uploads persistam entre reinicializações.
 
-### 7. Configurar Domínio
+### 8. Configurar Domínio
 
 Na aba **Domains**:
 - Adicione seu domínio (ex: `app.nomami.com.br`)
 - Ative SSL (Let's Encrypt)
 
-### 8. Deploy
+### 9. Deploy
 
 Clique em **Deploy** e aguarde o build completar.
 
@@ -122,6 +156,12 @@ Após o deploy, teste:
 ---
 
 ## 🛠️ Troubleshooting
+
+### "failed to read dockerfile: open Dockerfile: no such file or directory"
+```
+O Dockerfile deve estar na RAIZ do repositório, não em subpastas.
+Verifique se o Dockerfile foi commitado e pushado.
+```
 
 ### Build falha com "Cannot find module"
 ```
@@ -160,8 +200,8 @@ Verifique se o volume está montado em /app/public/uploads
 | Config | Valor |
 |--------|-------|
 | **Tipo** | Dockerfile |
-| **Caminho** | `nomami-app/Dockerfile` |
-| **Contexto** | `nomami-app` |
+| **Caminho** | `Dockerfile` (raiz do repo) |
+| **Contexto** | `.` (raiz do repo) |
 | **Porta** | `3000` |
 | **Volume** | `uploads` → `/app/public/uploads` |
 | **Build Args** | `NEXT_PUBLIC_APP_URL`, `NEXTAUTH_URL` |
@@ -177,5 +217,11 @@ Verifique se o volume está montado em /app/public/uploads
 - [ ] Variáveis sensíveis não commitadas
 
 ---
+
+## 📝 Nota sobre a Estrutura
+
+O EasyPanel faz o clone do repositório e procura o Dockerfile na raiz. Por isso, criei um [`Dockerfile`](Dockerfile) na raiz do projeto que funciona independente da pasta `nomami-app/`.
+
+Se você quiser manter a estrutura atual com `nomami-app/`, precisará mover todos os arquivos para a raiz antes do deploy, ou criar um script de CI/CD que faça isso automaticamente.
 
 **Pronto!** Sua aplicação deve estar rodando no EasyPanel usando apenas o Dockerfile.
