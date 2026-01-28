@@ -7,11 +7,20 @@ WORKDIR /app
 # Copia os arquivos de gerenciamento de pacotes
 COPY package.json package-lock.json ./
 
-# Instala as dependências de desenvolvimento
-RUN npm install
+# Instala as dependências (incluindo devDependencies para o build)
+RUN npm ci
 
 # Copia o restante do código da aplicação
 COPY . .
+
+# Argumentos de build para variáveis de ambiente necessárias no build time
+# Essas são passadas via --build-arg no docker build
+ARG NEXT_PUBLIC_APP_URL
+ARG NEXTAUTH_URL
+
+# Define as variáveis de ambiente para o build
+ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+ENV NEXTAUTH_URL=${NEXTAUTH_URL}
 
 # Executa o build de produção
 RUN npm run build
@@ -39,6 +48,10 @@ RUN mkdir -p /app/public/uploads && chmod 777 /app/public/uploads
 
 # Expõe a porta em que a aplicação Next.js roda
 EXPOSE 3000
+
+# Health check para verificar se a aplicação está rodando
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
 
 # Define o comando para iniciar a aplicação em modo de produção
 CMD ["npm", "start"]

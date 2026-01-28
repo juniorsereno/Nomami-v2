@@ -1,0 +1,59 @@
+# Docker Compose otimizado para deploy no EasyPanel
+# Este arquivo configura apenas o serviço da aplicação, 
+# pois o EasyPanel gerencia o banco de dados PostgreSQL separadamente
+
+services:
+  nomami-app:
+    build:
+      context: ./nomami-app
+      dockerfile: Dockerfile
+      args:
+        # Variáveis necessárias no build time (NEXT_PUBLIC_*)
+        - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+        - NEXTAUTH_URL=${NEXTAUTH_URL}
+    environment:
+      # Node.js
+      NODE_ENV: production
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      
+      # Database (conexão com Neon PostgreSQL)
+      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_POOL_URL: ${DATABASE_POOL_URL}
+      
+      # Authentication (OBRIGATÓRIO)
+      AUTH_SECRET: ${AUTH_SECRET}
+      
+      # URLs da aplicação
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+      NEXTAUTH_URL: ${NEXTAUTH_URL}
+      
+      # Payment Gateway
+      ASAAS_API_KEY: ${ASAAS_API_KEY}
+      
+      # Telemedicine
+      TELEMEDICINE_API_USER: ${TELEMEDICINE_API_USER}
+      TELEMEDICINE_API_PASSWORD: ${TELEMEDICINE_API_PASSWORD}
+      TELEMEDICINE_WEBHOOK_URL: ${TELEMEDICINE_WEBHOOK_URL}
+      
+      # WhatsApp API (Evolution API)
+      WHATSAPP_API_URL: ${WHATSAPP_API_URL}
+      WHATSAPP_API_KEY: ${WHATSAPP_API_KEY}
+      WHATSAPP_INSTANCE: ${WHATSAPP_INSTANCE:-nomami}
+      
+      # Cron Secret (opcional, para proteger endpoints de cron)
+      CRON_SECRET: ${CRON_SECRET}
+    volumes:
+      # Volume persistente para uploads
+      - nomami_uploads:/app/public/uploads
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  nomami_uploads:
