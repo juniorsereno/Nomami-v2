@@ -175,6 +175,10 @@ export async function processStripeWebhook(body: StripeWebhookEvent): Promise<We
     const amountPaid = invoice.amount_paid;
     const subscriptionId = invoice.parent?.subscription_details?.subscription || null;
     const billingReason = invoice.billing_reason;
+    
+    // Nota: Stripe não coleta CPF automaticamente
+    // CPF só estaria disponível se configurado manualmente no metadata
+    const customerCpf = null;
 
     logger.info({
       service: 'stripe',
@@ -207,16 +211,50 @@ export async function processStripeWebhook(body: StripeWebhookEvent): Promise<We
     }
 
     const value = amountPaid / 100;
+    // Calcula próxima data de vencimento (30 dias + 3 dias de tolerância)
+    // Os 3 dias extras garantem que a carteirinha continue acessível até o webhook de pagamento vencido
     const nextDueDate = new Date();
-    nextDueDate.setDate(nextDueDate.getDate() + 30);
+    nextDueDate.setDate(nextDueDate.getDate() + 33); // 30 dias + 3 dias de tolerância
 
-    // Busca assinante existente pelo stripe_customer_id ou email
-    const existingSubscriber = await sql`
-      SELECT id, name FROM subscribers
+    // Busca assinante existente com estratégia de prioridade:
+    // 1. Por stripe_customer_id (cliente já existente no Stripe)
+    // 2. Por email (pode indicar migração do Asaas)
+    let existingSubscriber = [];
+    
+    // Prioridade 1: Buscar por stripe_customer_id
+    existingSubscriber = await sql`
+      SELECT id, name, cpf, asaas_customer_id, stripe_customer_id FROM subscribers
       WHERE stripe_customer_id = ${customerId}
-      OR email = ${customerEmail}
       LIMIT 1
     `;
+
+    // Prioridade 2: Buscar por email (permite migração Asaas → Stripe)
+    if (existingSubscriber.length === 0) {
+      existingSubscriber = await sql`
+        SELECT id, name, cpf, asaas_customer_id, stripe_customer_id FROM subscribers
+        WHERE email = ${customerEmail}
+        LIMIT 1
+      `;
+      
+      // Log de migração detectada
+      if (existingSubscriber.length > 0 && existingSubscriber[0].asaas_customer_id) {
+        logger.info({
+          service: 'stripe',
+          customerId,
+          customerEmail,
+          asaasCustomerId: existingSubscriber[0].asaas_customer_id
+        }, `
+╭──────────────────────────────────────────────────
+│ 🔄 MIGRAÇÃO DETECTADA: Asaas → Stripe
+│
+│ 👤 Nome: ${existingSubscriber[0].name}
+│ 📧 Email: ${customerEmail}
+│ 📄 CPF: ${existingSubscriber[0].cpf || 'N/A'}
+│ 🔑 Asaas ID: ${existingSubscriber[0].asaas_customer_id}
+│ 🔑 Stripe ID: ${customerId} (novo)
+╰──────────────────────────────────────────────────`);
+      }
+    }
 
     if (existingSubscriber.length > 0) {
       // Atualização (Renovação ou Reativação)
@@ -253,6 +291,7 @@ export async function processStripeWebhook(body: StripeWebhookEvent): Promise<We
       // Generate unique card_id (8 character hex string)
       const cardId = Math.random().toString(16).substring(2, 10).toUpperCase();
       
+      // Stripe não coleta CPF, então fica NULL
       const newSubscriberResult = await sql`
         INSERT INTO subscribers (name, email, cpf, phone, plan_type, start_date, next_due_date, status, stripe_customer_id, stripe_subscription_id, value, card_id, created_at)
         VALUES (${customerName}, ${customerEmail}, ${null}, ${customerPhone}, 'mensal', NOW(), ${nextDueDate.toISOString()}, 'ativo', ${customerId}, ${subscriptionId}, ${value}, ${cardId}, NOW())

@@ -185,8 +185,9 @@ export async function processAsaasWebhook(body: AsaasWebhookEvent): Promise<Webh
     // 1. Validação do Evento
     const eventType = event.event;
     
-    // Eventos suportados
-    if (eventType !== 'PAYMENT_CONFIRMED' && eventType !== 'PAYMENT_RECEIVED' && eventType !== 'PAYMENT_OVERDUE') {
+    // Eventos suportados (apenas PAYMENT_CONFIRMED e PAYMENT_OVERDUE)
+    // PAYMENT_RECEIVED é ignorado para evitar duplicação, pois vem junto com PAYMENT_CONFIRMED
+    if (eventType !== 'PAYMENT_CONFIRMED' && eventType !== 'PAYMENT_OVERDUE') {
       return { success: true, message: 'Evento não processado.', status: 200 };
     }
 
@@ -252,9 +253,10 @@ export async function processAsaasWebhook(body: AsaasWebhookEvent): Promise<Webh
         return { success: false, error: errorMessage, status: 400 };
     }
 
-    // Calcula próxima data de vencimento (30 dias a partir do pagamento)
+    // Calcula próxima data de vencimento (30 dias + 3 dias de tolerância)
+    // Os 3 dias extras garantem que a carteirinha continue acessível até o PAYMENT_OVERDUE
     const nextDueDate = new Date(event.dateCreated);
-    nextDueDate.setDate(nextDueDate.getDate() + 30);
+    nextDueDate.setDate(nextDueDate.getDate() + 33); // 30 dias + 3 dias de tolerância
 
     // 4. Busca Assinante Local pelo CPF (Identificador Único Imutável)
     const existingSubscriber = await sql`
